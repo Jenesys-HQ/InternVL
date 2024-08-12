@@ -15,17 +15,26 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 JSON_STRUCTURE = {
+    "Document Type": "",
     "VAT": "",
     "Total": "",
     "VAT %": "",
+    "Category": "",
     "Currency": "",
+    "Discount Total": "",
+    "Payment Status": "",
+    "Service Charge": "",
+    "Delivery Charge": "",
+    "VAT Exclusive": "",
     "Supplier": "",
     "Invoice ID": "",
     "Line Items": [{
         "VAT": "",
-        "VAT%": "",
+        "VAT %": "",
         "Total": "",
+        "Category": "",
         "Quantity": "",
+        "Discount": "",
         "Unit price": "",
         "Description": ""
     }],
@@ -35,7 +44,16 @@ JSON_STRUCTURE = {
     "Supplier Address": "",
     "Billing Address": "",
     "Delivery Address": "",
-    "Bank Details": ""
+    "Bank Details": [{
+        "Company Name": "",
+        "Account Number": "",
+        "Sort Code": "",
+        "Bank Name": "",
+        "Bank Number": "",
+        "IBAN": "",
+        "SWIFT Code": "",
+        "Account Type": ""
+    }]
 }
 
 
@@ -233,47 +251,7 @@ def evaluate_whole_json(model_path: str):
         After extraction, format the data according to the following JSON schema:
 
         <json_schema>
-        {{
-        "Document Type": "",
-        "VAT": "",
-        "Total": "",
-        "VAT %": "",
-        "Category": "",
-        "Currency": "",
-        "Discount Total": "",
-        "Payment Status": "",
-        "Service Charge": "",
-        "Delivery Charge": "",
-        "VAT Exclusive": "",
-        "Supplier": "",
-        "Invoice ID": "",
-        "Line Items": [{{
-            "VAT": "",
-            "VAT %": "",
-            "Total": "",
-            "Category": "",
-            "Quantity": "",
-            "Discount": "",
-            "Unit price": "",
-            "Description": ""
-        }}],
-        "VAT Number": "",
-        "Date of Invoice": "",
-        "Date Payment Due": "",
-        "Supplier Address": "",
-        "Billing Address": "",
-        "Delivery Address": "",
-        "Bank Details": [{{
-            "Company Name": "",
-            "Account Number": "",
-            "Sort Code": "",
-            "Bank Name": "",
-            "Bank Number": "",
-            "IBAN": "",
-            "SWIFT Code": "",
-            "Account Type": ""
-        }}]
-        }}
+        {JSON_STRUCTURE}
         </json_schema>
 
         Before finalizing your output, perform these quality checks:
@@ -299,10 +277,12 @@ def evaluate_whole_json(model_path: str):
     predicted_data = []
 
     for i, image in enumerate(images_base64):
-        logger.info(f"True data: {transformed_labeled_data[i]}")
+        logger.info(f"True data")
+        logger.info(json.dumps(transformed_labeled_data[i], indent=4))
         predicted_data = model.generate_json(prompt, image)
-        logger.info(f"Predicted data: {predicted_data}")
-        logger.info('-'*50)
+        logger.info(f"Predicted data")
+        logger.info(json.dumps(predicted_data, indent=4))
+        logger.info('-' * 50)
     standardised_predicted_data = [standardise_data_models(details[0]) for details in predicted_data]
 
     accuracy, precision, recall, f1 = calculate_metrics(standardised_predicted_data, standardised_labeled_data)

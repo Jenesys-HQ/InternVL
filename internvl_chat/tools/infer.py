@@ -88,6 +88,7 @@ class JackVision:
             return json.loads(response)
         except Exception as e:
             logger.error(f"Failed to parse response: {e}")
+            logger.info(f"Predicted data: {response}")
             return {}
 
     def chat(self, prompt: str, image_bs64: str) -> dict:
