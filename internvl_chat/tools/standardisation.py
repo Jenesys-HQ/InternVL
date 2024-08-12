@@ -151,7 +151,7 @@ def standardise_data_models(data: Dict[str, Any]) -> Dict[str, Any]:
         "Supplier Address": standardise_address(data.get('Supplier Address', None)),
         "Billing Address": standardise_address(data.get('Billing Address', None)),
         "Delivery Address": standardise_address(data.get('Delivery Address', None)),
-        "Bank Details": standardise_bank_details(data.get('Bank Details', None)),
+        "Bank Details": standardise_bank_details(data.get('Bank Details', [])),
         "Line Items": [{
             "VAT": standardise_currency(line_item.get('VAT', None)),
             "VAT%": standardise_integer(line_item.get('VAT %', None)),
