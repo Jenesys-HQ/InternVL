@@ -35,7 +35,8 @@ def standardise_bank_details(bank_details: str):
     if not bank_details:
         return None
 
-    match = re.match(BANK_DETAILS_REGEX, bank_details)
+    # we assume the bank_details list only has 1 element
+    match = re.match(BANK_DETAILS_REGEX, bank_details[0])
     if match:
         return {
             'Bank Name': match.group(1).strip(),

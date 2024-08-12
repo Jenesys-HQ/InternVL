@@ -313,7 +313,7 @@ def transform_invoice_data(extracted_invoice_data):
             "Quantity": item.get('quantity', None),
             "Unit price": item.get('unit_price', None),
             "Description": item.get('item_description', None),
-            # "Bank Details": item.get('bank_details', None),
+            "Bank Details": [item.get('bank_details', None)],
 
         }
         transformed_data["Line Items"].append(line_item)
