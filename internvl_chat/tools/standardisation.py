@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import pyap
 import pycountry
@@ -31,8 +31,8 @@ def standardise_date(date):
         return None
 
 
-def standardise_bank_details(bank_details: str):
-    if not bank_details:
+def standardise_bank_details(bank_details: List[Dict[str, str]]):
+    if len(bank_details) == 0:
         return None
 
     # we assume the bank_details list only has 1 element
