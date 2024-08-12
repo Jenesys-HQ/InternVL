@@ -251,7 +251,7 @@ def evaluate_whole_json(model_path: str):
         After extraction, format the data according to the following JSON schema:
 
         <json_schema>
-        {JSON_STRUCTURE}
+        {json.dumps(JSON_STRUCTURE, indent=4)}
         </json_schema>
 
         Before finalizing your output, perform these quality checks:
