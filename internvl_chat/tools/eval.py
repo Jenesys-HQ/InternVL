@@ -279,11 +279,12 @@ def evaluate_whole_json(model_path: str):
     for i, image in enumerate(images_base64):
         logger.info(f"True data")
         logger.info(json.dumps(transformed_labeled_data[i], indent=4))
-        predicted_data = model.generate_json(prompt, image)
+        predicted_data_row = model.generate_json(prompt, image)
         logger.info(f"Predicted data")
-        logger.info(json.dumps(predicted_data, indent=4))
+        logger.info(json.dumps(predicted_data_row, indent=4))
         logger.info('-' * 50)
-    standardised_predicted_data = [standardise_data_models(details[0]) for details in predicted_data]
+        predicted_data.append(predicted_data_row)
+    standardised_predicted_data = [standardise_data_models(predicted_data_row) for predicted_data_row in predicted_data]
 
     accuracy, precision, recall, f1 = calculate_metrics(standardised_predicted_data, standardised_labeled_data)
     logger.info("============= Metrics for Zero-shot extraction =============")
