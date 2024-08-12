@@ -1,0 +1,9 @@
+{
+  "cp-jack-reconciliation-knowledge": {
+    "root": "data/images/",
+    "annotation": "data/processed/cp-jack-reconciliation-knowledge.jsonl",
+    "data_augment": false,
+    "repeat_time": 1,
+    "length": 1835
+  }
+}
