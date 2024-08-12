@@ -300,7 +300,8 @@ def transform_invoice_data(extracted_invoice_data):
         "Supplier Description": extracted_invoice_data.get('bank_details', None),
         "Expense Policy Review": None,
         "Expense Policy Review Status": None,
-        "Img_path": extracted_invoice_data.get('img_path', None)
+        "Img_path": extracted_invoice_data.get('img_path', None),
+        "Bank Details": [extracted_invoice_data.get('bank_details', None)],
     }
 
     # Transform each line item
@@ -313,7 +314,6 @@ def transform_invoice_data(extracted_invoice_data):
             "Quantity": item.get('quantity', None),
             "Unit price": item.get('unit_price', None),
             "Description": item.get('item_description', None),
-            "Bank Details": [item.get('bank_details', None)],
 
         }
         transformed_data["Line Items"].append(line_item)
