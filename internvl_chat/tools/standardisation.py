@@ -31,9 +31,12 @@ def standardise_date(date):
         return None
 
 
-def standardise_bank_details(bank_details: List[Dict[str, str]]):
+def standardise_bank_details(bank_details: List[str]):
     if len(bank_details) == 0:
         return None
+
+    if type(bank_details[0]) is not str:
+        return bank_details
 
     # we assume the bank_details list only has 1 element
     match = re.match(BANK_DETAILS_REGEX, bank_details[0])
