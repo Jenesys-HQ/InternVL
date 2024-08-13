@@ -142,19 +142,21 @@ def evaluate_by_item(model_path: str):
             continue
         flattened_labeled_data.append(flattened_row_data)
 
-    model, tokenizer = load_model_and_tokenizer(
+    args = argparse.Namespace(
         checkpoint=model_path,
         root='./Your_Results',
-        num_beams=5,
+        num_beams=1,
         top_k=50,
         top_p=0.9,
-        sample=False,
-        # dynamic=True,
+        sample=True,
+        dynamic=False,
         max_num=6,
-        # load_in_8bit=False,
-        # load_in_4bit=False,
-        # auto=False
+        load_in_8bit=False,
+        load_in_4bit=False,
+        auto=False,
     )
+
+    model, tokenizer = load_model_and_tokenizer(args)
 
     standardised_labeled_data = []
     standardised_predicted_data = []
