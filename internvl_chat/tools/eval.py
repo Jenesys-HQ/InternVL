@@ -1,21 +1,21 @@
-import logging
-import json
-import os
 import argparse
+import json
+import logging
+import os
 
-from tqdm import tqdm
 import labelbox
 import torch
 from dotenv import load_dotenv
 
-# from infer import JackVision
-from internvl.model import load_model_and_tokenizer
-from standardisation import standardise_data_models, standardise_data_value, standardise_data_models_flat
 from data_utils import load_ndjson, save_ndjson, extract_invoice_data, transform_invoice_data, flatten_data
-from img_utils import load_image, get_pdf_base64_from_img_url, pdf_to_image_base64_function, pdfs_to_images_base64_function
+from img_utils import get_pdf_base64_from_img_url, pdf_to_image_base64_function, load_image_bs64, \
+    pdfs_to_images_base64_function
+from internvl.model import load_model_and_tokenizer
+from standardisation import standardise_data_models, standardise_data_value
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
 
 JSON_STRUCTURE = {
     "Document Type": "",
@@ -195,171 +195,128 @@ def evaluate_by_item(model_path: str):
 def evaluate_whole_json(model_path: str):
     export_data = load_labelbox_data()
     extracted_labeled_data = extract_invoice_data(export_data, LB_PROJECT_ID)
+
     transformed_labeled_data = [transform_invoice_data(data) for data in extracted_labeled_data]
     # remove doc transcript from labelbox transformed data
     transformed_labeled_data = [{k: v for k, v in record.items() if k != 'Doc Transcript'}
                                 for record in transformed_labeled_data]
     standardised_labeled_data = [standardise_data_models(info) for info in transformed_labeled_data]
 
-    num_beams = 5
-    top_k = 50
-    top_p = 0.9
-    sample=False
-
-    model, tokenizer = load_model_and_tokenizer(
+    args = argparse.Namespace(
         checkpoint=model_path,
         root='./Your_Results',
-        num_beams=num_beams,
-        top_k=top_k,
-        top_p=top_p,
-        sample=False,
-        # dynamic=True,
+        num_beams=1,
+        top_k=50,
+        top_p=0.9,
+        sample=True,
+        dynamic=False,
         max_num=6,
-        # load_in_8bit=False,
-        # load_in_4bit=False,
-        # auto=False
+        load_in_8bit=False,
+        load_in_4bit=False,
+        auto=False,
     )
-    image_size = model.config.force_image_size or model.config.vision_config.image_size
+
+    model, tokenizer = load_model_and_tokenizer(args)
 
     prompt = f"""
-        # Extraction Agent
-        The invoice image is provided here:
-        <image>
+# Extraction Agent
+The invoice image is provided here:
+<image>
 
-        You are an AI bookkeeper tasked with extracting and categorizing financial data from invoice images. 
-        Your goal is to accurately extract all relevant data from the image and format it into a structured JSON output. 
-        Follow these instructions carefully:
+You are an AI bookkeeper tasked with extracting and categorizing financial data from invoice images. 
+Your goal is to accurately extract all relevant data from the image and format it into a structured JSON output. 
+Follow these instructions carefully:
 
-        Perform the following steps:
+Perform the following steps:
 
-        1. Document Type Classification:
-        - Classify the document as either a "Bill", "Receipt", or "Credit Note".
-        - Note that any type of invoice should be classified as a "Bill".
+1. Document Type Classification:
+- Classify the document as either a "Bill", "Receipt", or "Credit Note".
+- Note that any type of invoice should be classified as a "Bill".
 
-        2. Data Extraction:
-        - Extract all relevant financial and metadata information from the image.
-        - Pay close attention to details such as dates, amounts, tax information, and line items.
+2. Data Extraction:
+- Extract all relevant financial and metadata information from the image.
+- Pay close attention to details such as dates, amounts, tax information, and line items.
 
-        3. VAT Calculation:
-        - If VAT information is present, ensure it is calculated as a fraction of the total amount.
-        - Determine if the invoice is VAT exclusive or inclusive.
+3. VAT Calculation:
+- If VAT information is present, ensure it is calculated as a fraction of the total amount.
+- Determine if the invoice is VAT exclusive or inclusive.
 
-        4. Payment Status:
-        - Classify the payment status as either "Awaiting Payment" or "Paid" based on the information provided.
+4. Payment Status:
+- Classify the payment status as either "Awaiting Payment" or "Paid" based on the information provided.
 
-        5. Currency:
-        - Identify and extract the currency used in the invoice.
+5. Currency:
+- Identify and extract the currency used in the invoice.
 
-        6. Line Items:
-        - Extract individual line items, including their descriptions, quantities, unit prices, and totals.
-        - Extract VAT for each line item if available. VAT might be labelled as 'Tax' on the Invoice.
-        - If Unit Price is not provided, calculate it as Subtotal divided by Quantity. 
-        
-        7. Address Information:
-        - Extract and categorize supplier address, billing address, and delivery address.
-        - Do not include company name or staff name in the address fields.
+6. Line Items:
+- Extract individual line items, including their descriptions, quantities, unit prices, and totals.
+- Extract VAT for each line item if available. VAT might be labelled as 'Tax' on the Invoice.
+- If Unit Price is not provided, calculate it as Subtotal divided by Quantity. 
 
-        8. Bank Details:
-        - Extract any bank account information provided in the invoice.
+7. Address Information:
+- Extract and categorize supplier address, billing address, and delivery address.
+- Do not include company name or staff name in the address fields.
 
-        9. Dates:
-        - Extract the invoice date and due date (if available).
+8. Bank Details:
+- Extract any bank account information provided in the invoice.
 
-        10. Additional Charges:
-        - Identify and extract any service charges, delivery charges, or discounts.
+9. Dates:
+- Extract the invoice date and due date (if available).
 
-        11. Supplier Information:
-        - Extract the supplier name and details carefully.
-        - Be cautious not to confuse supplier information with customer information.
-        - If the supplier name isn't clear, look for clues in the company's logo, contact email, invoice footer, or VAT number location.
-        - Do not include address information in the supplier field.
+10. Additional Charges:
+- Identify and extract any service charges, delivery charges, or discounts.
 
-        When extracting data, adhere to these guidelines:
-        - If a field is not present in the invoice, leave it as an empty string in the JSON output.
-        - For numerical values, extract them as numbers without currency symbols.
-        - For dates, use the format "DD/MM/YYYY".
-        - If there's uncertainty about a value, use your best judgment based on context and typical invoice structures.
+11. Supplier Information:
+- Extract the supplier name and details carefully.
+- Be cautious not to confuse supplier information with customer information.
+- If the supplier name isn't clear, look for clues in the company's logo, contact email, invoice footer, or VAT number location.
+- Do not include address information in the supplier field.
 
-        After extraction, format the data according to the following JSON schema:
+When extracting data, adhere to these guidelines:
+- If a field is not present in the invoice, leave it as an empty string in the JSON output.
+- For numerical values, extract them as numbers without currency symbols.
+- For dates, use the format "DD/MM/YYYY".
+- If there's uncertainty about a value, use your best judgment based on context and typical invoice structures.
 
-        <json_schema>
-        {{
-            "Document Type": "",
-            "VAT": "",
-            "Total": "",
-            "VAT %": "",
-            "Category": "",
-            "Currency": "",
-            "Discount Total": "",
-            "Payment Status": "",
-            "Service Charge": "",
-            "Delivery Charge": "",
-            "VAT Exclusive": "",
-            "Supplier": "",
-            "Invoice ID": "",
-            "Line Items": [{{
-                "VAT": "",
-                "VAT %": "",
-                "Total": "",
-                "Category": "",
-                "Quantity": "",
-                "Discount": "",
-                "Unit price": "",
-                "Description": ""
-            }}],
-            "VAT Number": "",
-            "Date of Invoice": "",
-            "Date Payment Due": "",
-            "Supplier Address": "",
-            "Billing Address": "",
-            "Delivery Address": "",
-            "Bank Details": [{{
-                "Company Name": "",
-                "Account Number": "",
-                "Sort Code": "",
-                "Bank Name": "",
-                "Bank Number": "",
-                "IBAN": "",
-                "SWIFT Code": "",
-                "Account Type": ""
-            }}]
-        }}
-        </json_schema>
+After extraction, format the data according to the following JSON schema:
 
-        Before finalizing your output, perform these quality checks:
-        1. Ensure all extracted data is accurately placed in the correct fields.
-        2. Verify that numerical calculations (totals, VAT, etc.) are consistent and accurate.
-        3. Check that dates are formatted correctly.
-        4. Confirm that the document type classification is appropriate.
-        5. Validate that the VAT Exclusive field is correctly set to true or false.
-        6. Make sure not to confuse the total VAT with the line item VAT, and that the sum of all the VAT values in the line items is equal to the total VAT.
-        7. Double-check that the supplier information is correct and not confused with customer details.
-        8. Verify that address fields do not contain company or staff names.
-        9. Never conflict Subtotal with Total or Unit Price or Line Item Total or VAT or Discount Amount.
+<json_schema>
+{json.dumps(JSON_STRUCTURE, indent=4)}
+</json_schema>
 
-        If you encounter any ambiguities or missing information, use your best judgment to infer the most likely value based on the context of the invoice. If a value cannot be reasonably inferred, leave it as an empty string.
+Before finalizing your output, perform these quality checks:
+1. Ensure all extracted data is accurately placed in the correct fields.
+2. Verify that numerical calculations (totals, VAT, etc.) are consistent and accurate.
+3. Check that dates are formatted correctly.
+4. Confirm that the document type classification is appropriate.
+5. Validate that the VAT Exclusive field is correctly set to true or false.
+6. Make sure not to confuse the total VAT with the line item VAT, and that the sum of all the VAT values in the line items is equal to the total VAT.
+7. Double-check that the supplier information is correct and not confused with customer details.
+8. Verify that address fields do not contain company or staff names.
+9. Never conflict Subtotal with Total or Unit Price or Line Item Total or VAT or Discount Amount.
 
-        Provide your final output as a valid JSON object within. Ensure that the JSON is properly formatted and contains no syntax errors.
+If you encounter any ambiguities or missing information, use your best judgment to infer the most likely value based on the context of the invoice. If a value cannot be reasonably inferred, leave it as an empty string.
+
+Provide your final output as a valid JSON object within. Ensure that the JSON is properly formatted and contains no syntax errors.
     """
 
-    logger.info(prompt)
+    # logger.debug(prompt)
 
-    # df_base64_strings = [get_pdf_base64_from_img_url(data["Img_path"]) for data in transformed_labeled_data]
-    # images_base64 = pdfs_to_images_base64_function(df_base64_strings)
-    all_pixel_values = [load_image(data['Img_path'], image_size).cuda().to(torch.bfloat16)
-                        for data in transformed_labeled_data]
+    df_base64_strings = [get_pdf_base64_from_img_url(data["Img_path"]) for data in transformed_labeled_data]
+    images_base64 = pdfs_to_images_base64_function(df_base64_strings)
 
-    predicted_data = []
-    for i, pixel_values in tqdm(enumerate(all_pixel_values)):
-        logger.info(f"True data")
-        logger.info(json.dumps(transformed_labeled_data[i], indent=4))
+    standardised_predicted_data = []
+    for i, image_bs64 in enumerate(images_base64):
+        logger.debug(f"True data")
+        logger.debug(json.dumps(transformed_labeled_data[i], indent=4))
+
+        pixel_values = load_image_bs64(image_bs64, max_num=args.max_num).to(torch.bfloat16).cuda()
 
         generation_config = dict(
-            do_sample=sample,
-            top_k=top_k,
-            top_p=top_p,
-            num_beams=num_beams,
-            max_new_tokens=20,
+            do_sample=args.sample,
+            top_k=args.top_k,
+            top_p=args.top_p,
+            num_beams=args.num_beams,
+            max_new_tokens=1024,
             eos_token_id=tokenizer.eos_token_id,
         )
         response = model.chat(
@@ -370,17 +327,30 @@ def evaluate_whole_json(model_path: str):
             verbose=True
         )
 
+        if "```" in response and "```json" not in response:
+            # Extract just the dictionary-like part
+            start = response.find("```") + 3
+            end = response.find("\n```", start)
+
+            response = response[start:end].strip()
+        elif "```json" in response:
+            # Extract just the dictionary-like part
+            start = response.find("json") + len("json\n")
+            end = response.find("\n```", start)
+
+            response = response[start:end].strip()
+
         try:
             predicted_data_row = json.loads(response)
         except Exception as e:
             logger.error(f"Failed to parse response: {e}")
             predicted_data_row = {}
 
-        logger.info(f"Predicted data")
-        logger.info(json.dumps(predicted_data_row, indent=4))
-        logger.info('-' * 50)
-        predicted_data.append(predicted_data_row)
-    standardised_predicted_data = [standardise_data_models(predicted_data_row) for predicted_data_row in predicted_data]
+        logger.debug(f"Predicted data")
+        logger.debug(json.dumps(predicted_data_row, indent=4))
+        logger.debug('-' * 50)
+        standardised_predicted_data_row = standardise_data_models(predicted_data_row)
+        standardised_predicted_data.append(standardised_predicted_data_row)
 
     accuracy, precision, recall, f1 = calculate_metrics(standardised_predicted_data, standardised_labeled_data)
     logger.info("============= Metrics for Zero-shot extraction =============")
