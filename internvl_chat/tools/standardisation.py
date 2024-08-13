@@ -32,7 +32,7 @@ def standardise_date(date):
 
 
 def standardise_bank_details(bank_details: List[str]):
-    if len(bank_details) == 0:
+    if bank_details is None or len(bank_details) == 0:
         return None
 
     if type(bank_details[0]) is not str:
@@ -48,7 +48,7 @@ def standardise_bank_details(bank_details: List[str]):
             'Payment Reference': match.group(4).strip()
         }
     else:
-        logger.error(f"Error parsing bank details: '{bank_details}'")
+        logger.error(f"Error parsing bank details: '{bank_details[0]}'")
         return None
 
 
@@ -82,16 +82,20 @@ def standardise_address(address: str):
     address = address.replace('\n', ', ')
 
     country_code = extract_country_from_address(address)
-    addresses = pyap.parse(address, country=country_code)
-    if addresses:
-        address = addresses[0]
-        return {
-            "Street": address.full_street,
-            "City": address.city,
-            "Postal Code": address.postal_code,
-            "Country": address.country
-        }
-    else:
+    try:
+        addresses = pyap.parse(address, country=country_code)
+        if addresses:
+            address = addresses[0]
+            return {
+                "Street": address.full_street,
+                "City": address.city,
+                "Postal Code": address.postal_code,
+                "Country": address.country
+            }
+        else:
+            return None
+    except Exception as e:
+        logger.error(f"Error parsing address '{address}': {e}")
         return None
 
 
@@ -124,7 +128,7 @@ def standardise_float(number):
         return None
 
     try:
-        return str(float(number.replace(',', '')))
+        return str(float(str(number).replace(',', '')))
     except ValueError as e:
         return None
 
