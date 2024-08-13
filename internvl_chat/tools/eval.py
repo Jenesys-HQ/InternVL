@@ -3,13 +3,16 @@ import json
 import os
 import argparse
 
+from tqdm import tqdm
 import labelbox
+import torch
 from dotenv import load_dotenv
 
-from infer import JackVision
+# from infer import JackVision
+from internvl.model import load_model_and_tokenizer
 from standardisation import standardise_data_models, standardise_data_value, standardise_data_models_flat
 from data_utils import load_ndjson, save_ndjson, extract_invoice_data, transform_invoice_data, flatten_data
-from img_utils import get_pdf_base64_from_img_url, pdf_to_image_base64_function, pdfs_to_images_base64_function
+from img_utils import load_image, get_pdf_base64_from_img_url, pdf_to_image_base64_function, pdfs_to_images_base64_function
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -139,8 +142,19 @@ def evaluate_by_item(model_path: str):
             continue
         flattened_labeled_data.append(flattened_row_data)
 
-    # TODO enable loading models from W&B
-    model = JackVision(model_path=model_path)
+    model, tokenizer = load_model_and_tokenizer(
+        checkpoint=model_path,
+        root='./Your_Results',
+        num_beams=5,
+        top_k=50,
+        top_p=0.9,
+        sample=False,
+        # dynamic=True,
+        max_num=6,
+        # load_in_8bit=False,
+        # load_in_4bit=False,
+        # auto=False
+    )
 
     standardised_labeled_data = []
     standardised_predicted_data = []
@@ -187,8 +201,26 @@ def evaluate_whole_json(model_path: str):
                                 for record in transformed_labeled_data]
     standardised_labeled_data = [standardise_data_models(info) for info in transformed_labeled_data]
 
-    # TODO enable loading models from W&B
-    model = JackVision(model_path=model_path)
+    num_beams = 5
+    top_k = 50
+    top_p = 0.9
+    sample=False
+
+    model, tokenizer = load_model_and_tokenizer(
+        checkpoint=model_path,
+        root='./Your_Results',
+        num_beams=num_beams,
+        top_k=top_k,
+        top_p=top_p,
+        sample=False,
+        # dynamic=True,
+        max_num=6,
+        # load_in_8bit=False,
+        # load_in_4bit=False,
+        # auto=False
+    )
+    image_size = model.config.force_image_size or model.config.vision_config.image_size
+
     prompt = f"""
         # Extraction Agent
         The invoice image is provided here:
@@ -251,7 +283,47 @@ def evaluate_whole_json(model_path: str):
         After extraction, format the data according to the following JSON schema:
 
         <json_schema>
-        {json.dumps(JSON_STRUCTURE, indent=4)}
+        {{
+            "Document Type": "",
+            "VAT": "",
+            "Total": "",
+            "VAT %": "",
+            "Category": "",
+            "Currency": "",
+            "Discount Total": "",
+            "Payment Status": "",
+            "Service Charge": "",
+            "Delivery Charge": "",
+            "VAT Exclusive": "",
+            "Supplier": "",
+            "Invoice ID": "",
+            "Line Items": [{{
+                "VAT": "",
+                "VAT %": "",
+                "Total": "",
+                "Category": "",
+                "Quantity": "",
+                "Discount": "",
+                "Unit price": "",
+                "Description": ""
+            }}],
+            "VAT Number": "",
+            "Date of Invoice": "",
+            "Date Payment Due": "",
+            "Supplier Address": "",
+            "Billing Address": "",
+            "Delivery Address": "",
+            "Bank Details": [{{
+                "Company Name": "",
+                "Account Number": "",
+                "Sort Code": "",
+                "Bank Name": "",
+                "Bank Number": "",
+                "IBAN": "",
+                "SWIFT Code": "",
+                "Account Type": ""
+            }}]
+        }}
         </json_schema>
 
         Before finalizing your output, perform these quality checks:
@@ -272,14 +344,38 @@ def evaluate_whole_json(model_path: str):
 
     logger.info(prompt)
 
-    df_base64_strings = [get_pdf_base64_from_img_url(data["Img_path"]) for data in transformed_labeled_data]
-    images_base64 = pdfs_to_images_base64_function(df_base64_strings)
-    predicted_data = []
+    # df_base64_strings = [get_pdf_base64_from_img_url(data["Img_path"]) for data in transformed_labeled_data]
+    # images_base64 = pdfs_to_images_base64_function(df_base64_strings)
+    all_pixel_values = [load_image(data['Img_path'], image_size).cuda().to(torch.bfloat16)
+                        for data in transformed_labeled_data]
 
-    for i, image in enumerate(images_base64):
+    predicted_data = []
+    for i, pixel_values in tqdm(enumerate(all_pixel_values)):
         logger.info(f"True data")
         logger.info(json.dumps(transformed_labeled_data[i], indent=4))
-        predicted_data_row = model.generate_json(prompt, image)
+
+        generation_config = dict(
+            do_sample=sample,
+            top_k=top_k,
+            top_p=top_p,
+            num_beams=num_beams,
+            max_new_tokens=20,
+            eos_token_id=tokenizer.eos_token_id,
+        )
+        response = model.chat(
+            tokenizer=tokenizer,
+            pixel_values=pixel_values,
+            question=prompt,
+            generation_config=generation_config,
+            verbose=True
+        )
+
+        try:
+            predicted_data_row = json.loads(response)
+        except Exception as e:
+            logger.error(f"Failed to parse response: {e}")
+            predicted_data_row = {}
+
         logger.info(f"Predicted data")
         logger.info(json.dumps(predicted_data_row, indent=4))
         logger.info('-' * 50)
