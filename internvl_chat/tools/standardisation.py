@@ -1,21 +1,19 @@
 import logging
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 import pyap
 import pycountry
 
 from dateutil import parser
 
-BANK_DETAILS_REGEX = (
-    r'([^,]+),\s*'  # bank name       - look into refactoring regex using named capture groups for regex
-    r'Sort code:\s*(\d{2}-\d{2}-\d{2}),\s*'  # sort code
-    r'Account Number:\s*(\d+),\s*'  # account number
-    r'Payment reference:\s*(.+)'  # payment reference
-)
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+BANK_NAME = r'([^,]+),\s*'
+SORT_CODE_REGEX = r'Sort code:\s*(\d{2}-\d{2}-\d{2}),\s*'
+ACCOUNT_NUMBER_REGEX = r'Account Number:\s*(\d+),\s*'
+# PAYMENT_REFERENCE_REGEX = r'Payment reference:\s*(.+)'
 
 
 def standardise_date(date):
@@ -31,25 +29,31 @@ def standardise_date(date):
         return None
 
 
-def standardise_bank_details(bank_details: List[str]):
-    if bank_details is None or len(bank_details) == 0:
-        return None
+def standardise_bank_details(bank_details: Union[List[Dict[str, str]], str, None]):
+    if bank_details is None:
+        return []
 
-    if type(bank_details[0]) is not str:
+    if type(bank_details) is list:
+        if len(bank_details) == 0:
+            return []
+
+        if len(bank_details) > 1:
+            logger.warning(f"Multiple bank details found: {bank_details}")
+
         return bank_details
 
-    # we assume the bank_details list only has 1 element
-    match = re.match(BANK_DETAILS_REGEX, bank_details[0])
-    if match:
-        return {
-            'Bank Name': match.group(1).strip(),
-            'Sort Code': match.group(2).strip(),
-            'Account Number': match.group(3).strip(),
-            'Payment Reference': match.group(4).strip()
-        }
-    else:
-        logger.error(f"Error parsing bank details: '{bank_details[0]}'")
-        return None
+    if type(bank_details) is str:
+        bank_name = re.search(BANK_NAME, bank_details)
+        sort_code = re.search(SORT_CODE_REGEX, bank_details)
+        account_number = re.search(ACCOUNT_NUMBER_REGEX, bank_details)
+        # payment_reference = re.search(PAYMENT_REFERENCE_REGEX, bank_details)
+
+        return [{
+            'Bank Name': bank_name.group(1) if bank_name else None,
+            'Sort Code': sort_code.group(1) if sort_code else None,
+            'Account Number': account_number.group(1) if account_number else None,
+            # 'Payment Reference': payment_reference.group(1) if payment_reference else None
+        }]
 
 
 def get_country_code(country_identifier: str):
@@ -110,7 +114,7 @@ def standardise_currency(number):
         return f"{float(number):.2f}"
     except ValueError as e:
         logger.error(f'Error standardising value {number}: {e}')
-        return number
+        return None
 
 
 def standardise_integer(number):
