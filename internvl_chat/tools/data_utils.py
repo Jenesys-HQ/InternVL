@@ -274,7 +274,7 @@ def flatten_data(data_dict: Dict[str, Any], flat_data: Dict[str, Any], prefix: s
         if value is None:
             continue
 
-        if type(value) == list:
+        if type(value) is list:
             for i, item in enumerate(value):
                 flatten_data(item, flat_data, f'{prefix}{key} {i+1} ')
         else:
