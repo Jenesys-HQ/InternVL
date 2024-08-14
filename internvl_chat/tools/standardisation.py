@@ -165,7 +165,7 @@ def standardise_data_models(data: Dict[str, Any]) -> Dict[str, Any]:
         "Bank Details": standardise_bank_details(data.get('Bank Details', [])),
         "Line Items": [{
             "VAT": standardise_currency(line_item.get('VAT', None)),
-            "VAT%": standardise_integer(line_item.get('VAT %', None)),
+            "VAT %": line_item.get('VAT %', None),
             "Total": standardise_currency(line_item.get('Total', None)),
             "Quantity": standardise_float(line_item.get('Quantity', None)),
             "Unit price": standardise_currency(line_item.get('Unit price', None)),
