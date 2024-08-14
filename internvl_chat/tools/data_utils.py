@@ -7,6 +7,46 @@ from typing import Any, List, Dict
 import boto3
 import uuid
 import pdf2image
+import labelbox
+
+from constants import JSON_STRUCTURE, PROMPT
+
+DATA_ROW_MAPPING = {
+    'what_is_the_invoice_number': 'Invoice ID',
+    'what_is_the_invoice_date': 'Date of Invoice',
+    'what_is_the_payment_due_date': 'Date Payment Due',
+    'bank_details': 'Bank Details',
+    'payment_email': None,
+    'pay_pal': None,
+    'payment_platform': None,
+    'extra_charges': None,
+    'extra_charges_text': None,
+    'unit_total': 'Total',
+    'total': 'Total',
+    # 'category_code': 'Category',
+    'supplier_name': 'Supplier',
+    'supplier_address': 'Supplier Address',
+    'billing_address': 'Billing Address',
+    'delivery_address': 'Delivery Address',
+    'vat_number': 'VAT Number',
+    'handwritten': None,
+    'identify_the_invoice_language': None,
+    'document_text': None,
+    'what_is_the_document_type': None,  # TODO should be mapped to Document Type but the annotated values are incorrect
+    'currency': 'Currency'
+}
+
+LINE_ITEM_MAPPING = {
+    'item_description': 'Description',
+    'unit_price': 'Unit price',
+    'quantity': 'Quantity',
+    # 'gross_total': 'Total',
+    'gross_total_incl_vat': 'Total',
+    'category_code': 'Category',
+    'vat': 'VAT',
+    'tax_code': 'VAT %',  # do we want % or just the number?
+}
+
 
 LOCAL_IMAGE_FOLDER = join(
     dirname(abspath(__file__)),
@@ -17,6 +57,7 @@ LOCAL_IMAGE_FOLDER = join(
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
 
 
 def load_ndjson(file_path: str):
@@ -33,6 +74,24 @@ def save_ndjson(data: List[Dict], file_path: str):
         for data_dict in data:
             json_line = json.dumps(data_dict)
             file.write(json_line + '\n')
+
+
+def load_labelbox_data(gen_key: str, project_id: str):
+    eval_filepath = f'data/exports/{project_id}.jsonl'
+
+    if os.path.exists(eval_filepath):
+        return load_ndjson(eval_filepath)
+
+    client = labelbox.Client(api_key=gen_key)
+    project = client.get_project(project_id)
+
+    export_task = project.export_v2(params={"attachments": True})
+    export_task.wait_till_done()
+    export_json = export_task.result
+
+    save_ndjson(export_json, eval_filepath)
+
+    return export_json
 
 
 # Check the format of multiple strings use set to get only unique types returned
@@ -131,6 +190,20 @@ def format_data_row(annotation, image_path: str) -> Dict[str, str]:
     }
 
 
+def format_data_row_whole(data_row: Dict[str, Any], image_path: str) -> Dict[str, Any]:
+    return {
+        'id': str(uuid.uuid4()),
+        'image': image_path,
+        'conversations': [{
+            'from': 'human',
+            'value': PROMPT
+        }, {
+            'from': 'gpt',
+            'value': f"```json\n{json.dumps(data_row, indent=4)}\n```"
+        }]
+    }
+
+
 def convert_pdf_to_image(pdf_path: str) -> str:
     output_folder = os.path.dirname(pdf_path)
     images = pdf2image.convert_from_path(pdf_path, output_folder=output_folder)
@@ -177,6 +250,58 @@ def preprocess_data(data_file: str, dataset_name: str):
     formatted_data = remove_duplicates(formatted_data)
 
     return formatted_data
+
+
+def preprocess_data_whole(gen_key: str, project_id: str, dataset_name: str) -> Dict[str, Any]:
+    export_data = load_labelbox_data(gen_key, project_id)
+
+    formatted_data = []
+    for data_row in export_data:
+        processed_data_row = {key: None for key in JSON_STRUCTURE.keys()}
+        processed_data_row["Line Items"] = [{key: None for key in JSON_STRUCTURE["Line Items"][0].keys()}]
+        processed_data_row["Bank Details"] = [{key: None for key in JSON_STRUCTURE["Bank Details"][0].keys()}]
+        processed_data_row['Document Type'] = 'Bill'  # We assume all the documents in labelbox are bills
+
+        image_url = data_row['data_row']['row_data']
+        image_path = download_image(image_url, dataset_name)
+        if image_url.endswith('.pdf'):
+            image_path = convert_pdf_to_image(image_path)
+
+        annotations = data_row['projects'][project_id]['labels'][0]['annotations']
+
+        for annotation in annotations['classifications']:
+            process_annotation(annotation, processed_data_row)
+        for obj in annotations['objects']:
+            for annotation in obj['classifications']:
+                process_annotation(annotation, processed_data_row)
+
+        logger.info(json.dumps(processed_data_row, indent=4))
+        formatted_data_row = format_data_row_whole(processed_data_row, image_path)
+        formatted_data.append(formatted_data_row)
+
+    return formatted_data
+
+
+def process_annotation(annotation: Dict, formatted_data_row: Dict) -> None:
+    if not annotation['value'] in DATA_ROW_MAPPING and not annotation['value'] in LINE_ITEM_MAPPING:
+        logger.warning(f'Annotation {annotation["name"]} - {annotation["value"]} not found in mapping')
+        return None
+
+    if annotation['value'] in DATA_ROW_MAPPING:
+        key = DATA_ROW_MAPPING[annotation['value']]
+        value_to_update = formatted_data_row
+
+    if annotation['value'] in LINE_ITEM_MAPPING:
+        key = LINE_ITEM_MAPPING[annotation['value']]
+        value_to_update = formatted_data_row['Line Items'][0]
+
+    if not key:
+        return None
+    if 'text_answer' in annotation:
+        value_to_update[key] = annotation['text_answer']['content']
+    if 'radio_answer' in annotation:
+        # TODO handle radio answers
+        pass
 
 
 def extract_invoice_data(data, labelbox_project_id):
@@ -326,28 +451,23 @@ if __name__ == "__main__":
     aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
     aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
     aws_region = os.getenv('AWS_REGION')
+    LB_RAFT_GEN_KEY = os.getenv("LB_RAFT_GEN_KEY")
+    LB_PROJECT_ID = 'clth4b4ys0byx07x0eb4odl50'
 
     dataset_name = 'cp-jack-reconciliation-knowledge'
-    data_file = join(
-        dirname(abspath(__file__)),
-        '..',
-        'data',
-        'exports',
-        f'Export v2 project - {dataset_name} - 5_13_2024.ndjson'
-    )
 
-    data = preprocess_data(data_file, dataset_name)
+    data = preprocess_data_whole(LB_RAFT_GEN_KEY, LB_PROJECT_ID, dataset_name)
 
     out_folder = join(
         dirname(abspath(__file__)),
         '..',
         'data',
-        'processed',
+        'processed_whole',
     )
 
     os.makedirs(out_folder, exist_ok=True)
 
     json.dump(data, open(join(
         out_folder,
-        f'{dataset_name}-v2.json'
+        f'{dataset_name}.json'
     ), 'w+'), indent=4)
