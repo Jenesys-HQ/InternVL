@@ -1,7 +1,9 @@
 from dotenv import load_dotenv
 import json
 import os
+import re
 import logging
+import requests
 from os.path import join, dirname, abspath, exists
 from typing import Any, List, Dict
 import boto3
@@ -11,42 +13,68 @@ import labelbox
 
 from constants import JSON_STRUCTURE, PROMPT
 
+# DATA_ROW_MAPPING = {
+#     'what_is_the_invoice_number': 'Invoice ID',
+#     'what_is_the_invoice_date': 'Date of Invoice',
+#     'what_is_the_payment_due_date': 'Date Payment Due',
+#     'bank_details': 'Bank Details',
+#     'payment_email': None,
+#     'pay_pal': None,
+#     'payment_platform': None,
+#     'extra_charges': None,
+#     'extra_charges_text': None,
+#     'unit_total': 'Total',
+#     'total': 'Total',
+#     # 'category_code': 'Category',
+#     'supplier_name': 'Supplier',
+#     'supplier_address': 'Supplier Address',
+#     'billing_address': 'Billing Address',
+#     'delivery_address': 'Delivery Address',
+#     'vat_number': 'VAT Number',
+#     'handwritten': None,
+#     'identify_the_invoice_language': None,
+#     'document_text': None,
+#     'what_is_the_document_type': None,  # TODO should be mapped to Document Type but the annotated values are incorrect
+#     'currency': 'Currency'
+# }
+
 DATA_ROW_MAPPING = {
-    'what_is_the_invoice_number': 'Invoice ID',
-    'what_is_the_invoice_date': 'Date of Invoice',
-    'what_is_the_payment_due_date': 'Date Payment Due',
-    'bank_details': 'Bank Details',
-    'payment_email': None,
+    'What is the invoice number': 'Invoice ID',
+    'What is the invoice date?': 'Date of Invoice',
+    'What is the payment due date?': 'Date Payment Due',
+    'Bank Details': 'Bank Details',
+    'Payment Email': None,
     'pay_pal': None,
     'payment_platform': None,
-    'extra_charges': None,
+    'Extra Charges': None,
     'extra_charges_text': None,
-    'unit_total': 'Total',
-    'total': 'Total',
-    # 'category_code': 'Category',
-    'supplier_name': 'Supplier',
-    'supplier_address': 'Supplier Address',
-    'billing_address': 'Billing Address',
-    'delivery_address': 'Delivery Address',
-    'vat_number': 'VAT Number',
-    'handwritten': None,
+    'Gross Total': 'Total',
+    'Amount Due': None,
+    'Total': 'Total',
+    # 'Category Code': 'Category',
+    'Supplier Name': 'Supplier',
+    'Supplier Address': 'Supplier Address',
+    'Billing Address': 'Billing Address',
+    'Delivery Address': 'Delivery Address',
+    'Total VAT': 'VAT',
+    'Vat Number': 'VAT Number',
+    'Handwritten': None,
     'identify_the_invoice_language': None,
-    'document_text': None,
+    'Document Text': None,
     'what_is_the_document_type': None,  # TODO should be mapped to Document Type but the annotated values are incorrect
-    'currency': 'Currency'
+    'Currency': 'Currency'
 }
 
 LINE_ITEM_MAPPING = {
-    'item_description': 'Description',
-    'unit_price': 'Unit price',
-    'quantity': 'Quantity',
-    # 'gross_total': 'Total',
-    'gross_total_incl_vat': 'Total',
-    'category_code': 'Category',
-    'vat': 'VAT',
-    'tax_code': 'VAT %',  # do we want % or just the number?
+    'Item Description': 'Description',
+    'Unit Price': 'Unit price',
+    'Quantity': 'Quantity',
+    'Unit Total': 'Total',
+    'Category Code': 'Category',
+    'Line item VAT': 'VAT',
+    'Line Item VAT': 'VAT',
+    'VAT%': 'VAT %',  # do we want % or just the number?
 }
-
 
 LOCAL_IMAGE_FOLDER = join(
     dirname(abspath(__file__)),
@@ -133,7 +161,7 @@ def remove_duplicates(lst: List[Dict[str, str]]) -> List[Dict[str, str]]:
     return unique_lst
 
 
-def download_image(image_url: str, dataset_name: str) -> str:
+def download_image_from_s3(image_url: str, dataset_name: str) -> str:
     s3 = boto3.client('s3')
 
     bucket_name = image_url.split('/')[2].split('.')[0]
@@ -146,11 +174,25 @@ def download_image(image_url: str, dataset_name: str) -> str:
 
     os.makedirs(dirname(local_file_name), exist_ok=True)
 
-    print(f'Downloading {bucket_name} {object_name} to {local_file_name}')
+    logger.info(f'Downloading {bucket_name} {object_name} to {local_file_name}')
 
     s3.download_file(bucket_name, object_name, local_file_name)
 
     return local_file_name
+
+
+def download_image_from_labelbox(image_url: str, dataset_name: str, file_name: str) -> str:
+    response = requests.get(image_url)
+    if response.status_code == 200:
+
+        local_file_name = f"{LOCAL_IMAGE_FOLDER}/{dataset_name}/{file_name}"
+
+        os.makedirs(os.path.dirname(local_file_name), exist_ok=True)
+        with open(local_file_name, 'wb') as file:
+            file.write(response.content)
+        return local_file_name
+    else:
+        raise Exception(f"Failed to download image. Status code: {response.status_code}")
 
 
 def expand_sentence(question: str, answer: str) -> str:
@@ -214,8 +256,8 @@ def convert_pdf_to_image(pdf_path: str) -> str:
     images[0].save(image_path, 'JPEG')
 
     return image_path
-    
-    
+
+
 def preprocess_data(data_file: str, dataset_name: str):
     data = load_ndjson(data_file)
 
@@ -226,7 +268,7 @@ def preprocess_data(data_file: str, dataset_name: str):
 
         for annotation in annotations['classifications']:
             image_url = data_row['data_row']['row_data']
-            image_path = download_image(image_url, dataset_name)
+            image_path = download_image_from_s3(image_url, dataset_name)
 
             if image_url.endswith('.pdf'):
                 image_path = convert_pdf_to_image(image_path)
@@ -238,7 +280,7 @@ def preprocess_data(data_file: str, dataset_name: str):
         for obj in annotations['objects']:
             for annotation in obj['classifications']:
                 image_url = data_row['data_row']['row_data']
-                image_path = download_image(image_url, dataset_name)
+                image_path = download_image_from_s3(image_url, dataset_name)
 
                 if image_url.endswith('.pdf'):
                     image_path = convert_pdf_to_image(image_path)
@@ -252,18 +294,20 @@ def preprocess_data(data_file: str, dataset_name: str):
     return formatted_data
 
 
-def preprocess_data_whole(gen_key: str, project_id: str, dataset_name: str) -> Dict[str, Any]:
+def preprocess_data_whole(gen_key: str, project_id: str) -> List[Dict[str, Any]]:
     export_data = load_labelbox_data(gen_key, project_id)
+    dataset_name = export_data[0]['projects'][project_id]['name']
 
     formatted_data = []
     for data_row in export_data:
         processed_data_row = {key: None for key in JSON_STRUCTURE.keys()}
-        processed_data_row["Line Items"] = [{key: None for key in JSON_STRUCTURE["Line Items"][0].keys()}]
+        processed_data_row["Line Items"] = []
         processed_data_row["Bank Details"] = [{key: None for key in JSON_STRUCTURE["Bank Details"][0].keys()}]
         processed_data_row['Document Type'] = 'Bill'  # We assume all the documents in labelbox are bills
 
         image_url = data_row['data_row']['row_data']
-        image_path = download_image(image_url, dataset_name)
+        file_name = data_row['data_row']['external_id']
+        image_path = download_image_from_labelbox(image_url, dataset_name, file_name)
         if image_url.endswith('.pdf'):
             image_path = convert_pdf_to_image(image_path)
 
@@ -283,22 +327,30 @@ def preprocess_data_whole(gen_key: str, project_id: str, dataset_name: str) -> D
 
 
 def process_annotation(annotation: Dict, formatted_data_row: Dict) -> None:
-    if not annotation['value'] in DATA_ROW_MAPPING and not annotation['value'] in LINE_ITEM_MAPPING:
+    match = re.match(r"(.*) ([0-9]+)$", annotation['name'])
+    if not match:
+        raise Exception(f"Invalid annotation name: {annotation['name']}")
+
+    # logger.info([annotation['value'], annotation['name']])
+
+    labelbox_key = match.group(1)
+    line_item_number = int(match.group(2))
+
+    processed_key = None
+    if labelbox_key in DATA_ROW_MAPPING:
+        processed_key = DATA_ROW_MAPPING[labelbox_key]
+        value_to_update = formatted_data_row
+    if labelbox_key in LINE_ITEM_MAPPING:
+        processed_key = LINE_ITEM_MAPPING[labelbox_key]
+        while len(formatted_data_row['Line Items']) < line_item_number:
+            formatted_data_row['Line Items'].append({key: None for key in JSON_STRUCTURE["Line Items"][0].keys()})
+        value_to_update = formatted_data_row['Line Items'][line_item_number-1]  # line_item_number starts at 1
+
+    if not processed_key:
         logger.warning(f'Annotation {annotation["name"]} - {annotation["value"]} not found in mapping')
         return None
-
-    if annotation['value'] in DATA_ROW_MAPPING:
-        key = DATA_ROW_MAPPING[annotation['value']]
-        value_to_update = formatted_data_row
-
-    if annotation['value'] in LINE_ITEM_MAPPING:
-        key = LINE_ITEM_MAPPING[annotation['value']]
-        value_to_update = formatted_data_row['Line Items'][0]
-
-    if not key:
-        return None
     if 'text_answer' in annotation:
-        value_to_update[key] = annotation['text_answer']['content']
+        value_to_update[processed_key] = annotation['text_answer']['content']
     if 'radio_answer' in annotation:
         # TODO handle radio answers
         pass
@@ -401,7 +453,7 @@ def flatten_data(data_dict: Dict[str, Any], flat_data: Dict[str, Any], prefix: s
 
         if type(value) is list:
             for i, item in enumerate(value):
-                flatten_data(item, flat_data, f'{prefix}{key} {i+1} ')
+                flatten_data(item, flat_data, f'{prefix}{key} {i + 1} ')
         else:
             name = f'{prefix}{key}'
             flat_data[name] = value
@@ -426,7 +478,8 @@ def transform_invoice_data(extracted_invoice_data):
         "Expense Policy Review": None,
         "Expense Policy Review Status": None,
         "Img_path": extracted_invoice_data.get('img_path', None),
-        "Bank Details": [extracted_invoice_data.get('bank_details')] if extracted_invoice_data.get('bank_details', None) else []
+        "Bank Details": [extracted_invoice_data.get('bank_details')] if extracted_invoice_data.get('bank_details',
+                                                                                                   None) else []
     }
 
     # Transform each line item
@@ -452,22 +505,21 @@ if __name__ == "__main__":
     aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
     aws_region = os.getenv('AWS_REGION')
     LB_RAFT_GEN_KEY = os.getenv("LB_RAFT_GEN_KEY")
-    LB_PROJECT_ID = 'clth4b4ys0byx07x0eb4odl50'
+    # LB_PROJECT_ID = 'clth4b4ys0byx07x0eb4odl50'
+    LB_PROJECT_ID = 'clzuc0scs03jg071913yobicg'
 
-    dataset_name = 'cp-jack-reconciliation-knowledge'
+    data = preprocess_data_whole(LB_RAFT_GEN_KEY, LB_PROJECT_ID)
 
-    data = preprocess_data_whole(LB_RAFT_GEN_KEY, LB_PROJECT_ID, dataset_name)
-
-    out_folder = join(
-        dirname(abspath(__file__)),
-        '..',
-        'data',
-        'processed_whole',
-    )
-
-    os.makedirs(out_folder, exist_ok=True)
-
-    json.dump(data, open(join(
-        out_folder,
-        f'{dataset_name}.json'
-    ), 'w+'), indent=4)
+    # out_folder = join(
+    #     dirname(abspath(__file__)),
+    #     '..',
+    #     'data',
+    #     'processed_whole',
+    # )
+    #
+    # os.makedirs(out_folder, exist_ok=True)
+    #
+    # json.dump(data, open(join(
+    #     out_folder,
+    #     f'{dataset_name}.json'
+    # ), 'w+'), indent=4)
