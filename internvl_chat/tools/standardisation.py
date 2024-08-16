@@ -1,8 +1,9 @@
 import logging
 import re
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import pyap
+from postal import parser as postal_parser
 import pycountry
 
 from dateutil import parser
@@ -11,8 +12,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 BANK_NAME = r'([^,]+),\s*'
-SORT_CODE_REGEX = r'Sort code:\s*(\d{2}-\d{2}-\d{2}),\s*'
-ACCOUNT_NUMBER_REGEX = r'Account Number:\s*(\d+),\s*'
+SORT_CODE_REGEX = r'[S,s]ort [C,c]ode:\s*(\d{2}-\d{2}-\d{2}),*\s*'
+ACCOUNT_NUMBER_REGEX = r'[A,a]ccount [N,n]umber:\s*(\d+),*\s*'
 # PAYMENT_REFERENCE_REGEX = r'Payment reference:\s*(.+)'
 
 
@@ -48,10 +49,16 @@ def standardise_bank_details(bank_details: Union[List[Dict[str, str]], str, None
         account_number = re.search(ACCOUNT_NUMBER_REGEX, bank_details)
         # payment_reference = re.search(PAYMENT_REFERENCE_REGEX, bank_details)
 
+        # TODO add regex to extract all fields
         return [{
-            'Bank Name': bank_name.group(1) if bank_name else None,
-            'Sort Code': sort_code.group(1) if sort_code else None,
+            'Company Name': None,
             'Account Number': account_number.group(1) if account_number else None,
+            'Sort Code': sort_code.group(1) if sort_code else None,
+            'Bank Name': bank_name.group(1) if bank_name else None,
+            'Bank Number': None,
+            'IBAN': None,
+            'SWIFT Code': None,
+            'Account Type': None,
             # 'Payment Reference': payment_reference.group(1) if payment_reference else None
         }]
 
@@ -79,7 +86,7 @@ def extract_country_from_address(address: str):
     return get_country_code(last_component)
 
 
-def standardise_address(address: str):
+def standardise_address(address: str) -> Optional[Dict[str, str]]:
     if address is None:
         return None
 
@@ -88,20 +95,39 @@ def standardise_address(address: str):
     country_code = extract_country_from_address(address)
     try:
         addresses = pyap.parse(address, country=country_code)
-        if addresses:
-            address = addresses[0]
-            return {
-                "Street": address.full_street,
-                "City": address.city,
-                "Postal Code": address.postal_code,
-                "Country": address.country
-            }
-        else:
-            return None
-    except Exception as e:
-        logger.error(f"Error parsing address '{address}': {e}")
-        return None
+        address = addresses[0]
 
+        street = address.full_street
+        city = address.city
+        post_code = address.postal_code
+        country = address.country
+    except Exception as e:
+        try:
+            postal_address = {k: v for v, k in postal_parser.parse_address(address)}
+
+            street = None
+            if 'house' in postal_address:
+                street = f"{postal_address['house']}"
+            elif 'house_number' in postal_address:
+                street = f" {postal_address['house_number']}"
+                if 'road' in postal_address:
+                    street += f" {postal_address['road']}"
+
+            city = postal_address.get('city', None)
+            post_code = postal_address.get('postcode', None)
+            country = postal_address.get('country', None)
+
+        except Exception as e2:
+            logger.error(f"Error parsing address '{address}': {e2}")
+            return None
+    finally:
+        return {
+            "Street": street,
+            "City": city,
+            "Postal Code": post_code,
+            "Country": country
+        }
+    
 
 def standardise_currency(number):
     if not number:
@@ -150,12 +176,29 @@ def standardise_data_models(data: Dict[str, Any]) -> Dict[str, Any]:
             data[name] = None
 
     return {
+        "Document Type": data.get('Document Type', None),
         "VAT": standardise_currency(data.get('VAT', None)),
         "Total": standardise_currency(data.get('Total', None)),
         "VAT %": data.get('VAT %', None),
+        "Category": data.get('Category', None),
         "Currency": data.get('Currency', None),
+        "Discount Total": standardise_currency(data.get('Discount Total', None)),
+        "Payment Status": data.get('Payment Status', None),
+        "Service Charge": standardise_currency(data.get('Service Charge', None)),
+        "Delivery Charge": standardise_currency(data.get('Delivery Charge', None)),
+        "VAT Exclusive": data.get('VAT Exclusive', None),
         "Supplier": data.get('Supplier', None),
         "Invoice ID": data.get('Invoice ID', None),
+        "Line Items": [{
+            "VAT": standardise_currency(line_item.get('VAT', None)),
+            "VAT %": line_item.get('VAT %', None),
+            "Total": standardise_currency(line_item.get('Total', None)),
+            "Category": data.get('Category', None),
+            "Quantity": standardise_float(line_item.get('Quantity', None)),
+            "Discount": standardise_currency(line_item.get('Discount', None)),
+            "Unit price": standardise_currency(line_item.get('Unit price', None)),
+            "Description": line_item.get('Description', None)
+        } for line_item in data.get('Line Items', [])],
         "VAT Number": data.get('VAT Number', None),
         "Date of Invoice": standardise_date(data.get('Date of Invoice', None)),
         "Date Payment Due": standardise_date(data.get('Date Payment Due', None)),
@@ -163,17 +206,7 @@ def standardise_data_models(data: Dict[str, Any]) -> Dict[str, Any]:
         "Billing Address": standardise_address(data.get('Billing Address', None)),
         "Delivery Address": standardise_address(data.get('Delivery Address', None)),
         "Bank Details": standardise_bank_details(data.get('Bank Details', [])),
-        "Line Items": [{
-            "VAT": standardise_currency(line_item.get('VAT', None)),
-            "VAT %": line_item.get('VAT %', None),
-            "Total": standardise_currency(line_item.get('Total', None)),
-            "Quantity": standardise_float(line_item.get('Quantity', None)),
-            "Unit price": standardise_currency(line_item.get('Unit price', None)),
-            "Description": line_item.get('Description', None)
-        } for line_item in data.get('Line Items', [])],
-        "Img_path": data.get('Img_path', None)
     }
-
 
 INTEGER = 'integer'
 FLOAT = 'float'

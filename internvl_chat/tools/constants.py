@@ -1,5 +1,6 @@
 import json
 
+
 JSON_STRUCTURE = {
     "Document Type": "",
     "VAT": "",
