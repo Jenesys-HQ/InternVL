@@ -5,13 +5,14 @@ import re
 import logging
 import requests
 from os.path import join, dirname, abspath, exists
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Tuple
 import boto3
 import uuid
 import pdf2image
 import labelbox
 
 from constants import JSON_STRUCTURE, PROMPT
+from standardisation import standardise_data_models
 
 # DATA_ROW_MAPPING = {
 #     'what_is_the_invoice_number': 'Invoice ID',
@@ -61,7 +62,10 @@ DATA_ROW_MAPPING = {
     'Handwritten': None,
     'identify_the_invoice_language': None,
     'Document Text': None,
-    'what_is_the_document_type': None,  # TODO should be mapped to Document Type but the annotated values are incorrect
+    'What is the document type': None,  # TODO should be mapped to Document Type but the annotated values are incorrect
+    'Are there multiple Invoice Documents': None,
+    'Identify the invoice language': None,
+    'Handwritten': None,
     'Currency': 'Currency'
 }
 
@@ -113,8 +117,21 @@ def load_labelbox_data(gen_key: str, project_id: str):
     client = labelbox.Client(api_key=gen_key)
     project = client.get_project(project_id)
 
-    export_task = project.export_v2(params={"attachments": True})
+    params = {
+        "data_row_details": True,
+        "metadata_fields": True,
+        "attachments": True,
+        "project_details": True,
+        "performance_details": True,
+        "label_details": True,
+        "interpolated_frames": True,
+        "embeddings": True
+    }
+
+    export_task = project.export_v2(params=params)
     export_task.wait_till_done()
+    if export_task.errors:
+        logger.error(export_task.errors)
     export_json = export_task.result
 
     save_ndjson(export_json, eval_filepath)
@@ -294,8 +311,7 @@ def preprocess_data(data_file: str, dataset_name: str):
     return formatted_data
 
 
-def preprocess_data_whole(gen_key: str, project_id: str) -> List[Dict[str, Any]]:
-    export_data = load_labelbox_data(gen_key, project_id)
+def preprocess_data_whole(export_data: Dict[str, Any], project_id: str) -> Tuple[str, List[Dict[str, Any]]]:
     dataset_name = export_data[0]['projects'][project_id]['name']
 
     formatted_data = []
@@ -319,22 +335,30 @@ def preprocess_data_whole(gen_key: str, project_id: str) -> List[Dict[str, Any]]
             for annotation in obj['classifications']:
                 process_annotation(annotation, processed_data_row)
 
-        logger.info(json.dumps(processed_data_row, indent=4))
-        formatted_data_row = format_data_row_whole(processed_data_row, image_path)
+        standardised_data_row = standardise_data_models(processed_data_row)
+
+        logger.info(json.dumps(standardised_data_row, indent=4))
+
+        formatted_data_row = format_data_row_whole(standardised_data_row, image_path)
         formatted_data.append(formatted_data_row)
 
-    return formatted_data
+    return dataset_name, formatted_data
 
 
 def process_annotation(annotation: Dict, formatted_data_row: Dict) -> None:
     match = re.match(r"(.*) ([0-9]+)$", annotation['name'])
-    if not match:
-        raise Exception(f"Invalid annotation name: {annotation['name']}")
+    if match:
+        labelbox_key = match.group(1)
+        line_item_number = int(match.group(2))
+    else:
+        match = re.match(r"(.*)$", annotation['name'])
+        labelbox_key = match.group(1)
+        line_item_number = 0
+
+        if not match:
+            raise Exception(f"Invalid annotation name: {annotation['name']}")
 
     # logger.info([annotation['value'], annotation['name']])
-
-    labelbox_key = match.group(1)
-    line_item_number = int(match.group(2))
 
     processed_key = None
     if labelbox_key in DATA_ROW_MAPPING:
@@ -344,10 +368,10 @@ def process_annotation(annotation: Dict, formatted_data_row: Dict) -> None:
         processed_key = LINE_ITEM_MAPPING[labelbox_key]
         while len(formatted_data_row['Line Items']) < line_item_number:
             formatted_data_row['Line Items'].append({key: None for key in JSON_STRUCTURE["Line Items"][0].keys()})
-        value_to_update = formatted_data_row['Line Items'][line_item_number-1]  # line_item_number starts at 1
+        value_to_update = formatted_data_row['Line Items'][line_item_number - 1]  # line_item_number starts at 1
 
     if not processed_key:
-        logger.warning(f'Annotation {annotation["name"]} - {annotation["value"]} not found in mapping')
+        logger.warning(f'Annotation {annotation["name"]} not mapped')
         return None
     if 'text_answer' in annotation:
         value_to_update[processed_key] = annotation['text_answer']['content']
@@ -501,25 +525,32 @@ def transform_invoice_data(extracted_invoice_data):
 if __name__ == "__main__":
     load_dotenv()
 
-    aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
-    aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-    aws_region = os.getenv('AWS_REGION')
     LB_RAFT_GEN_KEY = os.getenv("LB_RAFT_GEN_KEY")
     # LB_PROJECT_ID = 'clth4b4ys0byx07x0eb4odl50'
     LB_PROJECT_ID = 'clzuc0scs03jg071913yobicg'
 
-    data = preprocess_data_whole(LB_RAFT_GEN_KEY, LB_PROJECT_ID)
+    export_params = {
+        "data_row_details": True,
+        "metadata_fields": True,
+        "attachments": True,
+        "project_details": True,
+        "performance_details": True,
+        "label_details": True,
+        "interpolated_frames": True,
+        "embeddings": True
+    }
+    exported_data = load_labelbox_data(LB_RAFT_GEN_KEY, LB_PROJECT_ID)
+    dataset_name, formatted_data = preprocess_data_whole(exported_data, LB_PROJECT_ID)
 
-    # out_folder = join(
-    #     dirname(abspath(__file__)),
-    #     '..',
-    #     'data',
-    #     'processed_whole',
-    # )
-    #
-    # os.makedirs(out_folder, exist_ok=True)
-    #
-    # json.dump(data, open(join(
-    #     out_folder,
-    #     f'{dataset_name}.json'
-    # ), 'w+'), indent=4)
+    out_folder = join(
+        dirname(abspath(__file__)),
+        '..',
+        'data',
+        'processed_whole',
+    )
+    os.makedirs(out_folder, exist_ok=True)
+
+    json.dump(formatted_data, open(join(
+        out_folder,
+        f'{dataset_name}.json'
+    ), 'w+'), indent=4)
