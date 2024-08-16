@@ -20,9 +20,14 @@ class TestStandardisation(unittest.TestCase):
     def test_standardise_bank_details_valid(self):
         bank_details = "Bank Name, Sort code: 12-34-56, Account Number: 12345678, Payment reference: ref123"
         expected = [{
-            'Bank Name': 'Bank Name',
-            'Sort Code': '12-34-56',
+            'Company Name': None,
             'Account Number': '12345678',
+            'Sort Code': '12-34-56',
+            'Bank Name': 'Bank Name',
+            'Bank Number': None,
+            'IBAN': None,
+            'SWIFT Code': None,
+            'Account Type': None,
             # 'Payment Reference': 'ref123'
         }]
         self.assertEqual(standardise_bank_details(bank_details), expected)
@@ -30,10 +35,15 @@ class TestStandardisation(unittest.TestCase):
     def test_standardise_bank_details_invalid(self):
         self.assertEqual(standardise_bank_details(None), [])
         self.assertEqual(standardise_bank_details("invalid"), [{
+            'Company Name': None,
             'Account Number': None,
+            'Sort Code': None,
             'Bank Name': None,
+            'Bank Number': None,
+            'IBAN': None,
+            'SWIFT Code': None,
+            'Account Type': None,
             # 'Payment Reference': None,
-            'Sort Code': None
         }])
 
     def test_standardise_address_valid(self):
@@ -47,14 +57,20 @@ class TestStandardisation(unittest.TestCase):
             '84A Stapleton Hall Road London, London, London, N4 4QA, GB': {
                 'Street': '84A Stapleton Hall Road London',
                 'City': 'London',
-                'Postal Code': 'N4 4QA',
+                'Postal Code': 'N44QA',
                 'Country': 'GB'
+            },
+            'Unit B, Staplehurst Nurseries, Staplehurst, Kent, TN12 0JT': {
+                'Street': 'unit b staplehurst nurseries',
+                'City': 'staplehurst',
+                'Postal Code': 'TN120JT',
+                'Country': None
             }
         }
 
         for address, expected in dates.items():
             # assert that the dictionary returned is equal to the expected dictionary
-            self.assertEqual(standardise_address(address), expected)
+            self.assertDictEqual(standardise_address(address), expected)
 
     def test_standardise_currency_valid(self):
         self.assertEqual(standardise_currency(100), "100.00")

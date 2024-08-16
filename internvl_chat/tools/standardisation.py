@@ -109,9 +109,9 @@ def standardise_address(address: str) -> Optional[Dict[str, str]]:
             if 'house' in postal_address:
                 street = f"{postal_address['house']}"
             elif 'house_number' in postal_address:
-                street = f" {postal_address['house_number']}"
+                street = f"{postal_address['house_number']}"
                 if 'road' in postal_address:
-                    street += f" {postal_address['road']}"
+                    street += f", {postal_address['road']}"
 
             city = postal_address.get('city', None)
             post_code = postal_address.get('postcode', None)
@@ -124,7 +124,7 @@ def standardise_address(address: str) -> Optional[Dict[str, str]]:
         return {
             "Street": street,
             "City": city,
-            "Postal Code": post_code,
+            "Postal Code": post_code.replace(' ', '').upper() if post_code else None,
             "Country": country
         }
     
