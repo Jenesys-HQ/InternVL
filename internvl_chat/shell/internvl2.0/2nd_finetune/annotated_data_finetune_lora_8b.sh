@@ -12,13 +12,13 @@ export MASTER_PORT=34229
 export TF_CPP_MIN_LOG_LEVEL=3
 export LAUNCHER=pytorch
 
-OUTPUT_DIR="work_dirs/internvl_chat_v2_0/annotated_data_finetune_lora"
+OUTPUT_DIR='work_dirs/internvl_chat_v2_0/annotated_data_finetune_lora_8b'
 
 if [ ! -d "$OUTPUT_DIR" ]; then
   mkdir -p "$OUTPUT_DIR"
 fi
 
-# number of gpus: 2
+# number of gpus: 1
 # batch size per gpu: 4
 # gradient accumulation steps: 2
 # total batch size: 16
@@ -30,8 +30,8 @@ torchrun \
   --nproc_per_node=${GPUS} \
   --master_port=${MASTER_PORT} \
   internvl/train/internvl_chat_finetune.py \
-  --model_name_or_path "./pretrained/InternVL2-4B" \
-  --conv_style "phi3-chat" \
+  --model_name_or_path "./pretrained/InternVL2-8B" \
+  --conv_style "internlm2-chat" \
   --output_dir ${OUTPUT_DIR} \
   --meta_path "./shell/data/data_annotated_finetune.json" \
   --overwrite_output_dir True \
@@ -54,7 +54,7 @@ torchrun \
   --save_steps 200 \
   --save_total_limit 1 \
   --learning_rate 4e-5 \
-  --weight_decay 0.05 \
+  --weight_decay 0.01 \
   --warmup_ratio 0.03 \
   --lr_scheduler_type "cosine" \
   --logging_steps 1 \
