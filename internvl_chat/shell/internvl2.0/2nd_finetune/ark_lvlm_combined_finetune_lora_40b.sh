@@ -3,7 +3,7 @@ set -x
 CURRENT_DATE=$(date +"%Y-%m-%d-%H-%M-%S")
 GPUS=${GPUS:-1}
 BATCH_SIZE=${BATCH_SIZE:-16}
-PER_DEVICE_BATCH_SIZE=${PER_DEVICE_BATCH_SIZE:-4}
+PER_DEVICE_BATCH_SIZE=${PER_DEVICE_BATCH_SIZE:-2}
 GRADIENT_ACC=$((BATCH_SIZE / PER_DEVICE_BATCH_SIZE / GPUS))
 EPOCHS=${EPOCHS:-1}
 
@@ -19,8 +19,8 @@ if [ ! -d "$OUTPUT_DIR" ]; then
 fi
 
 # number of gpus: 2
-# batch size per gpu: 4
-# gradient accumulation steps: 2
+# batch size per gpu: 2
+# gradient accumulation steps: 4
 # total batch size: 16
 # epoch: 1
 torchrun \
