@@ -236,7 +236,7 @@ def evaluate_whole_json_huggingface(model_path: str, eval_dataset_path: str):
         auto=False,
     )
 
-    model, tokenizer = load_model_and_tokenizer(args)
+    # model, tokenizer = load_model_and_tokenizer(args)
 
     standardised_labeled_data = []
     standardised_predicted_data = []
@@ -247,7 +247,7 @@ def evaluate_whole_json_huggingface(model_path: str, eval_dataset_path: str):
         logger.debug(f"True data")
         logger.debug(json.dumps(standardised_labeled_response, indent=4))
 
-        img_path = labeled_response['image']
+        img_path = eval_dataset_row['image']
         pixel_values = load_image(img_path)
 
         generation_config = dict(
