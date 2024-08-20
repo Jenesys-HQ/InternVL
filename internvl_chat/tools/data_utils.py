@@ -224,6 +224,29 @@ def expand_sentence(question: str, answer: str) -> str:
     return sentence
 
 
+def extract_json_data(text: str) -> Dict[str, Any]:
+    if "```" in text and "```json" not in text:
+        # Extract just the dictionary-like part
+        start = text.find("```") + 3
+        end = text.find("\n```", start)
+
+        text = text[start:end].strip()
+    elif "```json" in text:
+        # Extract just the dictionary-like part
+        start = text.find("json") + len("json\n")
+        end = text.find("\n```", start)
+
+        text = text[start:end].strip()
+
+    try:
+        extracted_json = json.loads(text)
+    except Exception as e:
+        logger.error(f"Failed to parse response: {e}")
+        extracted_json = {}
+
+    return extracted_json
+
+
 def format_data_row(annotation, image_path: str) -> Dict[str, str]:
     question = annotation['name']
 
