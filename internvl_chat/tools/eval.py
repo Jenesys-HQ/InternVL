@@ -236,7 +236,7 @@ def evaluate_whole_json_huggingface(model_path: str, eval_dataset_path: str):
         auto=False,
     )
 
-    # model, tokenizer = load_model_and_tokenizer(args)
+    model, tokenizer = load_model_and_tokenizer(args)
 
     standardised_labeled_data = []
     standardised_predicted_data = []
