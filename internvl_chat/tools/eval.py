@@ -11,58 +11,11 @@ from img_utils import get_pdf_base64_from_img_url, pdf_to_image_base64_function,
     pdfs_to_images_base64_function, load_image
 from internvl.model import load_model_and_tokenizer
 from standardisation import standardise_data_models, standardise_data_value
+from metrics import MetricsHelper
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
-
-
-def calculate_metrics(predicted, ground_truth):
-    # iterate over predicted and ground truth keys and compare ground truth and predicted values
-    # calculate averages of F1, precision and recall
-
-    total_correct = 0
-    total_count = 0
-    total_precision = 0
-    total_recall = 0
-    total_f1 = 0
-
-    for pred, true in zip(predicted, ground_truth):
-        count = 0
-        true_p = 0  # true positive
-        false_p = 0  # false positive
-        false_n = 0  # false negative
-
-        for key in true:
-            if true[key] is None:
-                continue
-
-            count += 1
-            if key in pred and pred[key] == true[key]:
-                true_p += 1
-            else:
-                if key in pred:
-                    false_p += 1
-                if key not in pred or pred[key] != true[key]:
-                    false_n += 1
-
-        total_correct += true_p
-        total_count += count
-
-        precision = true_p / (true_p + false_p) if (true_p + false_p) > 0 else 0
-        recall = true_p / (true_p + false_n) if (true_p + false_n) > 0 else 0
-        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
-
-        total_precision += precision
-        total_recall += recall
-        total_f1 += f1
-
-    total_accuracy = total_correct / total_count if total_count > 0 else 0
-    total_precision = total_precision / total_count if total_count > 0 else 0
-    total_recall = total_recall / total_count if total_count > 0 else 0
-    total_f1 = total_f1 / total_count if total_count > 0 else 0
-
-    return total_accuracy, total_precision, total_recall, total_f1
 
 
 def evaluate_by_item(model_path: str, gen_key: str, project_id: str):
@@ -125,12 +78,9 @@ def evaluate_by_item(model_path: str, gen_key: str, project_id: str):
         standardised_labeled_data.append(standardised_labeled_data_row)
         standardised_predicted_data.append(standardised_predicted_data_row)
 
-    accuracy, precision, recall, f1 = calculate_metrics(standardised_labeled_data, standardised_predicted_data)
-    logger.info("============= Metrics for Zero-shot extraction =============")
-    logger.info(f"Accuracy: {accuracy}")
-    logger.info(f"Precision: {precision}")
-    logger.info(f"Recall: {recall}")
-    logger.info(f"F1 Score: {f1}")
+    metrics_helper = MetricsHelper()
+    metrics_helper.compare_true_pred(standardised_labeled_data, standardised_predicted_data)
+    logger.info(f"Accuracy for Zero-shot extraction: {metrics_helper.accuracy}")
 
 
 def evaluate_whole_json_labelbox(model_path: str, gen_key: str, project_id: str):
@@ -210,12 +160,9 @@ def evaluate_whole_json_labelbox(model_path: str, gen_key: str, project_id: str)
         standardised_predicted_data_row = standardise_data_models(predicted_data_row)
         standardised_predicted_data.append(standardised_predicted_data_row)
 
-    accuracy, precision, recall, f1 = calculate_metrics(standardised_predicted_data, standardised_labeled_data)
-    logger.info("============= Metrics for Zero-shot extraction =============")
-    logger.info(f"Accuracy: {accuracy}")
-    logger.info(f"Precision: {precision}")
-    logger.info(f"Recall: {recall}")
-    logger.info(f"F1 Score: {f1}")
+    metrics_helper = MetricsHelper()
+    metrics_helper.compare_true_pred(standardised_labeled_data, standardised_predicted_data)
+    logger.info(f"Accuracy for Zero-shot extraction: {metrics_helper.accuracy}")
 
 
 def evaluate_whole_json_huggingface(model_path: str, eval_dataset_path: str):
@@ -267,18 +214,15 @@ def evaluate_whole_json_huggingface(model_path: str, eval_dataset_path: str):
         )
 
         predicted_data_row = extract_json_data(response)
-        standardised_predicted_data_row = standardise_data_models(predicted_data_row)
-        standardised_predicted_data.append(standardised_predicted_data_row)
+        standardised_predicted_response = standardise_data_models(predicted_data_row)
+        standardised_predicted_data.append(standardised_predicted_response)
         logger.debug(f"Predicted data")
-        logger.debug(json.dumps(standardised_predicted_data_row, indent=4))
+        logger.debug(json.dumps(standardised_predicted_response, indent=4))
         logger.debug('-' * 50)
 
-    accuracy, precision, recall, f1 = calculate_metrics(standardised_predicted_data, standardised_labeled_data)
-    logger.info("============= Metrics for Zero-shot extraction =============")
-    logger.info(f"Accuracy: {accuracy}")
-    logger.info(f"Precision: {precision}")
-    logger.info(f"Recall: {recall}")
-    logger.info(f"F1 Score: {f1}")
+    metrics_helper = MetricsHelper()
+    metrics_helper.compare_true_pred(standardised_labeled_data, standardised_predicted_data)
+    logger.info(f"Accuracy for Zero-shot extraction: {metrics_helper.accuracy}")
 
 
 if __name__ == "__main__":

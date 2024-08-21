@@ -342,7 +342,7 @@ def preprocess_data_whole(export_data: Dict[str, Any], project_id: str) -> Tuple
         processed_data_row = {key: None for key in JSON_STRUCTURE.keys()}
         processed_data_row["Line Items"] = []
         processed_data_row["Bank Details"] = [{key: None for key in JSON_STRUCTURE["Bank Details"][0].keys()}]
-        processed_data_row['Document Type'] = 'Bill'  # We assume all the documents in labelbox are bills
+        processed_data_row['Document Type'] = 'BILL'  # We assume all the documents in labelbox are bills
 
         image_url = data_row['data_row']['row_data']
         file_name = data_row['data_row']['external_id']
