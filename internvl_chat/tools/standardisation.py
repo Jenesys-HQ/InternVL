@@ -120,13 +120,13 @@ def standardise_address(address: str) -> Optional[Dict[str, str]]:
         except Exception as e2:
             logger.error(f"Error parsing address '{address}': {e2}")
             return None
-    finally:
-        return {
-            "Street": street,
-            "City": city,
-            "Postal Code": post_code.replace(' ', '').upper() if post_code else None,
-            "Country": country
-        }
+
+    return {
+        "Street": street,
+        "City": city,
+        "Postal Code": post_code.replace(' ', '').upper() if post_code else None,
+        "Country": country
+    }
     
 
 def standardise_currency(number):
