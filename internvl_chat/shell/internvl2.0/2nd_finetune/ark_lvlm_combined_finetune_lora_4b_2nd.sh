@@ -42,7 +42,7 @@ torchrun \
   --freeze_llm True \
   --freeze_mlp True \
   --freeze_backbone True \
-  --use_llm_lora 16 \
+  --use_llm_lora -1 \
   --vision_select_layer -1 \
   --dataloader_num_workers 4 \
   --bf16 True \
