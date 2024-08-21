@@ -86,9 +86,12 @@ def extract_country_from_address(address: str):
     return get_country_code(last_component)
 
 
-def standardise_address(address: str) -> Optional[Dict[str, str]]:
+def standardise_address(address: Optional[Union[str, dict]]) -> Optional[Dict[str, str]]:
     if address is None:
         return None
+
+    if type(address) is dict:
+        return address
 
     address = address.replace('\n', ', ')
 
@@ -163,7 +166,7 @@ def standardise_float(number):
         return None
 
 
-def standardise_string(string: str):
+def standardise_string(string: Optional[str]):
     if not string:
         return None
 
