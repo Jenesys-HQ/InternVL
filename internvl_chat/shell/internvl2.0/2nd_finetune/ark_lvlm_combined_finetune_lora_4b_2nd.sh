@@ -30,7 +30,7 @@ torchrun \
   --nproc_per_node=${GPUS} \
   --master_port=${MASTER_PORT} \
   internvl/train/internvl_chat_finetune.py \
-  --model_name_or_path "./work_dirs/internvl_chat_v2_0/ark_lvlm_combined_finetune_lora_4b" \
+  --model_name_or_path "./work_dirs/internvl_chat_v2_0/ark_lvlm_combined_finetune_lora_4b_merged" \
   --conv_style "phi3-chat" \
   --output_dir ${OUTPUT_DIR} \
   --meta_path "./shell/data/ark_lvlm_combined_train.json" \
@@ -42,7 +42,7 @@ torchrun \
   --freeze_llm True \
   --freeze_mlp True \
   --freeze_backbone True \
-  --use_llm_lora 0 \
+  --use_llm_lora 16 \
   --vision_select_layer -1 \
   --dataloader_num_workers 4 \
   --bf16 True \
