@@ -173,20 +173,27 @@ def standardise_string(string: Optional[str]):
     return string.lower()
 
 
+def standardise_backend_value(value: Optional[str]):
+    if not value:
+        return None
+
+    return value.upper().replace(' ', '_')
+
+
 def standardise_data_models(data: Dict[str, Any]) -> Dict[str, Any]:
     for name, value in data.items():
         if value == "":
             data[name] = None
 
     return {
-        "Document Type": data.get('Document Type', None),
+        "Document Type": standardise_backend_value(data.get('Document Type', None)),
         "VAT": standardise_currency(data.get('VAT', None)),
         "Total": standardise_currency(data.get('Total', None)),
         "VAT %": data.get('VAT %', None),
-        "Category": data.get('Category', None),
+        "Category": standardise_backend_value(data.get('Category', None)),
         "Currency": data.get('Currency', None),
         "Discount Total": standardise_currency(data.get('Discount Total', None)),
-        "Payment Status": data.get('Payment Status', None),
+        "Payment Status": standardise_backend_value(data.get('Payment Status', None)),
         "Service Charge": standardise_currency(data.get('Service Charge', None)),
         "Delivery Charge": standardise_currency(data.get('Delivery Charge', None)),
         "VAT Exclusive": data.get('VAT Exclusive', None),
