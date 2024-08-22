@@ -83,6 +83,9 @@ def get_country_code(country_identifier: str):
 def extract_country_from_address(address: str):
     last_component = address.split(',')[-1].strip()
 
+    if last_component is None:
+        return None
+
     return get_country_code(last_component)
 
 
