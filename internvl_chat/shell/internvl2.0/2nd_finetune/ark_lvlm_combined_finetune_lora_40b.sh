@@ -52,7 +52,7 @@ torchrun \
   --evaluation_strategy "no" \
   --save_strategy "steps" \
   --save_steps 10 \
-  --save_total_limit 1 \
+  --save_total_limit 5 \
   --learning_rate 2e-5 \
   --weight_decay 0.05 \
   --warmup_ratio 0.03 \
