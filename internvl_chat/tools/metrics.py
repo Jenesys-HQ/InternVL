@@ -32,7 +32,10 @@ class MetricsHelper:
 
         if type(true) is dict:
             for key, t_value in true.items():
-                p_value = pred.get(key, None)
+                if pred is None:
+                    p_value = None
+                else:
+                    p_value = pred.get(key, None)
 
                 self.compare_true_pred(t_value, p_value)
 
