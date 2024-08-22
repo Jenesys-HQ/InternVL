@@ -74,6 +74,10 @@ def get_country_code(country_identifier: str):
         else:
             # Assuming country_identifier is a country name
             country = pycountry.countries.lookup(country_identifier)
+
+        if country is None:
+            return None
+
         return country.alpha_2
     except LookupError as e:
         logger.warning(e)
