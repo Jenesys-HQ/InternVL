@@ -255,6 +255,8 @@ if __name__ == "__main__":
     # LB_RAFT_GEN_KEY = os.getenv("LB_RAFT_GEN_KEY")
     # LB_PROJECT_ID = os.getenv("LB_PROJECT_ID")
 
+    mlflow.set_tracking_uri("http://localhost:5000")
+
     if mlflow.get_experiment_by_name(EXPERIMENT_NAME) is None:
         mlflow.create_experiment(EXPERIMENT_NAME)
     mlflow.set_experiment(EXPERIMENT_NAME)
