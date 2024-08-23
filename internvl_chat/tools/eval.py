@@ -95,7 +95,6 @@ def evaluate_whole_json_labelbox(model_path: str, gen_key: str, project_id: str)
 
     args = argparse.Namespace(
         checkpoint=model_path,
-        root='./Your_Results',
         num_beams=1,
         top_k=50,
         top_p=0.9,
@@ -171,7 +170,6 @@ def evaluate_whole_json_huggingface(model_path: str, eval_dataset_path: str):
 
     args = argparse.Namespace(
         checkpoint=model_path,
-        root='./Your_Results',
         num_beams=1,
         top_k=50,
         top_p=0.9,
