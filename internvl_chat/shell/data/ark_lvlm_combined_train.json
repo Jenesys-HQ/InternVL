@@ -1,0 +1,9 @@
+{
+  "ark-lvlm-combined-train": {
+    "root": "data/images/",
+    "annotation": "data/processed_whole/ark-lvlm-combined/train.jsonl",
+    "data_augment": false,
+    "repeat_time": 1,
+    "length": 100
+  }
+}
