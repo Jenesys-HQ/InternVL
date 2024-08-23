@@ -1,7 +1,9 @@
 import argparse
 import json
 import logging
+from typing import Any, Dict
 
+import mlflow
 import torch
 from dotenv import load_dotenv
 
@@ -17,6 +19,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
+EXPERIMENT_NAME = 'Invoice Extraction'
 
 def evaluate_by_item(model_path: str, gen_key: str, project_id: str):
     export_data = load_labelbox_data(gen_key, project_id)
@@ -164,7 +167,43 @@ def evaluate_whole_json_labelbox(model_path: str, gen_key: str, project_id: str)
     logger.info(f"Accuracy for Zero-shot extraction: {metrics_helper.accuracy}")
 
 
-def evaluate_whole_json_huggingface(model_path: str, eval_dataset_path: str):
+@mlflow.trace
+def evaluate_whole_json_data_row(model, tokenizer, eval_dataset_row: Dict[str, Any]):
+    labeled_response = extract_json_data(eval_dataset_row['conversations'][1]['value'])
+    standardised_labeled_response = standardise_data_models(labeled_response)
+    logger.debug(f"True data")
+    logger.debug(json.dumps(standardised_labeled_response, indent=4))
+
+    img_path = eval_dataset_row['image']
+    pixel_values = load_image(img_path)
+
+    generation_config = dict(
+        do_sample=args.sample,
+        top_k=args.top_k,
+        top_p=args.top_p,
+        num_beams=args.num_beams,
+        max_new_tokens=1024,
+        eos_token_id=tokenizer.eos_token_id,
+    )
+    response = model.chat(
+        tokenizer=tokenizer,
+        pixel_values=pixel_values,
+        question=PROMPT,
+        generation_config=generation_config,
+        verbose=True
+    )
+
+    predicted_data_row = extract_json_data(response)
+    standardised_predicted_response = standardise_data_models(predicted_data_row)
+    logger.debug(f"Predicted data")
+    logger.debug(json.dumps(standardised_predicted_response, indent=4))
+    logger.debug('-' * 50)
+
+    return standardised_labeled_response, standardised_predicted_response
+
+
+@mlflow.trace
+def evaluate_whole_json_dataset(model_path: str, eval_dataset_path: str):
     with open(eval_dataset_path, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
@@ -186,41 +225,23 @@ def evaluate_whole_json_huggingface(model_path: str, eval_dataset_path: str):
     standardised_labeled_data = []
     standardised_predicted_data = []
     for i, eval_dataset_row in enumerate(eval_dataset):
-        labeled_response = extract_json_data(eval_dataset_row['conversations'][1]['value'])
-        standardised_labeled_response = standardise_data_models(labeled_response)
+        standardised_labeled_response, standardised_predicted_response = evaluate_whole_json_data_row(
+            model, tokenizer, eval_dataset_row)
+
         standardised_labeled_data.append(standardised_labeled_response)
-        logger.debug(f"True data")
-        logger.debug(json.dumps(standardised_labeled_response, indent=4))
-
-        img_path = eval_dataset_row['image']
-        pixel_values = load_image(img_path)
-
-        generation_config = dict(
-            do_sample=args.sample,
-            top_k=args.top_k,
-            top_p=args.top_p,
-            num_beams=args.num_beams,
-            max_new_tokens=1024,
-            eos_token_id=tokenizer.eos_token_id,
-        )
-        response = model.chat(
-            tokenizer=tokenizer,
-            pixel_values=pixel_values,
-            question=PROMPT,
-            generation_config=generation_config,
-            verbose=True
-        )
-
-        predicted_data_row = extract_json_data(response)
-        standardised_predicted_response = standardise_data_models(predicted_data_row)
         standardised_predicted_data.append(standardised_predicted_response)
-        logger.debug(f"Predicted data")
-        logger.debug(json.dumps(standardised_predicted_response, indent=4))
-        logger.debug('-' * 50)
 
     metrics_helper = MetricsHelper()
     metrics_helper.compare_true_pred(standardised_labeled_data, standardised_predicted_data)
     logger.info(f"Accuracy for Zero-shot extraction: {metrics_helper.accuracy}")
+
+    mlflow.log_param("model_path", model_path)
+    mlflow.log_metric("accuracy", metrics_helper.accuracy)
+    mlflow.log_table({
+        "labeled_data": standardised_labeled_data,
+        "predicted_data": standardised_predicted_data
+    }, "data.json")
+    mlflow.transformers.log_model(model, "model")
 
 
 if __name__ == "__main__":
@@ -234,5 +255,10 @@ if __name__ == "__main__":
     # LB_RAFT_GEN_KEY = os.getenv("LB_RAFT_GEN_KEY")
     # LB_PROJECT_ID = os.getenv("LB_PROJECT_ID")
 
-    # evaluate_by_item(args.model_path, LB_RAFT_GEN_KEY, LB_PROJECT_ID)
-    evaluate_whole_json_huggingface(args.model_path, args.eval_dataset)
+    if mlflow.get_experiment_by_name(EXPERIMENT_NAME) is None:
+        mlflow.create_experiment(EXPERIMENT_NAME)
+    mlflow.set_experiment(EXPERIMENT_NAME)
+
+    with mlflow.start_run():
+        # evaluate_by_item(args.model_path, LB_RAFT_GEN_KEY, LB_PROJECT_ID)
+        evaluate_whole_json_dataset(args.model_path, args.eval_dataset)

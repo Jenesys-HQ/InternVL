@@ -1,15 +1,16 @@
-from dotenv import load_dotenv
 import json
+import logging
 import os
 import re
-import logging
-import requests
+import uuid
 from os.path import join, dirname, abspath, exists
 from typing import Any, List, Dict, Tuple
+
 import boto3
-import uuid
-import pdf2image
 import labelbox
+import pdf2image
+import requests
+from dotenv import load_dotenv
 
 from constants import JSON_STRUCTURE, PROMPT
 from standardisation import standardise_data_models
