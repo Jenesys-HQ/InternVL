@@ -207,19 +207,6 @@ def evaluate_whole_json_dataset(model_path: str, eval_dataset_path: str):
     with open(eval_dataset_path, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
-    args = argparse.Namespace(
-        checkpoint=model_path,
-        num_beams=1,
-        top_k=50,
-        top_p=0.9,
-        sample=True,
-        dynamic=False,
-        max_num=6,
-        load_in_8bit=False,
-        load_in_4bit=False,
-        auto=False,
-    )
-
     model, tokenizer = load_model_and_tokenizer(args)
 
     standardised_labeled_data = []
@@ -252,10 +239,26 @@ if __name__ == "__main__":
     parser.add_argument("--eval-dataset", help="Path to the dataset for evaluation", type=str)
     args = parser.parse_args()
 
+    args2 = argparse.Namespace(
+        checkpoint=args.model_path,
+        num_beams=1,
+        top_k=50,
+        top_p=0.9,
+        sample=True,
+        dynamic=False,
+        max_num=6,
+        load_in_8bit=False,
+        load_in_4bit=False,
+        auto=False,
+    )
+
+    args = argparse.Namespace(**vars(args), **vars(args2))
+
+
     # LB_RAFT_GEN_KEY = os.getenv("LB_RAFT_GEN_KEY")
     # LB_PROJECT_ID = os.getenv("LB_PROJECT_ID")
 
-    mlflow.set_tracking_uri("http://localhost:5000")
+    mlflow.set_tracking_uri("http://127.0.0.1:5000")
 
     if mlflow.get_experiment_by_name(EXPERIMENT_NAME) is None:
         mlflow.create_experiment(EXPERIMENT_NAME)
@@ -263,4 +266,4 @@ if __name__ == "__main__":
 
     with mlflow.start_run():
         # evaluate_by_item(args.model_path, LB_RAFT_GEN_KEY, LB_PROJECT_ID)
-        evaluate_whole_json_dataset(args.model_path, args.eval_dataset)
+        evaluate_whole_json_dataset()
