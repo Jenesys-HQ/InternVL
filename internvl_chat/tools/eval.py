@@ -204,7 +204,7 @@ def evaluate_whole_json_data_row(model, tokenizer, eval_dataset_row: Dict[str, A
 
 @mlflow.trace
 def evaluate_whole_json_dataset():
-    with open(args.eval_dataset_path, 'r') as file:
+    with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
     model, tokenizer = load_model_and_tokenizer(args)
