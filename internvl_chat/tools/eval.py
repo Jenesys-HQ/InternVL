@@ -203,8 +203,8 @@ def evaluate_whole_json_data_row(model, tokenizer, eval_dataset_row: Dict[str, A
 
 
 @mlflow.trace
-def evaluate_whole_json_dataset(model_path: str, eval_dataset_path: str):
-    with open(eval_dataset_path, 'r') as file:
+def evaluate_whole_json_dataset():
+    with open(args.eval_dataset_path, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
     model, tokenizer = load_model_and_tokenizer(args)
@@ -222,7 +222,7 @@ def evaluate_whole_json_dataset(model_path: str, eval_dataset_path: str):
     metrics_helper.compare_true_pred(standardised_labeled_data, standardised_predicted_data)
     logger.info(f"Accuracy for Zero-shot extraction: {metrics_helper.accuracy}")
 
-    mlflow.log_param("model_path", model_path)
+    mlflow.log_param("model_path", args.model_path)
     mlflow.log_metric("accuracy", metrics_helper.accuracy)
     mlflow.log_table({
         "labeled_data": standardised_labeled_data,
