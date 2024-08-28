@@ -66,5 +66,5 @@ torchrun \
   --use_thumbnail True \
   --ps_version 'v2' \
   --deepspeed "zero_stage3_config.json" \
-  --report_to "tensorboard" \
+  --report_to "mlflow" \
   2>&1 | tee -a "${OUTPUT_DIR}/${CURRENT_DATE}_training_log.txt"
