@@ -169,33 +169,29 @@ def evaluate_whole_json_labelbox(model_path: str, gen_key: str, project_id: str)
 
 @mlflow.trace
 def evaluate_whole_json_data_row(model, tokenizer, eval_dataset_row: Dict[str, Any], generation_config: Dict[str, Any]):
-    with mlflow.start_span('prepare_labelled'):
-        labeled_response = extract_json_data(eval_dataset_row['conversations'][1]['value'])
-        standardised_labeled_response = standardise_data_models(labeled_response)
+    labeled_response = extract_json_data(eval_dataset_row['conversations'][1]['value'])
+    standardised_labeled_response = standardise_data_models(labeled_response)
 
-        logger.debug(f"True data")
-        logger.debug(json.dumps(standardised_labeled_response, indent=4))
+    logger.debug(f"True data")
+    logger.debug(json.dumps(standardised_labeled_response, indent=4))
 
-    with mlflow.start_span('load_image'):
-        img_path = eval_dataset_row['image']
-        pixel_values = load_image(img_path)
+    img_path = eval_dataset_row['image']
+    pixel_values = load_image(img_path)
 
-    with mlflow.start_span('generate_response'):
-        response = model.chat(
-            tokenizer=tokenizer,
-            pixel_values=pixel_values,
-            question=PROMPT,
-            generation_config=generation_config,
-            verbose=True
-        )
+    response = model.chat(
+        tokenizer=tokenizer,
+        pixel_values=pixel_values,
+        question=PROMPT,
+        generation_config=generation_config,
+        verbose=True
+    )
 
-    with mlflow.start_span('prepare_predicted'):
-        predicted_data_row = extract_json_data(response)
-        standardised_predicted_response = standardise_data_models(predicted_data_row)
+    predicted_data_row = extract_json_data(response)
+    standardised_predicted_response = standardise_data_models(predicted_data_row)
 
-        logger.debug(f"Predicted data")
-        logger.debug(json.dumps(standardised_predicted_response, indent=4))
-        logger.debug('-' * 50)
+    logger.debug(f"Predicted data")
+    logger.debug(json.dumps(standardised_predicted_response, indent=4))
+    logger.debug('-' * 50)
 
     return standardised_labeled_response, standardised_predicted_response
 
@@ -203,9 +199,6 @@ def evaluate_whole_json_data_row(model, tokenizer, eval_dataset_row: Dict[str, A
 def evaluate_whole_json_dataset():
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
-
-    # TODO remove this line, only for debugging
-    eval_dataset = eval_dataset[:1]
 
     model, tokenizer = load_model_and_tokenizer(args)
 
