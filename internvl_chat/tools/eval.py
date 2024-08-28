@@ -204,6 +204,9 @@ def evaluate_whole_json_dataset():
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
+    # TODO remove this line, only for debugging
+    eval_dataset = eval_dataset[:1]
+
     model, tokenizer = load_model_and_tokenizer(args)
 
     generation_config = dict(
