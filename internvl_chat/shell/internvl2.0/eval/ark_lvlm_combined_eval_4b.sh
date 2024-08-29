@@ -2,15 +2,12 @@ set -x
 
 CURRENT_DATE=$(date +"%Y-%m-%d-%H-%M-%S")
 GPUS=${GPUS:-1}
-BATCH_SIZE=${BATCH_SIZE:-16}
-PER_DEVICE_BATCH_SIZE=${PER_DEVICE_BATCH_SIZE:-4}
-GRADIENT_ACC=$((BATCH_SIZE / PER_DEVICE_BATCH_SIZE / GPUS))
-EPOCHS=${EPOCHS:-1}
 
 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
 export MASTER_PORT=34229
 export TF_CPP_MIN_LOG_LEVEL=3
 export LAUNCHER=pytorch
+export MLFLOW_TRACKING_ARN="arn:aws:sagemaker:eu-west-1:899757773314:mlflow-tracking-server/test"
 
 OUTPUT_DIR="work_dirs/internvl_chat_v2_0/ark_lvlm_combined_finetune_lora_4b"
 
