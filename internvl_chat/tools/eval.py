@@ -208,6 +208,9 @@ def evaluate_whole_json_dataset():
 
     model, tokenizer = load_model_and_tokenizer(args)
 
+    model = torch.nn.DataParallel(model)
+    model = model.cuda()
+
     generation_config = dict(
         do_sample=args.sample,
         top_k=args.top_k,
