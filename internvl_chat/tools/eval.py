@@ -230,7 +230,6 @@ def evaluate_whole_json_dataset():
     metrics_helper.compare_true_pred(standardised_labeled_data, standardised_predicted_data)
     logger.info(f"Accuracy for Zero-shot extraction: {metrics_helper.accuracy}")
 
-    mlflow.log_params(vars(args))
     mlflow.log_metric("accuracy", metrics_helper.accuracy)
     mlflow.log_table({
         "labeled_data": standardised_labeled_data,
@@ -277,4 +276,17 @@ if __name__ == "__main__":
 
     with mlflow.start_run():
         # evaluate_by_item(args.model_path, LB_RAFT_GEN_KEY, LB_PROJECT_ID)
+
+        mlflow.log_param("model_path", args.model_path)
+        mlflow.log_param("eval_dataset", args.eval_dataset)
+        mlflow.log_param("sample", args.sample)
+        mlflow.log_param("top_k", args.top_k)
+        mlflow.log_param("top_p", args.top_p)
+        mlflow.log_param("num_beams", args.num_beams)
+        mlflow.log_param("dynamic", args.dynamic)
+        mlflow.log_param("max_num", args.max_num)
+        mlflow.log_param("load_in_8bit", args.load_in_8bit)
+        mlflow.log_param("load_in_4bit", args.load_in_4bit)
+        mlflow.log_param("auto", args.auto)
+
         evaluate_whole_json_dataset()
