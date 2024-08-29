@@ -203,8 +203,8 @@ def evaluate_whole_json_dataset():
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
-    #TODO only for testing purposes, remove later
-    eval_dataset = eval_dataset[:1]
+    # #TODO only for testing purposes, remove later
+    # eval_dataset = eval_dataset[:1]
 
     model, tokenizer = load_model_and_tokenizer(args)
 
