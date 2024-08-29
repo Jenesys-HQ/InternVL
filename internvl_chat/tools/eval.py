@@ -6,12 +6,14 @@ from typing import Any, Dict
 
 import mlflow
 import torch
+import torch.distributed as dist
 from dotenv import load_dotenv
 
 from constants import PROMPT
 from data_utils import extract_invoice_data, load_labelbox_data, transform_invoice_data, flatten_data, extract_json_data
 from img_utils import get_pdf_base64_from_img_url, pdf_to_image_base64_function, load_image_bs64, \
     pdfs_to_images_base64_function, load_image
+from internvl.dist_utils import init_dist
 from internvl.model import load_model_and_tokenizer
 from standardisation import standardise_data_models, standardise_data_value
 from metrics import MetricsHelper
@@ -201,6 +203,9 @@ def evaluate_whole_json_dataset():
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
+    #TODO only for testing purposes, remove later
+    eval_dataset = eval_dataset[:1]
+
     model, tokenizer = load_model_and_tokenizer(args)
 
     generation_config = dict(
@@ -258,6 +263,8 @@ if __name__ == "__main__":
 
     args = argparse.Namespace(**vars(args), **vars(args2))
 
+    launcher = os.environ.get('LAUNCHER', 'slurm')
+    init_dist(launcher=launcher, backend='nccl')
 
     # LB_RAFT_GEN_KEY = os.getenv("LB_RAFT_GEN_KEY")
     # LB_PROJECT_ID = os.getenv("LB_PROJECT_ID")
