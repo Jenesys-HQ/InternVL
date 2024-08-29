@@ -208,9 +208,6 @@ def evaluate_whole_json_dataset():
 
     model, tokenizer = load_model_and_tokenizer(args)
 
-    model = torch.nn.DataParallel(model)
-    model = model.cuda()
-
     generation_config = dict(
         do_sample=args.sample,
         top_k=args.top_k,
@@ -238,7 +235,12 @@ def evaluate_whole_json_dataset():
         "labeled_data": standardised_labeled_data,
         "predicted_data": standardised_predicted_data
     }, "data.json")
-    # mlflow.transformers.log_model(model, "model")
+    mlflow.transformers.log_model(
+        transformers_model={"model": model, "tokenizer": tokenizer},
+        # prompt_template=prompt_template,
+        # signature=signature,
+        artifact_path="model",  # This is a relative path to save model files within MLflow run
+    )
 
 
 if __name__ == "__main__":
