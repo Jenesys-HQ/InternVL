@@ -225,12 +225,13 @@ def evaluate_whole_json_dataset():
     metrics_helper.compare_true_pred(standardised_labeled_data, standardised_predicted_data)
     logger.info(f"Accuracy for Zero-shot extraction: {metrics_helper.accuracy}")
 
-    mlflow.log_param("model_path", args.model_path)
+    mlflow.log_params(vars(args))
     mlflow.log_metric("accuracy", metrics_helper.accuracy)
     mlflow.log_table({
         "labeled_data": standardised_labeled_data,
         "predicted_data": standardised_predicted_data
     }, "data.json")
+    mlflow.log_input(args.eval_dataset, "eval_dataset.json")
     # mlflow.transformers.log_model(model, "model")
 
 
