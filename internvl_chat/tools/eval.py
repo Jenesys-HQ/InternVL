@@ -168,7 +168,7 @@ def evaluate_whole_json_labelbox(model_path: str, gen_key: str, project_id: str)
     logger.info(f"Accuracy for Zero-shot extraction: {metrics_helper.accuracy}")
 
 
-@mlflow.trace
+# @mlflow.trace
 def evaluate_whole_json_data_row(model, tokenizer, eval_dataset_row: Dict[str, Any], generation_config: Dict[str, Any]):
     labeled_response = extract_json_data(eval_dataset_row['conversations'][1]['value'])
     standardised_labeled_response = standardise_data_models(labeled_response)
