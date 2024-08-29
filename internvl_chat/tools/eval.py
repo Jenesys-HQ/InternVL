@@ -235,7 +235,6 @@ def evaluate_whole_json_dataset():
         "labeled_data": standardised_labeled_data,
         "predicted_data": standardised_predicted_data
     }, "data.json")
-    mlflow.log_input(args.eval_dataset, "eval_dataset.json")
     # mlflow.transformers.log_model(model, "model")
 
 
