@@ -16,11 +16,6 @@ if [ ! -d "$OUTPUT_DIR" ]; then
   mkdir -p "$OUTPUT_DIR"
 fi
 
-# number of gpus: 2
-# batch size per gpu: 4
-# gradient accumulation steps: 2
-# total batch size: 16
-# epoch: 1
 torchrun \
   --nnodes=1 \
   --node_rank=0 \
