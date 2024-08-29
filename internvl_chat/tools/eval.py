@@ -236,10 +236,10 @@ def evaluate_whole_json_dataset():
         "predicted_data": standardised_predicted_data
     }, "data.json")
     mlflow.transformers.log_model(
-        transformers_model={"model": model, "tokenizer": tokenizer},
-        # prompt_template=prompt_template,
-        # signature=signature,
-        artifact_path="model",  # This is a relative path to save model files within MLflow run
+        transformers_model=model,
+        artifact_path="model",
+        task="llm/v1/chat",
+        save_pretrained=False,
     )
 
 
