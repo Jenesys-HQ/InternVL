@@ -2,21 +2,19 @@ import argparse
 import json
 import logging
 import os
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 import mlflow
 import torch
-# import torch.distributed as dist
 from dotenv import load_dotenv
 
 from constants import PROMPT
 from data_utils import extract_invoice_data, load_labelbox_data, transform_invoice_data, flatten_data, extract_json_data
 from img_utils import get_pdf_base64_from_img_url, pdf_to_image_base64_function, load_image_bs64, \
     pdfs_to_images_base64_function, load_image
-# from internvl.dist_utils import init_dist
 from internvl.model import load_model_and_tokenizer
-from standardisation import standardise_data_models, standardise_data_value
 from metrics import MetricsHelper
+from standardisation import standardise_data_models, standardise_data_value
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -169,8 +167,8 @@ def evaluate_whole_json_labelbox(model_path: str, gen_key: str, project_id: str)
     logger.info(f"Accuracy for Zero-shot extraction: {metrics_helper.accuracy}")
 
 
-# @mlflow.trace
-def evaluate_whole_json_data_row(model, tokenizer, eval_dataset_row: Dict[str, Any], generation_config: Dict[str, Any]):
+def evaluate_whole_json_data_row(model, tokenizer, eval_dataset_row: Dict[str, Any],
+                                 generation_config: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     labeled_response = extract_json_data(eval_dataset_row['conversations'][1]['value'])
     standardised_labeled_response = standardise_data_models(labeled_response)
 
@@ -201,9 +199,6 @@ def evaluate_whole_json_data_row(model, tokenizer, eval_dataset_row: Dict[str, A
 def evaluate_whole_json_dataset():
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
-
-    # #TODO only for testing purposes, remove later
-    eval_dataset = eval_dataset[:1]
 
     model, tokenizer = load_model_and_tokenizer(args)
 
@@ -249,28 +244,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-path", help="Path to the model for evaluation", type=str)
     parser.add_argument("--eval-dataset", help="Path to the dataset for evaluation", type=str)
+    parser.add_argument("--sample", help="Whether to sample from the model", type=bool, default=True)
+    parser.add_argument("--top-k", help="Top k tokens to consider", type=int, default=50)
+    parser.add_argument("--top-p", help="Top p tokens to consider", type=float, default=0.9)
+    parser.add_argument("--num-beams", help="Number of beams to use for generation", type=int, default=1)
+    parser.add_argument("--dynamic", help="Whether to use dynamic generation", type=bool, default=False)
+    parser.add_argument("--max-num", help="Maximum number of images to load", type=int, default=6)
+    parser.add_argument("--load-in-8bit", help="Whether to load images in 8-bit", type=bool, default=False)
+    parser.add_argument("--load-in-4bit", help="Whether to load images in 4-bit", type=bool, default=False)
+    parser.add_argument("--auto", help="Whether to use auto-regressive generation", type=bool, default=False)
+
     args = parser.parse_args()
-
-    args2 = argparse.Namespace(
-        checkpoint=args.model_path,
-        num_beams=1,
-        top_k=50,
-        top_p=0.9,
-        sample=True,
-        dynamic=False,
-        max_num=6,
-        load_in_8bit=False,
-        load_in_4bit=False,
-        auto=False,
-    )
-
-    args = argparse.Namespace(**vars(args), **vars(args2))
-
-    # launcher = os.environ.get('LAUNCHER', 'slurm')
-    # init_dist(launcher=launcher, backend='nccl')
-
-    # LB_RAFT_GEN_KEY = os.getenv("LB_RAFT_GEN_KEY")
-    # LB_PROJECT_ID = os.getenv("LB_PROJECT_ID")
 
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
     if tracking_uri is not None:
