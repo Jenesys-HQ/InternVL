@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
-EXPERIMENT_NAME = 'Invoice Extraction'
 
 def evaluate_by_item(model_path: str, gen_key: str, project_id: str):
     export_data = load_labelbox_data(gen_key, project_id)
@@ -230,17 +229,18 @@ def evaluate_whole_json_dataset():
     metrics_helper.compare_true_pred(standardised_labeled_data, standardised_predicted_data)
     logger.info(f"Accuracy for Zero-shot extraction: {metrics_helper.accuracy}")
 
-    mlflow.log_metric("accuracy", metrics_helper.accuracy)
-    mlflow.log_table({
-        "labeled_data": standardised_labeled_data,
-        "predicted_data": standardised_predicted_data
-    }, "data.json")
-    mlflow.transformers.log_model(
-        transformers_model={"model": model, "tokenizer": tokenizer},
-        artifact_path="model",
-        task="llm/v1/chat",
-        save_pretrained=False,
-    )
+    if mlflow.active_run():
+        mlflow.log_metric("accuracy", metrics_helper.accuracy)
+        mlflow.log_table({
+            "labeled_data": standardised_labeled_data,
+            "predicted_data": standardised_predicted_data
+        }, "data.json")
+        mlflow.transformers.log_model(
+            transformers_model={"model": model, "tokenizer": tokenizer},
+            artifact_path="model",
+            task="llm/v1/chat",
+            save_pretrained=False,
+        )
 
 
 if __name__ == "__main__":
@@ -272,14 +272,18 @@ if __name__ == "__main__":
     # LB_RAFT_GEN_KEY = os.getenv("LB_RAFT_GEN_KEY")
     # LB_PROJECT_ID = os.getenv("LB_PROJECT_ID")
 
-    mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_ARN", 'http://127.0.0.1:5000'))
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+    if tracking_uri is not None:
+        mlflow.set_tracking_uri(tracking_uri)
 
-    if mlflow.get_experiment_by_name(EXPERIMENT_NAME) is None:
-        mlflow.create_experiment(EXPERIMENT_NAME)
-    mlflow.set_experiment(EXPERIMENT_NAME)
+        experiment_name = os.getenv("MLFLOW_EXPERIMENT_NAME")
 
-    with mlflow.start_run():
-        # evaluate_by_item(args.model_path, LB_RAFT_GEN_KEY, LB_PROJECT_ID)
+        if mlflow.get_experiment_by_name(experiment_name) is None:
+            mlflow.create_experiment(experiment_name)
+        mlflow.set_experiment(experiment_name)
+
+        run_name = os.getenv("MLFLOW_RUN_NAME")
+        mlflow.start_run(run_name=run_name)
 
         mlflow.log_param("model_path", args.model_path)
         mlflow.log_param("eval_dataset", args.eval_dataset)
@@ -293,4 +297,4 @@ if __name__ == "__main__":
         mlflow.log_param("load_in_4bit", args.load_in_4bit)
         mlflow.log_param("auto", args.auto)
 
-        evaluate_whole_json_dataset()
+    evaluate_whole_json_dataset()
