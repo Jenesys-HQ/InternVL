@@ -298,3 +298,6 @@ if __name__ == "__main__":
         mlflow.log_param("auto", args.auto)
 
     evaluate_whole_json_dataset()
+
+    if tracking_uri is not None:
+        mlflow.end_run()
