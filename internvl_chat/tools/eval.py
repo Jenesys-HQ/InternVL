@@ -255,6 +255,7 @@ if __name__ == "__main__":
     parser.add_argument("--auto", help="Whether to use auto-regressive generation", type=bool, default=False)
 
     args = parser.parse_args()
+    args.checkpoint = args.model_path # load_model_and_tokenizer requires checkpoint
 
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
     if tracking_uri is not None:
