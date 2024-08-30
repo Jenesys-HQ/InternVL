@@ -1,8 +1,8 @@
 set -x
 
 CURRENT_DATE=$(date +"%Y-%m-%d-%H-%M-%S")
-MODEL_NAME="internvl2_40b"
-OUTPUT_DIR="pretrained/${MODEL_NAME}"
+RUN_NAME="internvl2_40b_eval_${CURRENT_DATE}"
+OUTPUT_DIR="eval/${RUN_NAME}"
 
 if [ ! -d "$OUTPUT_DIR" ]; then
   mkdir -p "$OUTPUT_DIR"
@@ -13,7 +13,6 @@ export MASTER_PORT=34229
 export TF_CPP_MIN_LOG_LEVEL=3
 export LAUNCHER=pytorch
 export MLFLOW_TRACKING_ARN="arn:aws:sagemaker:eu-west-1:899757773314:mlflow-tracking-server/test"
-export RUN_NAME="${MODEL_PATH}_eval_${CURRENT_DATE}"
 
 python tools/eval.py \
   --model-path "OpenGVLab/InternVL2-40B" \
