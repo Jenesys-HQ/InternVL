@@ -4,8 +4,8 @@ CURRENT_DATE=$(date +"%Y-%m-%d-%H-%M-%S")
 MODEL_NAME="ark_lvlm_lora_26b"
 MODEL_PATH="models/${MODEL_NAME}"
 
-if [ ! -d "$OUTPUT_DIR" ]; then
-  mkdir -p "$OUTPUT_DIR"
+if [ ! -d "$MODEL_PATH" ]; then
+  mkdir -p "$MODEL_PATH"
 fi
 
 export PYTHONPATH="${PYTHONPATH}:$(pwd)"
