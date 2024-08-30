@@ -17,6 +17,6 @@ export MLFLOW_EXPERIMENT_NAME="Invoice Extraction"
 export MLFLOW_RUN_NAME="${MODEL_NAME}_eval_${CURRENT_DATE}"
 
 python tools/eval.py \
-  --model-path "OpenGVLab/InternVL2-4B" \
+  --model-path "pretrained/InternVL2-4B" \
   --eval-dataset "data/processed_whole/ark-lvlm-combined/test.jsonl" \
   2>&1 | tee -a "${OUTPUT_DIR}/${CURRENT_DATE}_eval_log.txt"
