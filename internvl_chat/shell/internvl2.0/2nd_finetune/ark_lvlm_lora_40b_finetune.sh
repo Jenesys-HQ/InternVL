@@ -3,26 +3,25 @@ set -x
 CURRENT_DATE=$(date +"%Y-%m-%d-%H-%M-%S")
 GPUS=${GPUS:-1}
 BATCH_SIZE=${BATCH_SIZE:-16}
-PER_DEVICE_BATCH_SIZE=${PER_DEVICE_BATCH_SIZE:-2}
+PER_DEVICE_BATCH_SIZE=${PER_DEVICE_BATCH_SIZE:-4}
 GRADIENT_ACC=$((BATCH_SIZE / PER_DEVICE_BATCH_SIZE / GPUS))
 EPOCHS=${EPOCHS:-1}
-
-export PYTHONPATH="${PYTHONPATH}:$(pwd)"
-export MASTER_PORT=34229
-export TF_CPP_MIN_LOG_LEVEL=3
-export LAUNCHER=pytorch
-
-OUTPUT_DIR="work_dirs/internvl_chat_v2_0/ark_lvlm_combined_finetune_lora_40b"
+RUN_NAME="ark_lvlm_combined_finetune_lora_40b_${CURRENT_DATE}"
+OUTPUT_DIR="models/${RUN_NAME}"
 
 if [ ! -d "$OUTPUT_DIR" ]; then
   mkdir -p "$OUTPUT_DIR"
 fi
 
-# number of gpus: 2
-# batch size per gpu: 2
-# gradient accumulation steps: 4
-# total batch size: 16
-# epoch: 1
+export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+export MASTER_PORT=34229
+export TF_CPP_MIN_LOG_LEVEL=3
+export LAUNCHER=pytorch
+export HF_MLFLOW_LOG_ARTIFACTS="true"
+export MLFLOW_TRACKING_URI="arn:aws:sagemaker:eu-west-1:899757773314:mlflow-tracking-server/test"
+export MLFLOW_EXPERIMENT_NAME="Invoice Extraction"
+export MFLOW_FLATTEN_PARAMS="true"
+
 torchrun \
   --nnodes=1 \
   --node_rank=0 \
@@ -30,7 +29,7 @@ torchrun \
   --nproc_per_node=${GPUS} \
   --master_port=${MASTER_PORT} \
   internvl/train/internvl_chat_finetune.py \
-  --model_name_or_path "./pretrained/InternVL2-40B" \
+  --model_name_or_path "OpenGVLab/InternVL2-40B" \
   --conv_style "Hermes-2" \
   --output_dir ${OUTPUT_DIR} \
   --meta_path "./shell/data/ark_lvlm_combined_train.json" \
@@ -66,5 +65,6 @@ torchrun \
   --use_thumbnail True \
   --ps_version 'v2' \
   --deepspeed "zero_stage3_config_34b.json" \
-  --report_to "tensorboard" \
+  --report_to "mlflow" \
+  --run_name "${RUN_NAME}" \
   2>&1 | tee -a "${OUTPUT_DIR}/${CURRENT_DATE}_training_log.txt"
