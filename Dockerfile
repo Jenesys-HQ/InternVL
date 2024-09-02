@@ -6,8 +6,8 @@ ENV TORCH_CUDA_ARCH_LIST="8.0 8.6 9.0+PTX"
 RUN cd /opt && \
     pip install --upgrade pip && \
     pip list | \
-     awk '{print$1"=="$2}' | \
-     tail +3 > pip_constraints.txt
+    awk '{print$1"=="$2}' | \
+    tail +3 > pip_constraints.txt
 
 RUN apt update && \
     apt install -y --no-install-recommends libaio-dev
@@ -16,28 +16,29 @@ RUN apt update && \
 # Installation/Basic Utilities
 ##############################################################################
 RUN apt-get update && \
-        apt-get install -y --no-install-recommends \
-        software-properties-common build-essential autotools-dev \
-        nfs-common pdsh \
-        cmake g++ gcc \
-        curl wget vim tmux emacs less unzip \
-        htop iftop iotop ca-certificates openssh-client openssh-server \
-        rsync iputils-ping net-tools sudo \
-        llvm-dev
+    apt-get install -y --no-install-recommends \
+    software-properties-common build-essential autotools-dev \
+    nfs-common pdsh \
+    cmake g++ gcc \
+    curl wget vim tmux emacs less unzip \
+    htop iftop iotop ca-certificates openssh-client openssh-server \
+    rsync iputils-ping net-tools sudo \
+    llvm-dev ffmpeg libsm6 libxext6
+
 
 RUN pip install --upgrade pip && \
     pip install \
-      triton \
-      ninja \
-      hjson \
-     py-cpuinfo \
-      mpi4py
+    triton \
+    ninja \
+    hjson \
+    py-cpuinfo \
+    mpi4py
 
 ##############################################################################
 # PyYAML build issue
 ##############################################################################
 RUN rm -rf /usr/lib/python3/dist-packages/yaml && \
-        rm -rf /usr/lib/python3/dist-packages/PyYAML-*
+    rm -rf /usr/lib/python3/dist-packages/PyYAML-*
 
 ##############################################################################
 # AWS CLI Setup
@@ -93,10 +94,8 @@ RUN python -c "import deepspeed; print(deepspeed.__version__)"
 # Set working repository 
 RUN git clone https://github.com/Jenesys-HQ/InternVL.git
 RUN cd /workspace/InternVL
-# RUN ls /workspace/InternVL
 
 RUN pip install -r /workspace/InternVL/requirements/internvl_chat.txt
-RUN pip install transformer-engine --upgrade
-RUN pip install flash-attn==2.3.6 --no-build-isolation
+RUN pip uninstall transformer-engine
 
 RUN python -c "import torch; print(torch.__version__)"
