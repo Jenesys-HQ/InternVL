@@ -1,0 +1,9 @@
+version: '3.9'
+services:
+  server:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    image: jack2ai/jack-internvl:latest
+    
+    command: /bin/bash
