@@ -105,7 +105,7 @@ RUN ~/miniconda/bin/conda create -y -n internvl python=3.10 && \
 ###############################################################################
 RUN git clone https://github.com/Jenesys-HQ/InternVL.git && \
     cd /workspace/InternVL && \
-    git checkout AIRF-221/setup-docker-container # TODO remove this line after testing
+    git checkout AIR-221/setup-docker-container # TODO remove this line after testing
 
 RUN pip install -r ./requirements/internvl_chat.txt && \
     pip install -r ./requirements/internvl_chat_eval.txt && \
