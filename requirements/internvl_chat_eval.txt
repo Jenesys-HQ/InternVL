@@ -3,3 +3,5 @@ pyap
 pycountry
 python-dotenv
 datasets
+labelbox
+postal

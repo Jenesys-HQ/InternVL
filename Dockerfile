@@ -104,8 +104,18 @@ RUN git clone https://github.com/Jenesys-HQ/InternVL.git && \
     cd /workspace/InternVL && \
     git checkout AIR-221/setup-docker-container # TODO remove this line after testing
 
+RUN cd ~ \
+ && git clone https://github.com/openvenues/libpostal \
+ && cd libpostal \
+ && ./bootstrap.sh \
+ && ./configure \
+ && sudo make \
+ && sudo make install
+
 RUN pip install -r /workspace/InternVL/requirements/internvl_chat.txt && \
     pip install -r /workspace/InternVL/requirements/internvl_chat_eval.txt && \
     pip uninstall transformer-engine -y
+
+WORKDIR /workspace/InternVL/internvl_chat
 
 #RUN python -c "import torch; print(torch.__version__)"
