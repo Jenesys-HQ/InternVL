@@ -4,12 +4,6 @@ FROM ${FROM_IMAGE_NAME}
 
 ENV TORCH_CUDA_ARCH_LIST="8.0 8.6 9.0+PTX"
 
-#RUN cd /opt && \
-#    pip install --upgrade pip && \
-#    pip list | \
-#    awk '{print$1"=="$2}' | \
-#    tail +3 > pip_constraints.txt
-
 ##############################################################################
 # Installation/Basic Utilities
 ##############################################################################
@@ -34,9 +28,6 @@ RUN useradd --create-home --uid 1000 --shell /bin/bash jack \
  && usermod -aG sudo jack \
  && echo "jack ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-## Ensure 'jack' has access to necessary directories
-#RUN chown -R jack:jack /miniconda3 ${STAGE_DIR}
-
 # Switch to non-root user
 USER jack
 
@@ -56,45 +47,6 @@ RUN ~/miniconda/bin/conda init bash \
  && ~/miniconda/bin/conda create -y -n internvl python=3.10 \
  && ~/miniconda/bin/conda clean -a -y \
  && echo "conda activate internvl" >> ~/.bashrc
-
-
-#RUN pip install --upgrade pip \
-# && pip install \
-#    triton \
-#    ninja \
-#    hjson \
-#    py-cpuinfo
-#    mpi4py
-
-##############################################################################
-# PyYAML build issue
-##############################################################################
-#RUN rm -rf /usr/lib/python3/dist-packages/yaml && \
-#    rm -rf /usr/lib/python3/dist-packages/PyYAML-*
-
-##############################################################################
-# AWS CLI Setup
-##############################################################################
-#RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-#    && unzip awscliv2.zip \
-#    && ./aws/install \
-#    && rm -rf awscliv2.zip
-
-###############################################################################
-## Temporary Installation Directory
-###############################################################################
-#ENV STAGE_DIR=/tmp
-#RUN mkdir -p ${STAGE_DIR}
-
-###############################################################################
-## Install DeepSpeed as 'jack' user
-###############################################################################
-#RUN git clone https://github.com/microsoft/DeepSpeed.git ${STAGE_DIR}/DeepSpeed && \
-#    cd ${STAGE_DIR}/DeepSpeed && \
-#    git checkout master && \
-#    ./install.sh --pip_sudo && \
-#    rm -rf ${STAGE_DIR}/DeepSpeed
-#
 
 ###############################################################################
 ## Set working repository
@@ -118,10 +70,9 @@ RUN cd ~ \
 ###############################################################################
 ## Install requirements
 ###############################################################################
-RUN pip install -r /workspace/InternVL/requirements/internvl_chat.txt && \
-    pip install -r /workspace/InternVL/requirements/internvl_chat_eval.txt && \
-    pip uninstall transformer-engine -y
+RUN pip uninstall transformer-engine -y && \
+    pip install -r /workspace/InternVL/requirements/internvl_chat.txt && \
+    pip install flash-attn==2.6.3 --no-build-isolation && \
+    pip install -r /workspace/InternVL/requirements/internvl_chat_eval.txt
 
 WORKDIR /workspace/InternVL/internvl_chat
-
-#RUN python -c "import torch; print(torch.__version__)"
