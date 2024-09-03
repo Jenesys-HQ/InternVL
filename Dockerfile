@@ -64,8 +64,8 @@ RUN pip install --upgrade pip \
     triton \
     ninja \
     hjson \
-    py-cpuinfo \
-    mpi4py
+    py-cpuinfo
+#    mpi4py
 
 ##############################################################################
 # PyYAML build issue
