@@ -32,8 +32,9 @@ RUN mkdir -p /miniconda3 && \
     bash /miniconda3/miniconda.sh -b -u -p /miniconda3 && \
     rm -rf /miniconda3/miniconda.sh && \
     /miniconda3/bin/conda init bash && \
-    /miniconda3/bin/conda create -y -n internvl python=3.10 && \
-    /miniconda3/bin/conda activate internvl
+    source ~/.bashrc && \
+    conda create -y -n internvl python=3.10 && \
+    conda activate internvl
 
 #RUN pip install --upgrade pip && \
 #    pip install \
