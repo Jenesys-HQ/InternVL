@@ -26,7 +26,6 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-
 ##############################################################################
 # Add jack user
 ##############################################################################
@@ -55,8 +54,8 @@ ENV CONDA_DEFAULT_ENV internvl
 RUN ~/miniconda/bin/conda create -y -n internvl python=3.10 && \
     ~/miniconda/bin/conda clean -a -y
 
-#RUN echo "conda activate internvl" >> ~/.bashrc && \
-#    . ~/.bashrc
+RUN echo "source ~/miniconda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate internvl" >> ~/.bashrc
 
 #RUN pip install --upgrade pip && \
 #    pip install \
@@ -79,15 +78,12 @@ RUN ~/miniconda/bin/conda create -y -n internvl python=3.10 && \
 #    && unzip awscliv2.zip \
 #    && ./aws/install \
 #    && rm -rf awscliv2.zip
-#
+
 ###############################################################################
 ## Temporary Installation Directory
 ###############################################################################
 #ENV STAGE_DIR=/tmp
 #RUN mkdir -p ${STAGE_DIR}
-
-
-
 
 ###############################################################################
 ## Install DeepSpeed as 'jack' user
