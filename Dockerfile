@@ -76,25 +76,29 @@ RUN chown -R jack:jack /miniconda3 ${STAGE_DIR}
 USER jack
 
 ##############################################################################
-# Install DeepSpeed as 'jack' user
+# Create and activate conda environemnt
 ##############################################################################
-RUN git clone https://github.com/microsoft/DeepSpeed.git ${STAGE_DIR}/DeepSpeed && \
-    cd ${STAGE_DIR}/DeepSpeed && \
-    git checkout master && \
-    ./install.sh --pip_sudo && \
-    rm -rf ${STAGE_DIR}/DeepSpeed
-
-#RUN python -c "import deepspeed; print(deepspeed.__version__)"
-
-##############################################################################
-# Set working repository
-##############################################################################
-RUN git clone https://github.com/Jenesys-HQ/InternVL.git
-RUN cd /workspace/InternVL
-
-RUN conda create -n internvl python=3.10
-RUN conda activate internvl
-RUN pip install -r /workspace/InternVL/requirements/internvl_chat.txt
-RUN pip uninstall transformer-engine -y
-
-RUN python -c "import torch; print(torch.__version__)"
+#RUN conda create -n internvl python=3.10
+#RUN conda activate internvl
+#
+###############################################################################
+## Install DeepSpeed as 'jack' user
+###############################################################################
+#RUN git clone https://github.com/microsoft/DeepSpeed.git ${STAGE_DIR}/DeepSpeed && \
+#    cd ${STAGE_DIR}/DeepSpeed && \
+#    git checkout master && \
+#    ./install.sh --pip_sudo && \
+#    rm -rf ${STAGE_DIR}/DeepSpeed
+#
+##RUN python -c "import deepspeed; print(deepspeed.__version__)"
+#
+###############################################################################
+## Set working repository
+###############################################################################
+#RUN git clone https://github.com/Jenesys-HQ/InternVL.git
+#RUN cd /workspace/InternVL
+#
+#RUN pip install -r /workspace/InternVL/requirements/internvl_chat.txt
+#RUN pip uninstall transformer-engine -y
+#
+#RUN python -c "import torch; print(torch.__version__)"
