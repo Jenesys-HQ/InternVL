@@ -54,9 +54,9 @@ ENV CONDA_DEFAULT_ENV internvl
 RUN ~/miniconda/bin/conda init bash \
  && source ~/.bashrc \
  && ~/miniconda/bin/conda create -y -n internvl python=3.10 \
- && ~/miniconda/bin/conda clean -a -y \
- && ~/miniconda/bin/conda activate internvl \
- && echo "conda activate internvl" >> ~/.bashrc
+ && ~/miniconda/bin/conda clean -a -y
+# && ~/miniconda/bin/conda activate internvl \
+# && echo "conda activate internvl" >> ~/.bashrc
 
 
 #RUN pip install --upgrade pip && \
