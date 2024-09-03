@@ -51,9 +51,10 @@ RUN ~/miniconda/bin/conda init bash \
 ###############################################################################
 ## Set working repository
 ###############################################################################
-RUN git clone https://github.com/Jenesys-HQ/InternVL.git && \
-    cd /workspace/InternVL && \
-    git checkout AIR-221/setup-docker-container # TODO remove this line after testing
+COPY . /workspace/InternVL
+#RUN git clone https://github.com/Jenesys-HQ/InternVL.git && \
+#    cd /workspace/InternVL && \
+#    git checkout AIR-221/setup-docker-container # TODO remove this line after testing
 
 ###############################################################################
 ## Setup 'postal' library from source
