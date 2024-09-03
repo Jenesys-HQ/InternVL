@@ -56,7 +56,7 @@ RUN ~/miniconda/bin/conda init bash \
  && ~/miniconda/bin/conda create -y -n internvl python=3.10 \
  && ~/miniconda/bin/conda clean -a -y \
  && ~/miniconda/bin/conda activate internvl \
- && ~/miniconda/bin/conda "conda activate internvl" >> ~/.bashrc
+ && echo "conda activate internvl" >> ~/.bashrc
 
 
 #RUN pip install --upgrade pip && \
