@@ -52,7 +52,7 @@ ENV PATH ~/miniconda/envs/internvl/bin:$PATH
 ENV CONDA_DEFAULT_ENV internvl
 
 RUN ~/miniconda/bin/conda init bash \
- && . ~/.bashrc
+ && source ~/.bashrc
 # && conda create -y -n internvl python=3.10 \
 # && conda clean -a -y
 
