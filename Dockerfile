@@ -32,8 +32,9 @@ RUN mkdir -p /miniconda3 && \
     bash /miniconda3/miniconda.sh -b -u -p /miniconda3 && \
     rm -rf /miniconda3/miniconda.sh && \
     /miniconda3/bin/conda init && \
-    /miniconda3/bin/conda create -y -n internvl python=3.10 && \
-    /miniconda3/bin/conda activate internvl
+    /bin/bash -c "source /miniconda3/bin/activate && conda create -y -n internvl python=3.10"
+
+
 
 #RUN pip install --upgrade pip && \
 #    pip install \
@@ -46,36 +47,36 @@ RUN mkdir -p /miniconda3 && \
 ##############################################################################
 # PyYAML build issue
 ##############################################################################
-RUN rm -rf /usr/lib/python3/dist-packages/yaml && \
-    rm -rf /usr/lib/python3/dist-packages/PyYAML-*
+#RUN rm -rf /usr/lib/python3/dist-packages/yaml && \
+#    rm -rf /usr/lib/python3/dist-packages/PyYAML-*
 
 ##############################################################################
 # AWS CLI Setup
 ##############################################################################
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-    && unzip awscliv2.zip \
-    && ./aws/install \
-    && rm -rf awscliv2.zip
-
-##############################################################################
-# Temporary Installation Directory
-##############################################################################
-ENV STAGE_DIR=/tmp
-RUN mkdir -p ${STAGE_DIR}
-
-##############################################################################
-# Add jack user
-##############################################################################
-# Add a jack user with user id 1000
-RUN useradd --create-home --uid 1000 --shell /bin/bash jack && \
-    usermod -aG sudo jack && \
-    echo "jack ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-# Ensure 'jack' has access to necessary directories
-RUN chown -R jack:jack /miniconda3 ${STAGE_DIR}
-
-# Switch to non-root user
-USER jack
+#RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+#    && unzip awscliv2.zip \
+#    && ./aws/install \
+#    && rm -rf awscliv2.zip
+#
+###############################################################################
+## Temporary Installation Directory
+###############################################################################
+#ENV STAGE_DIR=/tmp
+#RUN mkdir -p ${STAGE_DIR}
+#
+###############################################################################
+## Add jack user
+###############################################################################
+## Add a jack user with user id 1000
+#RUN useradd --create-home --uid 1000 --shell /bin/bash jack && \
+#    usermod -aG sudo jack && \
+#    echo "jack ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+#
+## Ensure 'jack' has access to necessary directories
+#RUN chown -R jack:jack /miniconda3 ${STAGE_DIR}
+#
+## Switch to non-root user
+#USER jack
 
 
 
