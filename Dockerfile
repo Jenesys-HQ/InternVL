@@ -1,3 +1,4 @@
+
 ARG FROM_IMAGE_NAME=nvcr.io/nvidia/pytorch:23.07-py3
 FROM ${FROM_IMAGE_NAME}
 
@@ -32,10 +33,10 @@ RUN apt-get update && \
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh \
     && /bin/bash /miniconda.sh -b -p /opt/conda \
     && rm /miniconda.sh \
-    && /opt/conda/bin/conda clean -tipsy
+    && /opt/conda/bin/conda clean -ayq
 
-RUN conda env create -n internvl && \
-    conda clean -a
+RUN /opt/conda/bin/conda create -y -n internvl python=3.10 && \
+    /opt/conda/bin/conda clean -a -y
 
 ENV PATH /opt/conda/envs/internvl/bin:$PATH
 ENV CONDA_DEFAULT_ENV internvl
@@ -88,7 +89,7 @@ RUN useradd --create-home --uid 1000 --shell /bin/bash jack && \
     echo "jack ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Ensure 'jack' has access to necessary directories
-RUN chown -R jack:jack /miniconda3 ${STAGE_DIR}
+#RUN chown -R jack:jack /miniconda3 ${STAGE_DIR}
 
 # Switch to non-root user
 USER jack
