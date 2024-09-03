@@ -28,6 +28,20 @@ RUN apt-get update && \
 
 
 ##############################################################################
+# Add jack user
+##############################################################################
+# Add a jack user with user id 1000
+RUN useradd --create-home --uid 1000 --shell /bin/bash jack && \
+    usermod -aG sudo jack && \
+    echo "jack ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+# Ensure 'jack' has access to necessary directories
+#RUN chown -R jack:jack /miniconda3 ${STAGE_DIR}
+
+# Switch to non-root user
+USER jack
+
+##############################################################################
 # Setup Conda and install environment
 ##############################################################################
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh \
@@ -80,19 +94,7 @@ RUN echo "conda activate internvl" >> ~/.bashrc
 #ENV STAGE_DIR=/tmp
 #RUN mkdir -p ${STAGE_DIR}
 
-##############################################################################
-# Add jack user
-##############################################################################
-# Add a jack user with user id 1000
-RUN useradd --create-home --uid 1000 --shell /bin/bash jack && \
-    usermod -aG sudo jack && \
-    echo "jack ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# Ensure 'jack' has access to necessary directories
-#RUN chown -R jack:jack /miniconda3 ${STAGE_DIR}
-
-# Switch to non-root user
-USER jack
 
 
 ###############################################################################
