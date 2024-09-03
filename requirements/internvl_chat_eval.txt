@@ -4,4 +4,5 @@ pycountry
 python-dotenv
 datasets
 labelbox
+nose
 postal

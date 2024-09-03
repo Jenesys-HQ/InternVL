@@ -112,7 +112,8 @@ RUN cd ~ \
  && ./bootstrap.sh \
  && ./configure \
  && sudo make \
- && sudo make install
+ && sudo make install \
+ && echo "LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH" >> ~/.bashrc
 
 ###############################################################################
 ## Install requirements
