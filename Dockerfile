@@ -9,15 +9,13 @@ RUN cd /opt && \
     awk '{print$1"=="$2}' | \
     tail +3 > pip_constraints.txt
 
-RUN apt update && \
-    apt install -y --no-install-recommends libaio-dev
-
 ##############################################################################
 # Installation/Basic Utilities
 ##############################################################################
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     software-properties-common build-essential autotools-dev \
+    libaio-dev \
     nfs-common pdsh \
     cmake g++ gcc \
     curl wget vim tmux emacs less unzip \
@@ -26,13 +24,13 @@ RUN apt-get update && \
     llvm-dev ffmpeg libsm6 libxext6
 
 
-RUN pip install --upgrade pip && \
-    pip install \
-    triton \
-    ninja \
-    hjson \
-    py-cpuinfo \
-    mpi4py
+#RUN pip install --upgrade pip && \
+#    pip install \
+#    triton \
+#    ninja \
+#    hjson \
+#    py-cpuinfo \
+#    mpi4py
 
 ##############################################################################
 # PyYAML build issue
@@ -86,12 +84,11 @@ RUN git clone https://github.com/microsoft/DeepSpeed.git ${STAGE_DIR}/DeepSpeed 
     ./install.sh --pip_sudo && \
     rm -rf ${STAGE_DIR}/DeepSpeed
 
-RUN python -c "import deepspeed; print(deepspeed.__version__)"
+#RUN python -c "import deepspeed; print(deepspeed.__version__)"
 
 ##############################################################################
 # Set working repository
 ##############################################################################
-# Set working repository 
 RUN git clone https://github.com/Jenesys-HQ/InternVL.git
 RUN cd /workspace/InternVL
 
