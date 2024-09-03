@@ -28,3 +28,4 @@ flash-attn
 yacs
 mlflow
 sagemaker-mlflow
+awscli
