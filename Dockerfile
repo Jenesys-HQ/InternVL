@@ -13,8 +13,8 @@ ENV TORCH_CUDA_ARCH_LIST="8.0 8.6 9.0+PTX"
 ##############################################################################
 # Installation/Basic Utilities
 ##############################################################################
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
     software-properties-common build-essential autotools-dev \
     libaio-dev \
     nfs-common pdsh \
@@ -22,17 +22,17 @@ RUN apt-get update && \
     curl wget vim tmux emacs less unzip \
     htop iftop iotop ca-certificates openssh-client openssh-server \
     rsync iputils-ping net-tools sudo \
-    llvm-dev ffmpeg libsm6 libxext6 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    llvm-dev ffmpeg libsm6 libxext6  \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 ##############################################################################
 # Add jack user
 ##############################################################################
 # Add a jack user with user id 1000
-RUN useradd --create-home --uid 1000 --shell /bin/bash jack && \
-    usermod -aG sudo jack && \
-    echo "jack ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN useradd --create-home --uid 1000 --shell /bin/bash jack \
+ && usermod -aG sudo jack \
+ && echo "jack ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 ## Ensure 'jack' has access to necessary directories
 #RUN chown -R jack:jack /miniconda3 ${STAGE_DIR}
@@ -44,18 +44,20 @@ USER jack
 # Setup Conda and install environment
 ##############################################################################
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
-    && /bin/bash ~/miniconda.sh -b -p ~/miniconda \
-    && rm  ~/miniconda.sh \
-    && ~/miniconda/bin/conda clean -ayq
+ && /bin/bash ~/miniconda.sh -b -p ~/miniconda \
+ && rm  ~/miniconda.sh \
+ && ~/miniconda/bin/conda clean -ayq
 
 ENV PATH ~/miniconda/envs/internvl/bin:$PATH
 ENV CONDA_DEFAULT_ENV internvl
 
-RUN ~/miniconda/bin/conda create -y -n internvl python=3.10 && \
-    ~/miniconda/bin/conda clean -a -y
+RUN ~/miniconda/bin/conda init bash \
+ && . ~/.bashrc \
+ && conda create -y -n internvl python=3.10 \
+ && conda clean -a -y
 
-RUN echo "export PATH=~/miniconda/bin:$PATH" >> ~/.bashrc && \
-    echo "conda activate internvl" >> ~/.bashrc
+#RUN echo "export PATH=~/miniconda/bin:$PATH" >> ~/.bashrc && \
+#    echo "conda activate internvl" >> ~/.bashrc
 
 #RUN pip install --upgrade pip && \
 #    pip install \
