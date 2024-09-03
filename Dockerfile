@@ -104,11 +104,10 @@ RUN ~/miniconda/bin/conda create -y -n internvl python=3.10 && \
 ## Set working repository
 ###############################################################################
 RUN git clone https://github.com/Jenesys-HQ/InternVL.git && \
-    cd /workspace/InternVL && \
     git checkout AIR-221/setup-docker-container # TODO remove this line after testing
 
-RUN pip install -r ./requirements/internvl_chat.txt && \
-    pip install -r ./requirements/internvl_chat_eval.txt && \
+RUN pip install -r /workspace/InternVL/requirements/internvl_chat.txt && \
+    pip install -r /workspace/InternVL/requirements/internvl_chat_eval.txt && \
     pip uninstall transformer-engine -y
 #
 #RUN python -c "import torch; print(torch.__version__)"
