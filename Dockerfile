@@ -45,25 +45,16 @@ USER jack
 # Setup Conda and install environment
 ##############################################################################
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
-    && /bin/bash ~/miniconda.sh -b -p ~/miniconda3 \
+    && /bin/bash ~/miniconda.sh -b -p ~/miniconda \
     && rm  ~/miniconda.sh \
     && ~/miniconda/bin/conda clean -ayq
 
 RUN ~/miniconda/bin create -y -n internvl python=3.10 && \
     ~/miniconda/bin clean -a -y
 
-ENV PATH /opt/conda/envs/internvl/bin:$PATH
+ENV PATH ~/miniconda/envs/internvl/bin:$PATH
 ENV CONDA_DEFAULT_ENV internvl
 RUN echo "conda activate internvl" >> ~/.bashrc
-
-
-#RUN mkdir -p /miniconda3 && \
-#    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda3/miniconda.sh && \
-#    bash /miniconda3/miniconda.sh -b -u -p /miniconda3 && \
-#    rm -rf /miniconda3/miniconda.sh && \
-#    /miniconda3/bin/conda init && \
-#    /bin/bash -c "source /miniconda3/bin/activate && conda create -y -n internvl python=3.10"
-
 
 
 #RUN pip install --upgrade pip && \
