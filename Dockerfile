@@ -49,14 +49,6 @@ RUN ~/miniconda/bin/conda init bash \
  && echo "conda activate internvl" >> ~/.bashrc
 
 ###############################################################################
-## Set working repository
-###############################################################################
-COPY . /workspace/InternVL
-#RUN git clone https://github.com/Jenesys-HQ/InternVL.git && \
-#    cd /workspace/InternVL && \
-#    git checkout AIR-221/setup-docker-container # TODO remove this line after testing
-
-###############################################################################
 ## Setup 'postal' library from source
 ###############################################################################
 RUN cd ~ \
@@ -67,6 +59,14 @@ RUN cd ~ \
  && sudo make \
  && sudo make install \
  && echo "LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH" >> ~/.bashrc
+
+###############################################################################
+## Set working repository
+###############################################################################
+COPY . /workspace/InternVL
+#RUN git clone https://github.com/Jenesys-HQ/InternVL.git && \
+#    cd /workspace/InternVL && \
+#    git checkout AIR-221/setup-docker-container # TODO remove this line after testing
 
 ###############################################################################
 ## Install requirements
