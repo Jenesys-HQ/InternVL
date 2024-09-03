@@ -70,9 +70,10 @@ RUN cd ~ \
 ###############################################################################
 ## Install requirements
 ###############################################################################
-RUN pip uninstall transformer-engine -y && \
-    pip install -r /workspace/InternVL/requirements/internvl_chat.txt && \
-    pip install flash-attn --no-build-isolation && \
-    pip install -r /workspace/InternVL/requirements/internvl_chat_eval.txt
+RUN pip install --upgrade pip \
+ && pip uninstall transformer-engine -y \
+ && pip install -r /workspace/InternVL/requirements/internvl_chat.txt \
+ && pip install flash-attn --no-build-isolation \
+ && pip install -r /workspace/InternVL/requirements/internvl_chat_eval.txt
 
 WORKDIR /workspace/InternVL/internvl_chat
