@@ -3,11 +3,11 @@ FROM ${FROM_IMAGE_NAME}
 
 ENV TORCH_CUDA_ARCH_LIST="8.0 8.6 9.0+PTX"
 
-RUN cd /opt && \
-    pip install --upgrade pip && \
-    pip list | \
-    awk '{print$1"=="$2}' | \
-    tail +3 > pip_constraints.txt
+#RUN cd /opt && \
+#    pip install --upgrade pip && \
+#    pip list | \
+#    awk '{print$1"=="$2}' | \
+#    tail +3 > pip_constraints.txt
 
 ##############################################################################
 # Installation/Basic Utilities
@@ -21,18 +21,33 @@ RUN apt-get update && \
     curl wget vim tmux emacs less unzip \
     htop iftop iotop ca-certificates openssh-client openssh-server \
     rsync iputils-ping net-tools sudo \
-    llvm-dev ffmpeg libsm6 libxext6
+    llvm-dev ffmpeg libsm6 libxext6 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 
 ##############################################################################
 # Setup Conda and install environment
 ##############################################################################
-RUN mkdir -p /miniconda3 && \
-    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda3/miniconda.sh && \
-    bash /miniconda3/miniconda.sh -b -u -p /miniconda3 && \
-    rm -rf /miniconda3/miniconda.sh && \
-    /miniconda3/bin/conda init && \
-    /bin/bash -c "source /miniconda3/bin/activate && conda create -y -n internvl python=3.10"
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh \
+    && /bin/bash /miniconda.sh -b -p /opt/conda \
+    && rm /miniconda.sh \
+    && /opt/conda/bin/conda clean -tipsy
+
+RUN conda env create -n internvl && \
+    conda clean -a
+
+ENV PATH /opt/conda/envs/internvl/bin:$PATH
+ENV CONDA_DEFAULT_ENV internvl
+RUN echo "conda activate internvl" >> ~/.bashrc
+
+
+#RUN mkdir -p /miniconda3 && \
+#    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda3/miniconda.sh && \
+#    bash /miniconda3/miniconda.sh -b -u -p /miniconda3 && \
+#    rm -rf /miniconda3/miniconda.sh && \
+#    /miniconda3/bin/conda init && \
+#    /bin/bash -c "source /miniconda3/bin/activate && conda create -y -n internvl python=3.10"
 
 
 
@@ -63,21 +78,20 @@ RUN mkdir -p /miniconda3 && \
 ###############################################################################
 #ENV STAGE_DIR=/tmp
 #RUN mkdir -p ${STAGE_DIR}
-#
-###############################################################################
-## Add jack user
-###############################################################################
-## Add a jack user with user id 1000
-#RUN useradd --create-home --uid 1000 --shell /bin/bash jack && \
-#    usermod -aG sudo jack && \
-#    echo "jack ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-#
-## Ensure 'jack' has access to necessary directories
-#RUN chown -R jack:jack /miniconda3 ${STAGE_DIR}
-#
-## Switch to non-root user
-#USER jack
 
+##############################################################################
+# Add jack user
+##############################################################################
+# Add a jack user with user id 1000
+RUN useradd --create-home --uid 1000 --shell /bin/bash jack && \
+    usermod -aG sudo jack && \
+    echo "jack ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+# Ensure 'jack' has access to necessary directories
+RUN chown -R jack:jack /miniconda3 ${STAGE_DIR}
+
+# Switch to non-root user
+USER jack
 
 
 ###############################################################################
