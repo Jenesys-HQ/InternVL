@@ -35,7 +35,7 @@ RUN useradd --create-home --uid 1000 --shell /bin/bash jack && \
     usermod -aG sudo jack && \
     echo "jack ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# Ensure 'jack' has access to necessary directories
+## Ensure 'jack' has access to necessary directories
 #RUN chown -R jack:jack /miniconda3 ${STAGE_DIR}
 
 # Switch to non-root user
@@ -44,13 +44,14 @@ USER jack
 ##############################################################################
 # Setup Conda and install environment
 ##############################################################################
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
-    && /bin/bash ~/miniconda.sh -b -p /opt/conda \
+RUN mkdir -p ~/miniconda3 && \
+    wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
+    && /bin/bash ~/miniconda.sh -b -p ~/miniconda3 \
     && rm  ~/miniconda.sh \
-    && /opt/conda/bin/conda clean -ayq
+    && ~/miniconda/bin/conda clean -ayq
 
-RUN /opt/conda/bin/conda create -y -n internvl python=3.10 && \
-    /opt/conda/bin/conda clean -a -y
+RUN ~/miniconda/bin create -y -n internvl python=3.10 && \
+    ~/miniconda/bin clean -a -y
 
 ENV PATH /opt/conda/envs/internvl/bin:$PATH
 ENV CONDA_DEFAULT_ENV internvl
