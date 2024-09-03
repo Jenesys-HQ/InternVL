@@ -51,12 +51,12 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 
 ENV PATH ~/miniconda/envs/internvl/bin:$PATH
 ENV CONDA_DEFAULT_ENV internvl
-RUN echo "conda activate internvl" >> ~/.bashrc && \
-    . ~/.bashrc
 
-RUN conda create -y -n internvl python=3.10 && \
-    conda clean -a -y
+RUN ~/miniconda/bin/conda create -y -n internvl python=3.10 && \
+    ~/miniconda/bin/conda clean -a -y
 
+#RUN echo "conda activate internvl" >> ~/.bashrc && \
+#    . ~/.bashrc
 
 #RUN pip install --upgrade pip && \
 #    pip install \
