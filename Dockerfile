@@ -95,8 +95,7 @@ RUN ~/miniconda/bin/conda init bash \
 #    ./install.sh --pip_sudo && \
 #    rm -rf ${STAGE_DIR}/DeepSpeed
 #
-##RUN python -c "import deepspeed; print(deepspeed.__version__)"
-#
+
 ###############################################################################
 ## Set working repository
 ###############################################################################
@@ -104,6 +103,9 @@ RUN git clone https://github.com/Jenesys-HQ/InternVL.git && \
     cd /workspace/InternVL && \
     git checkout AIR-221/setup-docker-container # TODO remove this line after testing
 
+###############################################################################
+## Setup 'postal' library from source
+###############################################################################
 RUN cd ~ \
  && git clone https://github.com/openvenues/libpostal \
  && cd libpostal \
@@ -112,6 +114,9 @@ RUN cd ~ \
  && sudo make \
  && sudo make install
 
+###############################################################################
+## Install requirements
+###############################################################################
 RUN pip install -r /workspace/InternVL/requirements/internvl_chat.txt && \
     pip install -r /workspace/InternVL/requirements/internvl_chat_eval.txt && \
     pip uninstall transformer-engine -y
