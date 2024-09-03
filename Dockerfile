@@ -44,8 +44,7 @@ USER jack
 ##############################################################################
 # Setup Conda and install environment
 ##############################################################################
-RUN mkdir -p ~/miniconda3 && \
-    wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh \
     && /bin/bash ~/miniconda.sh -b -p ~/miniconda3 \
     && rm  ~/miniconda.sh \
     && ~/miniconda/bin/conda clean -ayq
