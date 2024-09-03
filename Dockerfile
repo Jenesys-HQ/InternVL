@@ -32,9 +32,8 @@ RUN mkdir -p /miniconda3 && \
     bash /miniconda3/miniconda.sh -b -u -p /miniconda3 && \
     rm -rf /miniconda3/miniconda.sh && \
     /miniconda3/bin/conda init bash && \
-    source /root/.bashrc && \
-    conda create -y -n internvl python=3.10 && \
-    conda activate internvl
+    /miniconda3/bin/conda create -y -n internvl python=3.10 && \
+    /miniconda3/bin/conda activate internvl
 
 #RUN pip install --upgrade pip && \
 #    pip install \
@@ -57,8 +56,6 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     && unzip awscliv2.zip \
     && ./aws/install \
     && rm -rf awscliv2.zip
-
-
 
 ##############################################################################
 # Temporary Installation Directory
