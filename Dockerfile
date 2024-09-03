@@ -106,7 +106,8 @@ RUN ~/miniconda/bin/conda create -y -n internvl python=3.10 && \
 RUN git clone https://github.com/Jenesys-HQ/InternVL.git && \
     cd /workspace/InternVL
 
-RUN pip install -r /workspace/InternVL/requirements/internvl_chat.txt
-RUN pip uninstall transformer-engine -y
+RUN pip install -r ./requirements/internvl_chat.txt && \
+    pip install -r ./requirements/internvl_chat_eval.txt && \
+    pip uninstall transformer-engine -y
 #
 #RUN python -c "import torch; print(torch.__version__)"
