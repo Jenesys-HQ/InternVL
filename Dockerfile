@@ -52,9 +52,9 @@ ENV PATH ~/miniconda/envs/internvl/bin:$PATH
 ENV CONDA_DEFAULT_ENV internvl
 
 RUN ~/miniconda/bin/conda init bash \
- && . ~/.bashrc \
- && conda create -y -n internvl python=3.10 \
- && conda clean -a -y
+ && . ~/.bashrc
+# && conda create -y -n internvl python=3.10 \
+# && conda clean -a -y
 
 #RUN echo "export PATH=~/miniconda/bin:$PATH" >> ~/.bashrc && \
 #    echo "conda activate internvl" >> ~/.bashrc
