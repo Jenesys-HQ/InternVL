@@ -95,7 +95,9 @@ RUN python -c "import deepspeed; print(deepspeed.__version__)"
 RUN git clone https://github.com/Jenesys-HQ/InternVL.git
 RUN cd /workspace/InternVL
 
+RUN conda create -n internvl python=3.10
+RUN conda activate internvl
 RUN pip install -r /workspace/InternVL/requirements/internvl_chat.txt
-RUN pip uninstall transformer-engine
+RUN pip uninstall transformer-engine -y
 
 RUN python -c "import torch; print(torch.__version__)"
