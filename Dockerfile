@@ -61,12 +61,9 @@ RUN cd ~ \
  && echo "LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH" >> ~/.bashrc
 
 ###############################################################################
-## Set working repository
+## Copy repo code
 ###############################################################################
 COPY . /workspace/InternVL
-#RUN git clone https://github.com/Jenesys-HQ/InternVL.git && \
-#    cd /workspace/InternVL && \
-#    git checkout AIR-221/setup-docker-container # TODO remove this line after testing
 
 ###############################################################################
 ## Install requirements
