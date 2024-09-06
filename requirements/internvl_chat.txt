@@ -1,7 +1,7 @@
 accelerate
 bitsandbytes==0.41.0
 decord
-deepspeed==0.13.5
+deepspeed==0.15.0
 einops==0.6.1
 einops-exts==0.0.4
 huggingface_hub
@@ -25,3 +25,6 @@ torchvision>=0.15
 tqdm
 transformers==4.37.2
 yacs
+mlflow
+sagemaker-mlflow
+awscli

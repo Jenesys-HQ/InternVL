@@ -1,0 +1,8 @@
+pdf2image
+pyap
+pycountry
+python-dotenv
+datasets
+labelbox
+nose
+postal

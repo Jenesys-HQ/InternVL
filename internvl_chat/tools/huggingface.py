@@ -7,7 +7,7 @@ import os
 
 from sklearn.model_selection import train_test_split
 
-from tools.json2jsonl import json2jsonl
+from json2jsonl import json2jsonl
 
 
 def format_dataset(dataset, image_folder):
