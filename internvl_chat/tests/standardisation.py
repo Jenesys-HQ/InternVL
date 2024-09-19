@@ -51,22 +51,32 @@ def test_standardise_bank_details_invalid():
 def test_standardise_address_valid():
     dates = {
         '10 Alford Court\nLondon, London N17JW\nUnited Kingdom': {
-            'Street': '10 Alford Court',
+            'Address Line 1': '10 Alford Court',
+            'Address Line 2': None,
             'City': 'London',
-            'Postal Code': 'N17JW',
+            'Postcode': 'N17JW',
             'Country': 'United Kingdom'
         },
         '84A Stapleton Hall Road London, London, London, N4 4QA, GB': {
-            'Street': '84A Stapleton Hall Road London',
+            'Address Line 1': '84A Stapleton Hall Road London',
+            'Address Line 2': None,
             'City': 'London',
-            'Postal Code': 'N44QA',
+            'Postcode': 'N44QA',
             'Country': 'GB'
         },
-        'Unit B, Staplehurst Nurseries, Staplehurst, Kent, TN12 0JT': {
-            'Street': 'unit b staplehurst nurseries',
-            'City': 'staplehurst',
-            'Postal Code': 'TN120JT',
-            'Country': None
+        'Unit B, Staplehurst Nurseries, Staplehurst, Kent, TN12 0JT, GB': {
+            'Address Line 1': 'Staplehurst Nurseries',
+            'Address Line 2': 'unit b',
+            'City': 'Staplehurst',
+            'Postcode': 'TN120JT',
+            'Country': 'GB'
+        },
+        '123 Main St, Apt 4B, Springfield, IL 62704, USA': {
+            'Address Line 1': '123 Main St',
+            'Address Line 2': 'Apt 4B',
+            'City': 'Springfield',
+            'Postcode': '62704',
+            'Country': 'US'
         }
     }
 

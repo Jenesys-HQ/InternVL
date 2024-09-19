@@ -5,17 +5,19 @@ from tools.metrics import MetricsHelper
 def test_calculate_metrics_address():
     ground_truth = [{
         'Address': {
-            "Street": "some road",
+            "Address Line 1": "some road",
+            "Address Line 2": "some apt",
             "City": "london",
-            "Postal Code": "E33AB",
+            "Postcode": "E33AB",
             "Country": 'UK'
         }
     }]
     predicted = [{
         'Address': {
-            "Street": "some road",
+            "Address Line 1": "some road",
+            "Address Line 2": "some apt",
             "City": "london",
-            "Postal Code": "E33AB",
+            "Postcode": "E33AB",
             "Country": None
         }
     }]
@@ -144,15 +146,17 @@ def test_calculate_metrics_complete_json():
         "Date of Invoice": "16-04-2024",
         "Date Payment Due": None,
         "Supplier Address": {
-            "Street": "the barn",
+            "Address Line 1": "the barn",
+            "Address Line 2": None,
             "City": "ashbourne",
-            "Postal Code": "DE61HD",
+            "Postcode": "DE61HD",
             "Country": None
         },
         "Billing Address": {
-            "Street": "sturwood uk ltd",
+            "Address Line 1": "sturwood uk ltd",
+            "Address Line 2": None,
             "City": "ashbourne",
-            "Postal Code": "DE62EF",
+            "Postcode": "DE62EF",
             "Country": None
         },
         "Delivery Address": None,
@@ -200,15 +204,17 @@ def test_calculate_metrics_complete_json():
         "Date of Invoice": "16-04-2024",
         "Date Payment Due": None,
         "Supplier Address": {
-            "Street": "the elms mowbray roads anwick industrial estate anwick nr",
+            "Address Line 1": "the elms mowbray roads",
+            "Address Line 2": "anwick industrial estate anwick nr",
             "City": "bourne",
-            "Postal Code": "DN173AE",
+            "Postcode": "DN173AE",
             "Country": None
         },
         "Billing Address": {
-            "Street": "stubwood uk ltd",
+            "Address Line 1": "stubwood uk ltd",
+            "Address Line 2": None,
             "City": "ashbourne",
-            "Postal Code": "DE62EF",
+            "Postcode": "DE62EF",
             "Country": None
         },
         "Delivery Address": None,
