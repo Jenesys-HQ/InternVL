@@ -74,7 +74,7 @@ def prepare_dataset_for_finetuning(dataset_names: List[str], combined_dataset_na
 
         if name == 'train':
             dataset_description_filepath = os.path.join(
-                root_dir, 'shell', 'data', f'{combined_dataset_name.replace("/", "-")}_train.json')
+                root_dir, 'shell', 'data', f'{combined_dataset_name}_train.json')
             dataset_description = {
                 f'{combined_dataset_name}-train': {
                     "root": "data/images/",
