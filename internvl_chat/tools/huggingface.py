@@ -1,16 +1,17 @@
-import datasets
-import pandas as pd
-import uuid
 import base64
 import json
 import os
+from typing import Any, Dict, List
+import uuid
 
+import datasets
+import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from json2jsonl import json2jsonl
+from internvl_chat.tools.json2jsonl import json2jsonl
 
 
-def format_dataset(dataset, image_folder):
+def format_dataset(dataset: pd.DataFrame, image_folder: str, label_column: str) -> List[Dict[str, Any]]:
     formatted_data = []
     for i, row in dataset.iterrows():
         id = str(uuid.uuid4())
@@ -25,61 +26,48 @@ def format_dataset(dataset, image_folder):
             'image': image_path,
             'conversations': [
                 {'from': 'human', 'value': row['instruction']},
-                {'from': 'gpt', 'value': row['claude-3_5-sonnet-prediction.suggestion']}
+                {'from': 'gpt', 'value': row[label_column]}
             ]
         })
 
     return formatted_data
 
 
-root_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+def prepare_dataset_for_finetuning(dataset_names: List[str], combined_dataset_name: str, label_column: str):
+    root_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 
-ds = []
-dataset_names = [
-    'jenesys-ai/ark-lvlm-dataset',
-    'jenesys-ai/ark-lvlm-ib-books-dataset',
-    'jenesys-ai/ark-lvlm-uhy-dataset'
-]
+    ds = []
+    for dataset_name in dataset_names:
+        dataset = datasets.load_dataset(dataset_name)
+        dataset_path = f'{root_dir}/data/datasets/{dataset_name}'
+        if not os.path.exists(dataset_path):
+            dataset.save_to_disk(dataset_path)
+        ds.append(dataset['train'])
+    df = pd.DataFrame(datasets.concatenate_datasets(ds))
+    # TODO restore once the annotation has been completed
+    complete = df.loc[:, ['id', 'document', 'instruction', label_column]]
+    # complete = df.loc[df['status'] == 'completed', ['id', 'document', 'instruction', label_column]]
 
-for dataset_name in dataset_names:
-    dataset = datasets.load_dataset(dataset_name)
-    dataset_path = f'{root_dir}/data/datasets/{dataset_name}'
-    if not os.path.exists(dataset_path):
-        dataset.save_to_disk(dataset_path)
-    ds.append(dataset['train'])
+    if complete.shape[0] == 0:
+        raise ValueError('No completed annotations found')
 
-df = pd.DataFrame(datasets.concatenate_datasets(ds))
-complete = df[df['status'] == 'completed'][['id', 'document', 'instruction', 'claude-3_5-sonnet-prediction.suggestion']]
-complete['instruction'] = complete['instruction'].apply(lambda x:
-    x.replace(
-        'The invoice image is provided here:',
-        'The document image is provided here:'
-    ).replace(
-        'categorizing financial data from invoice images.',
-        'categorizing financial data from document images.'
-    ))
-complete['base_64'] = complete['document'].apply(lambda x: x[x.find('base64,')+7:x.find('\'', x.find('base64,')+7)])
-train, test = train_test_split(complete, test_size=0.22, shuffle=True, random_state=42)
-print(f"Train size: {len(train)}", f"Test size: {len(test)}")
+    complete.loc[:, 'base_64'] = complete['document'].apply(
+        lambda x: x[x.find('base64,') + 7:x.find('\'', x.find('base64,') + 7)])
 
-dataset_name = 'ark-lvlm-combined'
-train_image_folder = f'{root_dir}/data/images/{dataset_name}/train'
-test_image_folder = f'{root_dir}/data/images/{dataset_name}/test'
+    train, test = train_test_split(complete, test_size=.2, shuffle=True, random_state=42)
+    split_dataset = {'train': train, 'test': test}
 
-os.makedirs(train_image_folder, exist_ok=True)
-os.makedirs(test_image_folder, exist_ok=True)
+    processed_folder = f'{root_dir}/data/processed_whole/{combined_dataset_name}'
+    os.makedirs(processed_folder, exist_ok=True)
 
-formatted_train_dataset = format_dataset(train, train_image_folder)
-formatted_test_dataset = format_dataset(test, test_image_folder)
+    for name in ['train', 'test']:
+        subset = split_dataset[name]
+        print(f"{name} size: {len(subset)}")
 
-out_folder = f'{root_dir}/data/processed_whole/{dataset_name}'
-train_out_filepath = f'{out_folder}/train.json'
-test_out_filepath = f'{out_folder}/test.json'
+        image_folder = f'{root_dir}/data/images/{combined_dataset_name}/{name}'
+        os.makedirs(image_folder, exist_ok=True)
+        formatted_subset = format_dataset(subset, image_folder, label_column)
 
-os.makedirs(out_folder, exist_ok=True)
-
-json.dump(formatted_train_dataset, open(train_out_filepath, 'w+'), indent=4)
-json.dump(formatted_test_dataset, open(test_out_filepath, 'w+'), indent=4)
-
-json2jsonl(train_out_filepath)
-json2jsonl(test_out_filepath)
+        out_filepath = f'{processed_folder}/{name}.json'
+        json.dump(formatted_subset, open(out_filepath, 'w+'), indent=4)
+        json2jsonl(out_filepath)
