@@ -9,7 +9,7 @@ EPOCHS=${EPOCHS:-1}
 DATASET_NAME=$1
 MODEL_NAME="ark_lvlm_lora_26b_${DATASET_NAME}"
 RUN_NAME="${MODEL_NAME}_finetune_${CURRENT_DATE}"
-OUTPUT_DIR="models/${RUN_NAME}"
+OUTPUT_DIR="models/${MODEL_NAME}"
 
 if [ ! -d "$OUTPUT_DIR" ]; then
   mkdir -p "$OUTPUT_DIR"
