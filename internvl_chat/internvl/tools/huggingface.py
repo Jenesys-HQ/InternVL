@@ -71,3 +71,17 @@ def prepare_dataset_for_finetuning(dataset_names: List[str], combined_dataset_na
         out_filepath = f'{processed_folder}/{name}.json'
         json.dump(formatted_subset, open(out_filepath, 'w+'), indent=4)
         json2jsonl(out_filepath)
+
+        if name == 'train':
+            dataset_description_filepath = os.path.join(
+                root_dir, 'shell', 'data', f'{combined_dataset_name.replace("/", "-")}_train.json')
+            dataset_description = {
+                f'{combined_dataset_name}-train': {
+                    "root": "data/images/",
+                    "annotation": f'data/processed_whole/{combined_dataset_name}/train.jsonl',
+                    "data_augment": False,
+                    "repeat_time": 1,
+                    "length": len(formatted_subset)
+                }
+            }
+            json.dump(dataset_description, open(dataset_description_filepath, 'w+'), indent=4)
