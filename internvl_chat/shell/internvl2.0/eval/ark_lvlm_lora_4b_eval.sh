@@ -1,7 +1,8 @@
 set -x
 
 CURRENT_DATE=$(date +"%Y-%m-%d-%H-%M-%S")
-MODEL_NAME="ark_lvlm_lora_4b"
+DATASET_NAME=$1
+MODEL_NAME="ark_lvlm_lora_4b_${DATASET_NAME}"
 MODEL_PATH="models/${MODEL_NAME}"
 
 if [ ! -d "$MODEL_PATH" ]; then
@@ -18,5 +19,5 @@ export MLFLOW_RUN_NAME="${MODEL_NAME}_eval_${CURRENT_DATE}"
 
 python tools/eval.py \
   --model-path ${MODEL_PATH} \
-  --eval-dataset "data/processed_whole/ark-lvlm-combined/test.jsonl" \
+  --eval-dataset "data/processed_whole/${DATASET_NAME}/test.jsonl" \
   2>&1 | tee -a "${MODEL_PATH}/${CURRENT_DATE}_eval_log.txt"
