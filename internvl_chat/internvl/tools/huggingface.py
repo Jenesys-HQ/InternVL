@@ -34,7 +34,7 @@ def format_dataset(dataset: pd.DataFrame, image_folder: str, label_column: str) 
 
 
 def prepare_dataset_for_finetuning(dataset_names: List[str], combined_dataset_name: str, label_column: str):
-    root_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
+    root_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
 
     ds = []
     for dataset_name in dataset_names:
