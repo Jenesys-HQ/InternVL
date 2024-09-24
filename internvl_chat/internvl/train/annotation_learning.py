@@ -1,4 +1,4 @@
-from tools.huggingface import prepare_dataset_for_finetuning
+from internvl.tools.huggingface import prepare_dataset_for_finetuning
 
 if __name__ == '__main__':
     dataset_names = [

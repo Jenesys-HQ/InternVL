@@ -8,7 +8,7 @@ import datasets
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from internvl_chat.tools.json2jsonl import json2jsonl
+from internvl.tools.json2jsonl import json2jsonl
 
 
 def format_dataset(dataset: pd.DataFrame, image_folder: str, label_column: str) -> List[Dict[str, Any]]:
