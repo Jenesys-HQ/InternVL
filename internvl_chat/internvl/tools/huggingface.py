@@ -11,9 +11,9 @@ from sklearn.model_selection import train_test_split
 from internvl.tools.json2jsonl import json2jsonl
 
 
-def format_dataset(dataset: pd.DataFrame, image_folder: str, label_column: str) -> List[Dict[str, Any]]:
+def format_dataset(dataframe: pd.DataFrame, image_folder: str, label_column: str) -> List[Dict[str, Any]]:
     formatted_data = []
-    for i, row in dataset.iterrows():
+    for i, row in dataframe.iterrows():
         id = str(uuid.uuid4())
         image_data = base64.b64decode(row['base_64'])
         image_path = f'{image_folder}/{id}.png'
@@ -33,7 +33,8 @@ def format_dataset(dataset: pd.DataFrame, image_folder: str, label_column: str) 
     return formatted_data
 
 
-def prepare_dataset_for_finetuning(dataset_names: List[str], combined_dataset_name: str, label_column: str):
+def prepare_dataset_for_finetuning(dataset_names: List[str], combined_dataset_name: str, label_column: str,
+                                   split: bool = True):
     root_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
 
     ds = []
@@ -54,14 +55,16 @@ def prepare_dataset_for_finetuning(dataset_names: List[str], combined_dataset_na
     complete.loc[:, 'base_64'] = complete['document'].apply(
         lambda x: x[x.find('base64,') + 7:x.find('\'', x.find('base64,') + 7)])
 
-    train, test = train_test_split(complete, test_size=.2, shuffle=True, random_state=42)
-    split_dataset = {'train': train, 'test': test}
+    if split:
+        train, test = train_test_split(complete, test_size=.2, shuffle=True, random_state=42)
+        dataset_parts = {'train': train, 'test': test}
+    else:
+        dataset_parts = {'train': complete}
 
     processed_folder = f'{root_dir}/data/processed_whole/{combined_dataset_name}'
     os.makedirs(processed_folder, exist_ok=True)
 
-    for name in ['train', 'test']:
-        subset = split_dataset[name]
+    for name, subset in dataset_parts.items():
         print(f"{name} size: {len(subset)}")
 
         image_folder = f'{root_dir}/data/images/{combined_dataset_name}/{name}'
