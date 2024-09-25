@@ -4,7 +4,7 @@ from internvl.tools.huggingface import prepare_dataset_for_finetuning
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--split", action="store_true", default=False)
+    parser.add_argument("--split", action="store_true", default=True)
     args = parser.parse_args()
 
     dataset_names = ['jenesys-ai/historical_data_9dbed789-a3d4-4d69-95f5-7ff3fcbdbfb8']
