@@ -45,13 +45,10 @@ def prepare_dataset_for_finetuning(dataset_names: List[str], combined_dataset_na
             dataset.save_to_disk(dataset_path)
         ds.append(dataset['train'])
     df = pd.DataFrame(datasets.concatenate_datasets(ds))
-    # TODO restore once the annotation has been completed
-    complete = df.loc[:, ['id', 'document', 'instruction', label_column]]
-    # complete = df.loc[df['status'] == 'completed', ['id', 'document', 'instruction', label_column]]
 
+    complete = df.loc[df['status'] == 'completed', ['id', 'document', 'instruction', label_column]]
     if complete.shape[0] == 0:
         raise ValueError('No completed annotations found')
-
     complete.loc[:, 'base_64'] = complete['document'].apply(
         lambda x: x[x.find('base64,') + 7:x.find('\'', x.find('base64,') + 7)])
 
