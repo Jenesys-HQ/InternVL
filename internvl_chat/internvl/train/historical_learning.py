@@ -11,6 +11,4 @@ if __name__ == '__main__':
     combined_dataset_name = dataset_names[0].split('/')[-1]
     label_column = 'lvlm-historical-annotation.suggestion'
 
-    print(not args.no_split)
-
     prepare_dataset_for_finetuning(dataset_names, combined_dataset_name, label_column, split=not args.no_split)
