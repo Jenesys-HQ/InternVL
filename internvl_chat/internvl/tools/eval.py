@@ -6,12 +6,14 @@ from typing import Any, Dict, Tuple
 
 import mlflow
 import torch
+import torch.distributed as dist
 from dotenv import load_dotenv
 
 from constants import PROMPT
 from data_utils import extract_invoice_data, load_labelbox_data, transform_invoice_data, flatten_data, extract_json_data
 from img_utils import get_pdf_base64_from_img_url, pdf_to_image_base64_function, load_image_bs64, \
     pdfs_to_images_base64_function, load_image
+from internvl.dist_utils import init_dist
 from internvl.model import load_model_and_tokenizer
 from metrics import MetricsHelper
 from standardisation import standardise_data_models, standardise_data_value
@@ -197,6 +199,9 @@ def evaluate_whole_json_data_row(model, tokenizer, eval_dataset_row: Dict[str, A
 
 
 def evaluate_whole_json_dataset():
+    launcher = os.environ.get('LAUNCHER', 'slurm')
+    init_dist(launcher=launcher, backend='nccl')
+
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
