@@ -200,13 +200,14 @@ def evaluate_whole_json_data_row(model, tokenizer, eval_dataset_row: Dict[str, A
 
 def evaluate_whole_json_dataset():
     dist.init_process_group(backend='nccl')
+    local_rank = int(os.environ['LOCAL_RANK'])
 
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
     model, tokenizer = load_model_and_tokenizer(args)
     model = torch.nn.parallel.DistributedDataParallel(
-        model, device_ids=[args.local_rank], output_device=args.local_rank)
+        model, device_ids=[local_rank], output_device=local_rank)
 
     generation_config = dict(
         do_sample=args.sample,
