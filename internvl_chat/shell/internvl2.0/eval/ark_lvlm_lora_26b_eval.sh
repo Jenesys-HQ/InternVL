@@ -17,7 +17,7 @@ export MLFLOW_TRACKING_URI="arn:aws:sagemaker:eu-west-1:899757773314:mlflow-trac
 export MLFLOW_EXPERIMENT_NAME="Invoice Extraction"
 export MLFLOW_RUN_NAME="${MODEL_NAME}_eval_${CURRENT_DATE}"
 
-python -m torch.distributed.launch --nproc_per_node=${NUM_GPUS} internvl/tools/eval.py \
+python -m torch.distributed.launch --nproc_per_node=${GPUS} internvl/tools/eval.py \
   --model-path ${MODEL_PATH} \
   --eval-dataset "data/processed_whole/${DATASET_NAME}/test.jsonl" \
   2>&1 | tee -a "${MODEL_PATH}/${CURRENT_DATE}_eval_log.txt"
