@@ -217,6 +217,10 @@ def evaluate_whole_json_dataset():
     device_map = infer_auto_device_map(model, max_memory=max_memory)
     kwargs = {'device_map': device_map} if args.auto else {}
 
+    logger.warning(f'Device map')
+    for k, v in device_map.items():
+        logger.warning(f'{k}: {v}')
+
     tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, trust_remote_code=True, use_fast=False)
     model = InternVLChatModel.from_pretrained(
         args.checkpoint, low_cpu_mem_usage=True, torch_dtype=torch.bfloat16,
