@@ -108,7 +108,7 @@ def evaluate_whole_json_labelbox(model_path: str, gen_key: str, project_id: str)
         max_num=6,
         load_in_8bit=False,
         load_in_4bit=False,
-        auto=False,
+        auto=True,
     )
 
     model, tokenizer = load_model_and_tokenizer(args)
@@ -256,7 +256,7 @@ if __name__ == "__main__":
     parser.add_argument("--max-num", help="Maximum number of images to load", type=int, default=6)
     parser.add_argument("--load-in-8bit", help="Whether to load images in 8-bit", type=bool, default=False)
     parser.add_argument("--load-in-4bit", help="Whether to load images in 4-bit", type=bool, default=False)
-    parser.add_argument("--auto", help="Whether to use auto-regressive generation", type=bool, default=False)
+    parser.add_argument("--auto", help="Whether to use auto-regressive generation", type=bool, default=True)
 
     args = parser.parse_args()
     args.checkpoint = args.model_path # load_model_and_tokenizer requires checkpoint
