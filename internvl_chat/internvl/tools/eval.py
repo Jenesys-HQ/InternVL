@@ -14,7 +14,7 @@ from constants import PROMPT
 from data_utils import extract_invoice_data, load_labelbox_data, transform_invoice_data, flatten_data, extract_json_data
 from img_utils import get_pdf_base64_from_img_url, pdf_to_image_base64_function, load_image_bs64, \
     pdfs_to_images_base64_function, load_image
-from internvl.model import split_model
+from internvl.model import split_model, load_model_and_tokenizer
 from internvl.model.internvl_chat import InternVLChatConfig, InternVLChatModel
 from metrics import MetricsHelper
 from standardisation import standardise_data_models, standardise_data_value
@@ -55,7 +55,7 @@ def evaluate_by_item(model_path: str, gen_key: str, project_id: str):
     )
 
     model, tokenizer = load_model_and_tokenizer(args)
-    model = deepspeed.init_inference(model, tp_size=torch.cuda.device_count())
+    model = deepspeed.init_inference(model, mp_size=torch.cuda.device_count())
 
     standardised_labeled_data = []
     standardised_predicted_data = []
@@ -217,7 +217,7 @@ def evaluate_whole_json_dataset():
     # if not args.load_in_8bit and not args.load_in_4bit and not args.auto:
     #     model = model.cuda()
 
-    model = deepspeed.init_inference(model, mp_size=torch.cuda.device_count())
+    model = deepspeed.init_inference(model, tp_size=torch.cuda.device_count())
 
     generation_config = dict(
         do_sample=args.sample,
