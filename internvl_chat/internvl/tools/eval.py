@@ -214,7 +214,7 @@ def evaluate_whole_json_dataset():
 
     max_memory = {i: f"{total_memory_in_GB}GiB" for i in range(n_gpus)}
 
-    device_map = infer_auto_device_map(model, max_memory=max_memory)
+    device_map = infer_auto_device_map(model)
     kwargs = {'device_map': device_map} if args.auto else {}
 
     logger.warning(f'Device map')
