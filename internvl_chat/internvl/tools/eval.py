@@ -55,7 +55,7 @@ def evaluate_by_item(model_path: str, gen_key: str, project_id: str):
     )
 
     model, tokenizer = load_model_and_tokenizer(args)
-    model = deepspeed.init_inference(model, mp_size=torch.cuda.device_count())
+    model = deepspeed.init_inference(model, tp_size=torch.cuda.device_count())
 
     standardised_labeled_data = []
     standardised_predicted_data = []
