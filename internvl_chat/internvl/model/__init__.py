@@ -37,7 +37,7 @@ def load_model_and_tokenizer(args):
         device_map = split_model(num_hidden_layers)
     kwargs = {'device_map': device_map} if args.auto else {}
 
-    logger.info(f'Device map: {device_map}')
+    print(f'Device map: {device_map}')
 
     tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, trust_remote_code=True, use_fast=False)
     model = InternVLChatModel.from_pretrained(
