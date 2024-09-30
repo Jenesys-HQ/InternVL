@@ -217,6 +217,8 @@ def evaluate_whole_json_dataset():
     # if not args.load_in_8bit and not args.load_in_4bit and not args.auto:
     #     model = model.cuda()
 
+    logger.error(f'GPUs: {torch.cuda.device_count()}')
+
     model = deepspeed.init_inference(model, mp_size=torch.cuda.device_count())
 
     generation_config = dict(
