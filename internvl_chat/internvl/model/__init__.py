@@ -36,11 +36,6 @@ def load_model_and_tokenizer(args):
         num_hidden_layers = config.llm_config.num_hidden_layers
         device_map = split_model(num_hidden_layers)
     kwargs = {'device_map': device_map} if args.auto else {}
-
-    print(f'Device map')
-    for k, v in device_map.items():
-        print(f'{k}: {v}')
-
     tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, trust_remote_code=True, use_fast=False)
     model = InternVLChatModel.from_pretrained(
         args.checkpoint, low_cpu_mem_usage=True, torch_dtype=torch.bfloat16,
