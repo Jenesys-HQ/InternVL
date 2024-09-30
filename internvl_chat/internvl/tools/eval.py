@@ -6,7 +6,8 @@ from typing import Any, Dict, Tuple
 
 import mlflow
 import torch
-from accelerate import init_empty_weights, infer_auto_device_map
+from accelerate import dispatch_model, init_empty_weights, infer_auto_device_map
+from accelerate.utils import get_balanced_memory
 from dotenv import load_dotenv
 from transformers import AutoTokenizer
 
@@ -15,7 +16,7 @@ from data_utils import extract_invoice_data, load_labelbox_data, transform_invoi
 from img_utils import get_pdf_base64_from_img_url, pdf_to_image_base64_function, load_image_bs64, \
     pdfs_to_images_base64_function, load_image
 from internvl.model import load_model_and_tokenizer
-from internvl.model.internvl_chat import InternVLChatConfig, InternVLChatModel
+from internvl.model.internvl_chat import InternVLChatModel
 from metrics import MetricsHelper
 from standardisation import standardise_data_models, standardise_data_value
 
@@ -203,30 +204,28 @@ def evaluate_whole_json_dataset():
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
-    with init_empty_weights():
-        model = InternVLChatModel.from_pretrained(args.checkpoint, low_cpu_mem_usage=True)
-
-    n_gpus = torch.cuda.device_count()
-    total_memory_in_GB = 0
-    for i in range(torch.cuda.device_count()):
-        total_memory = torch.cuda.get_device_properties(i).total_memory
-        total_memory_in_GB += total_memory / (1024 ** 3)
-
-    max_memory = {i: f"{total_memory_in_GB}GiB" for i in range(n_gpus)}
-
-    device_map = infer_auto_device_map(model)
-    kwargs = {'device_map': device_map} if args.auto else {}
-
-    logger.warning(f'Device map')
-    for k, v in device_map.items():
-        logger.warning(f'{k}: {v}')
-
-    tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, trust_remote_code=True, use_fast=False)
     model = InternVLChatModel.from_pretrained(
         args.checkpoint, low_cpu_mem_usage=True, torch_dtype=torch.bfloat16,
-        load_in_8bit=args.load_in_8bit, load_in_4bit=args.load_in_4bit, **kwargs).eval()
-    if not args.load_in_8bit and not args.load_in_4bit and not args.auto:
-        model = model.cuda()
+        load_in_8bit=args.load_in_8bit, load_in_4bit=args.load_in_4bit).eval()
+
+    max_memory = get_balanced_memory(
+        model,
+        max_memory=None,
+        no_split_module_classes=["DecoderLayer", "Attention", "MLP", "LayerNorm", "Linear"],
+        dtype='float16',
+        low_zero=False,
+    )
+
+    device_map = infer_auto_device_map(
+        model,
+        max_memory=max_memory,
+        no_split_module_classes=["DecoderLayer", "Attention", "MLP", "LayerNorm", "Linear"],
+        dtype='float16'
+    )
+
+    model = dispatch_model(model, device_map=device_map)
+    tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, trust_remote_code=True, use_fast=False)
+    # model = model.cuda()
 
     generation_config = dict(
         do_sample=args.sample,
@@ -281,7 +280,7 @@ if __name__ == "__main__":
     parser.add_argument("--auto", help="Whether to use auto-regressive generation", type=bool, default=True)
 
     args = parser.parse_args()
-    args.checkpoint = args.model_path # load_model_and_tokenizer requires checkpoint
+    args.checkpoint = args.model_path  # load_model_and_tokenizer requires checkpoint
 
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
     if tracking_uri is not None:
