@@ -223,6 +223,10 @@ def evaluate_whole_json_dataset():
         dtype='float16'
     )
 
+    logger.warning(f'Device map')
+    for k, v in device_map.items():
+        logger.warning(f'{k}: {v}')
+
     model = dispatch_model(model, device_map=device_map)
     tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, trust_remote_code=True, use_fast=False)
     # model = model.cuda()
@@ -280,7 +284,7 @@ if __name__ == "__main__":
     parser.add_argument("--auto", help="Whether to use auto-regressive generation", type=bool, default=True)
 
     args = parser.parse_args()
-    args.checkpoint = args.model_path  # load_model_and_tokenizer requires checkpoint
+    args.checkpoint = args.model_path # load_model_and_tokenizer requires checkpoint
 
     tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
     if tracking_uri is not None:
