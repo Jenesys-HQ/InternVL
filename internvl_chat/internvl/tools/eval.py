@@ -49,7 +49,7 @@ def evaluate_by_item(model_path: str, gen_key: str, project_id: str):
         max_num=6,
         load_in_8bit=False,
         load_in_4bit=False,
-        auto=False,
+        auto=True,
     )
 
     model, tokenizer = load_model_and_tokenizer(args)
