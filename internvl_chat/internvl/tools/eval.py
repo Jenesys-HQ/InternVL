@@ -212,7 +212,7 @@ def evaluate_whole_json_dataset():
         total_memory = torch.cuda.get_device_properties(i).total_memory
         total_memory_in_GB += total_memory / (1024 ** 3)
 
-    max_memory = {f"cuda:{i}": f"{total_memory_in_GB}GiB" for i in range(n_gpus)}
+    max_memory = {i: f"{total_memory_in_GB}GiB" for i in range(n_gpus)}
 
     device_map = infer_auto_device_map(model, max_memory=max_memory)
     kwargs = {'device_map': device_map} if args.auto else {}
