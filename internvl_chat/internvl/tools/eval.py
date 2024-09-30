@@ -6,6 +6,7 @@ from typing import Any, Dict, Tuple
 
 import mlflow
 import torch
+from accelerate import init_empty_weights, infer_auto_device_map
 from dotenv import load_dotenv
 from transformers import AutoTokenizer
 
@@ -202,26 +203,24 @@ def evaluate_whole_json_dataset():
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
-    # if args.auto:
-    #     config = InternVLChatConfig.from_pretrained(args.checkpoint)
-    #     num_hidden_layers = config.llm_config.num_hidden_layers
-    #     device_map = split_model(num_hidden_layers)
-    # kwargs = {'device_map': device_map} if args.auto else {}
-    #
-    # print(f'Device map')
-    # for k, v in device_map.items():
-    #     print(f'{k}: {v}')
+    with init_empty_weights():
+        model = InternVLChatModel.from_pretrained("your-model-name", low_cpu_mem_usage=True)
 
-    kwargs = {}
+    n_gpus = torch.cuda.device_count()
+    total_memory_in_GB = 0
+    for i in range(torch.cuda.device_count()):
+        total_memory = torch.cuda.get_device_properties(i).total_memory
+        total_memory_in_GB += total_memory / (1024 ** 3)
+
+    max_memory = {f"cuda:{i}": f"{total_memory_in_GB}GiB" for i in range(n_gpus)}
+
+    device_map = infer_auto_device_map(model, max_memory=max_memory)
+    kwargs = {'device_map': device_map} if args.auto else {}
 
     tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, trust_remote_code=True, use_fast=False)
     model = InternVLChatModel.from_pretrained(
         args.checkpoint, low_cpu_mem_usage=True, torch_dtype=torch.bfloat16,
         load_in_8bit=args.load_in_8bit, load_in_4bit=args.load_in_4bit, **kwargs).eval()
-
-    for layer, _ in model.named_children():
-        logger.warning(f"{layer}")
-
     if not args.load_in_8bit and not args.load_in_4bit and not args.auto:
         model = model.cuda()
 
