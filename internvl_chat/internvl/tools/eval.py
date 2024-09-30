@@ -204,7 +204,7 @@ def evaluate_whole_json_dataset():
         eval_dataset = [json.loads(line.strip()) for line in file]
 
     with init_empty_weights():
-        model = InternVLChatModel.from_pretrained("your-model-name", low_cpu_mem_usage=True)
+        model = InternVLChatModel.from_pretrained(args.checkpoint, low_cpu_mem_usage=True)
 
     n_gpus = torch.cuda.device_count()
     total_memory_in_GB = 0
