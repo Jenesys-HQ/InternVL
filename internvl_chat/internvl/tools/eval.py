@@ -53,7 +53,7 @@ def evaluate_by_item(model_path: str, gen_key: str, project_id: str):
     )
 
     model, tokenizer = load_model_and_tokenizer(args)
-    model = deepspeed.init_inference(model, mp_size=torch.cuda.device_count(), dtype=torch.float16)
+    model = deepspeed.init_inference(model, mp_size=torch.cuda.device_count())
 
     standardised_labeled_data = []
     standardised_predicted_data = []
@@ -112,7 +112,7 @@ def evaluate_whole_json_labelbox(model_path: str, gen_key: str, project_id: str)
     )
 
     model, tokenizer = load_model_and_tokenizer(args)
-    model = deepspeed.init_inference(model, mp_size=torch.cuda.device_count(), dtype=torch.float16)
+    model = deepspeed.init_inference(model, mp_size=torch.cuda.device_count())
 
     df_base64_strings = [get_pdf_base64_from_img_url(data["Img_path"]) for data in transformed_labeled_data]
     images_base64 = pdfs_to_images_base64_function(df_base64_strings)
@@ -204,7 +204,7 @@ def evaluate_whole_json_dataset():
         eval_dataset = [json.loads(line.strip()) for line in file]
 
     model, tokenizer = load_model_and_tokenizer(args)
-    model = deepspeed.init_inference(model, mp_size=torch.cuda.device_count(), dtype=torch.float16)
+    model = deepspeed.init_inference(model, mp_size=torch.cuda.device_count())
 
     generation_config = dict(
         do_sample=args.sample,
