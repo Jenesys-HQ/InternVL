@@ -7,12 +7,14 @@ from typing import Any, Dict, Tuple
 import mlflow
 import torch
 from dotenv import load_dotenv
+from transformers import AutoTokenizer
 
 from constants import PROMPT
 from data_utils import extract_invoice_data, load_labelbox_data, transform_invoice_data, flatten_data, extract_json_data
 from img_utils import get_pdf_base64_from_img_url, pdf_to_image_base64_function, load_image_bs64, \
     pdfs_to_images_base64_function, load_image
 from internvl.model import load_model_and_tokenizer
+from internvl.model.internvl_chat import InternVLChatConfig, InternVLChatModel
 from metrics import MetricsHelper
 from standardisation import standardise_data_models, standardise_data_value
 
@@ -200,7 +202,28 @@ def evaluate_whole_json_dataset():
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
-    model, tokenizer = load_model_and_tokenizer(args)
+    # if args.auto:
+    #     config = InternVLChatConfig.from_pretrained(args.checkpoint)
+    #     num_hidden_layers = config.llm_config.num_hidden_layers
+    #     device_map = split_model(num_hidden_layers)
+    # kwargs = {'device_map': device_map} if args.auto else {}
+    #
+    # print(f'Device map')
+    # for k, v in device_map.items():
+    #     print(f'{k}: {v}')
+
+    kwargs = {}
+
+    tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, trust_remote_code=True, use_fast=False)
+    model = InternVLChatModel.from_pretrained(
+        args.checkpoint, low_cpu_mem_usage=True, torch_dtype=torch.bfloat16,
+        load_in_8bit=args.load_in_8bit, load_in_4bit=args.load_in_4bit, **kwargs).eval()
+
+    for layer in model.named_children():
+        logger.warning(f"{layer}")
+
+    if not args.load_in_8bit and not args.load_in_4bit and not args.auto:
+        model = model.cuda()
 
     generation_config = dict(
         do_sample=args.sample,
