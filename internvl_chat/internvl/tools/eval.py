@@ -219,7 +219,7 @@ def evaluate_whole_json_dataset():
         args.checkpoint, low_cpu_mem_usage=True, torch_dtype=torch.bfloat16,
         load_in_8bit=args.load_in_8bit, load_in_4bit=args.load_in_4bit, **kwargs).eval()
 
-    for layer in model.named_children():
+    for layer, _ in model.named_children():
         logger.warning(f"{layer}")
 
     if not args.load_in_8bit and not args.load_in_4bit and not args.auto:
