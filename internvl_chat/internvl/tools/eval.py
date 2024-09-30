@@ -291,7 +291,6 @@ def evaluate_whole_json_dataset():
         load_in_8bit=args.load_in_8bit, load_in_4bit=args.load_in_4bit, **kwargs).eval()
 
     tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, trust_remote_code=True, use_fast=False)
-    model = model.cuda()
 
     generation_config = dict(
         do_sample=args.sample,
