@@ -6,10 +6,7 @@ from typing import Any, Dict, Tuple
 
 import mlflow
 import torch
-from accelerate import dispatch_model, init_empty_weights, infer_auto_device_map
-from accelerate.utils import get_balanced_memory
 from dotenv import load_dotenv
-from scipy.special import kwargs
 from transformers import AutoTokenizer
 
 from constants import PROMPT
@@ -294,7 +291,7 @@ def evaluate_whole_json_dataset():
         load_in_8bit=args.load_in_8bit, load_in_4bit=args.load_in_4bit, **kwargs).eval()
 
     tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, trust_remote_code=True, use_fast=False)
-    # model = model.cuda()
+    model = model.cuda()
 
     generation_config = dict(
         do_sample=args.sample,
