@@ -200,14 +200,6 @@ def evaluate_whole_json_dataset():
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
-    torch.distributed.init_process_group(
-        backend='nccl',
-        world_size=int(os.getenv('WORLD_SIZE', '1')),
-        rank=int(os.getenv('RANK', '0')),
-    )
-
-    torch.cuda.set_device(int(os.getenv('LOCAL_RANK', 0)))
-
     model, tokenizer = load_model_and_tokenizer(args)
 
     generation_config = dict(
@@ -260,7 +252,7 @@ if __name__ == "__main__":
     parser.add_argument("--max-num", help="Maximum number of images to load", type=int, default=6)
     parser.add_argument("--load-in-8bit", help="Whether to load images in 8-bit", type=bool, default=False)
     parser.add_argument("--load-in-4bit", help="Whether to load images in 4-bit", type=bool, default=False)
-    parser.add_argument("--auto", help="Whether to use auto-regressive generation", type=bool, default=False)
+    parser.add_argument("--auto", help="Whether to use auto-regressive generation", type=bool, default=True)
 
     args = parser.parse_args()
     args.checkpoint = args.model_path # load_model_and_tokenizer requires checkpoint
