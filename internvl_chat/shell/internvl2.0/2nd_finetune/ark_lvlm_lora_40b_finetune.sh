@@ -6,8 +6,10 @@ BATCH_SIZE=${BATCH_SIZE:-16}
 PER_DEVICE_BATCH_SIZE=${PER_DEVICE_BATCH_SIZE:-4}
 GRADIENT_ACC=$((BATCH_SIZE / PER_DEVICE_BATCH_SIZE / GPUS))
 EPOCHS=${EPOCHS:-1}
-RUN_NAME="ark_lvlm_combined_finetune_lora_40b_${CURRENT_DATE}"
-OUTPUT_DIR="models/${RUN_NAME}"
+DATASET_NAME=$1
+MODEL_NAME="ark_lvlm_lora_40b_${DATASET_NAME}"
+RUN_NAME="${MODEL_NAME}_finetune_${CURRENT_DATE}"
+OUTPUT_DIR="models/${MODEL_NAME}"
 
 if [ ! -d "$OUTPUT_DIR" ]; then
   mkdir -p "$OUTPUT_DIR"
@@ -32,7 +34,7 @@ torchrun \
   --model_name_or_path "OpenGVLab/InternVL2-40B" \
   --conv_style "Hermes-2" \
   --output_dir ${OUTPUT_DIR} \
-  --meta_path "./shell/data/ark_lvlm_combined_train.json" \
+  --meta_path "./shell/data/${DATASET_NAME}_train.json" \
   --overwrite_output_dir True \
   --force_image_size 448 \
   --max_dynamic_patch 6 \

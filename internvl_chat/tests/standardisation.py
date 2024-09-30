@@ -1,7 +1,6 @@
-import pytest
-from tools.standardisation import (
+from internvl.tools import (
     standardise_date, standardise_bank_details,
-    standardise_currency, standardise_integer, standardise_address
+    standardise_currency, standardise_address
 )
 
 

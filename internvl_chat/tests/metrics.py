@@ -1,5 +1,4 @@
-import pytest
-from tools.metrics import MetricsHelper
+from internvl.tools.metrics import MetricsHelper
 
 
 def test_calculate_metrics_address():
