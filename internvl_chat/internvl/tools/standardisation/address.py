@@ -60,7 +60,8 @@ class AddressExtractor:
         print(f'Country code: {self.country_code}')
 
         if self.country_code:
-            self.pyap_address = pyap.parse(self.address_str, country=self.country_code)[0]
+            addresses = pyap.parse(self.address_str, country=self.country_code)
+            self.pyap_address = addresses[0] if len(addresses) > 0 else None
 
         if postal_parser:
             self.postal_address = {k: v for v, k in postal_parser.parse_address(self.address_str)}
