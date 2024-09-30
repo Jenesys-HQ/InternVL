@@ -4,18 +4,15 @@ import logging
 import os
 from typing import Any, Dict, Tuple
 
-import deepspeed
 import mlflow
 import torch
 from dotenv import load_dotenv
-from transformers import AutoTokenizer
 
 from constants import PROMPT
 from data_utils import extract_invoice_data, load_labelbox_data, transform_invoice_data, flatten_data, extract_json_data
 from img_utils import get_pdf_base64_from_img_url, pdf_to_image_base64_function, load_image_bs64, \
     pdfs_to_images_base64_function, load_image
-from internvl.model import split_model, load_model_and_tokenizer
-from internvl.model.internvl_chat import InternVLChatConfig, InternVLChatModel
+from internvl.model import load_model_and_tokenizer
 from metrics import MetricsHelper
 from standardisation import standardise_data_models, standardise_data_value
 
@@ -51,11 +48,10 @@ def evaluate_by_item(model_path: str, gen_key: str, project_id: str):
         max_num=6,
         load_in_8bit=False,
         load_in_4bit=False,
-        auto=True,
+        auto=False,
     )
 
     model, tokenizer = load_model_and_tokenizer(args)
-    model = deepspeed.init_inference(model, mp_size=torch.cuda.device_count())
 
     standardised_labeled_data = []
     standardised_predicted_data = []
@@ -110,11 +106,10 @@ def evaluate_whole_json_labelbox(model_path: str, gen_key: str, project_id: str)
         max_num=6,
         load_in_8bit=False,
         load_in_4bit=False,
-        auto=True,
+        auto=False,
     )
 
     model, tokenizer = load_model_and_tokenizer(args)
-    model = deepspeed.init_inference(model, mp_size=torch.cuda.device_count())
 
     df_base64_strings = [get_pdf_base64_from_img_url(data["Img_path"]) for data in transformed_labeled_data]
     images_base64 = pdfs_to_images_base64_function(df_base64_strings)
@@ -205,21 +200,15 @@ def evaluate_whole_json_dataset():
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
-    if args.auto:
-        config = InternVLChatConfig.from_pretrained(args.checkpoint)
-        num_hidden_layers = config.llm_config.num_hidden_layers
-        device_map = split_model(num_hidden_layers)
-    kwargs = {'device_map': device_map} if args.auto else {}
-    tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, trust_remote_code=True, use_fast=False)
-    model = InternVLChatModel.from_pretrained(
-        args.checkpoint, low_cpu_mem_usage=True, torch_dtype=torch.bfloat16,
-        load_in_8bit=args.load_in_8bit, load_in_4bit=args.load_in_4bit, **kwargs).eval()
-    # if not args.load_in_8bit and not args.load_in_4bit and not args.auto:
-    #     model = model.cuda()
+    torch.distributed.init_process_group(
+        backend='nccl',
+        world_size=int(os.getenv('WORLD_SIZE', '1')),
+        rank=int(os.getenv('RANK', '0')),
+    )
 
-    logger.error(f'GPUs: {torch.cuda.device_count()}')
+    torch.cuda.set_device(int(os.getenv('LOCAL_RANK', 0)))
 
-    model = deepspeed.init_inference(model, mp_size=torch.cuda.device_count())
+    model, tokenizer = load_model_and_tokenizer(args)
 
     generation_config = dict(
         do_sample=args.sample,
