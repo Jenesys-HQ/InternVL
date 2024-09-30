@@ -6,8 +6,6 @@ from typing import Any, Dict, Tuple
 
 import mlflow
 import torch
-import torch.distributed as dist
-from torch.utils.data import DataLoader, DistributedSampler
 from dotenv import load_dotenv
 
 from constants import PROMPT
@@ -54,6 +52,7 @@ def evaluate_by_item(model_path: str, gen_key: str, project_id: str):
     )
 
     model, tokenizer = load_model_and_tokenizer(args)
+    model.parallelize()
 
     standardised_labeled_data = []
     standardised_predicted_data = []
@@ -199,15 +198,10 @@ def evaluate_whole_json_data_row(model, tokenizer, eval_dataset_row: Dict[str, A
 
 
 def evaluate_whole_json_dataset():
-    dist.init_process_group(backend='nccl')
-    local_rank = int(os.environ['LOCAL_RANK'])
-
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
     model, tokenizer = load_model_and_tokenizer(args)
-    model = torch.nn.parallel.DistributedDataParallel(
-        model, device_ids=[local_rank], output_device=local_rank)
 
     generation_config = dict(
         do_sample=args.sample,
@@ -218,12 +212,9 @@ def evaluate_whole_json_dataset():
         eos_token_id=tokenizer.eos_token_id,
     )
 
-    eval_sampler = DistributedSampler(eval_dataset)
-    eval_dataloader = DataLoader(eval_dataset, batch_size=args.batch_size, sampler=eval_sampler)
-
     standardised_labeled_data = []
     standardised_predicted_data = []
-    for eval_dataset_row in eval_dataloader:
+    for i, eval_dataset_row in enumerate(eval_dataset):
         standardised_labeled_response, standardised_predicted_response = evaluate_whole_json_data_row(
             model, tokenizer, eval_dataset_row, generation_config)
 
