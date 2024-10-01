@@ -6,8 +6,6 @@ from typing import Any, Dict, Tuple
 
 import mlflow
 import torch
-from accelerate import infer_auto_device_map, init_empty_weights
-from accelerate.utils import get_balanced_memory
 from dotenv import load_dotenv
 from transformers import AutoTokenizer
 
@@ -24,67 +22,67 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
-# device_map = {
-#     "vision_model": 0,
-#     "language_model.base_model.model.model.tok_embeddings": 1,
-#     "language_model.base_model.model.model.layers.0": 1,
-#     "language_model.base_model.model.model.layers.1": 1,
-#     "language_model.base_model.model.model.layers.2": 1,
-#     "language_model.base_model.model.model.layers.3": 1,
-#     "language_model.base_model.model.model.layers.4": 1,
-#     "language_model.base_model.model.model.layers.5": 1,
-#     "language_model.base_model.model.model.layers.6": 1,
-#     "language_model.base_model.model.model.layers.7": 1,
-#     "language_model.base_model.model.model.layers.8": 1,
-#     "language_model.base_model.model.model.layers.9": 1,
-#     "language_model.base_model.model.model.layers.10": 1,
-#     "language_model.base_model.model.model.layers.11": 1,
-#     "language_model.base_model.model.model.layers.12": 1,
-#     "language_model.base_model.model.model.layers.13": 1,
-#     "language_model.base_model.model.model.layers.14.attention": 1,
-#     "language_model.base_model.model.model.layers.14.feed_forward.w1": 1,
-#     "language_model.base_model.model.model.layers.14.feed_forward.w3": 1,
-#     "language_model.base_model.model.model.layers.14.feed_forward.w2": 1,
-#     "language_model.base_model.model.model.layers.14.feed_forward.act_fn": 1,
-#     "language_model.base_model.model.model.layers.14.attention_norm": 1,
-#     "language_model.base_model.model.model.layers.14.ffn_norm": 1,
-#     "language_model.base_model.model.model.layers.15": 2,
-#     "language_model.base_model.model.model.layers.16": 2,
-#     "language_model.base_model.model.model.layers.17": 2,
-#     "language_model.base_model.model.model.layers.18": 2,
-#     "language_model.base_model.model.model.layers.19": 2,
-#     "language_model.base_model.model.model.layers.20": 2,
-#     "language_model.base_model.model.model.layers.21": 2,
-#     "language_model.base_model.model.model.layers.22": 2,
-#     "language_model.base_model.model.model.layers.23": 2,
-#     "language_model.base_model.model.model.layers.24": 2,
-#     "language_model.base_model.model.model.layers.25": 2,
-#     "language_model.base_model.model.model.layers.26": 2,
-#     "language_model.base_model.model.model.layers.27": 2,
-#     "language_model.base_model.model.model.layers.28": 2,
-#     "language_model.base_model.model.model.layers.29": 2,
-#     "language_model.base_model.model.model.layers.30": 2,
-#     "language_model.base_model.model.model.layers.32": 3,
-#     "language_model.base_model.model.model.layers.33": 3,
-#     "language_model.base_model.model.model.layers.34": 3,
-#     "language_model.base_model.model.model.layers.35": 3,
-#     "language_model.base_model.model.model.layers.36": 3,
-#     "language_model.base_model.model.model.layers.37": 3,
-#     "language_model.base_model.model.model.layers.38": 3,
-#     "language_model.base_model.model.model.layers.39": 3,
-#     "language_model.base_model.model.model.layers.40": 3,
-#     "language_model.base_model.model.model.layers.41": 3,
-#     "language_model.base_model.model.model.layers.42": 3,
-#     "language_model.base_model.model.model.layers.43": 3,
-#     "language_model.base_model.model.model.layers.44": 3,
-#     "language_model.base_model.model.model.layers.45": 3,
-#     "language_model.base_model.model.model.layers.46": 3,
-#     "language_model.base_model.model.model.layers.47": 3,
-#     "language_model.base_model.model.model.norm": 3,
-#     "language_model.base_model.model.output": 3,
-#     "mlp1": 3,
-#     "language_model.base_model.model.model.layers.31": 3
-# }
+device_map = {
+    "vision_model": 0,
+    "language_model.base_model.model.model.tok_embeddings": 1,
+    "language_model.base_model.model.model.layers.0": 1,
+    "language_model.base_model.model.model.layers.1": 1,
+    "language_model.base_model.model.model.layers.2": 1,
+    "language_model.base_model.model.model.layers.3": 1,
+    "language_model.base_model.model.model.layers.4": 1,
+    "language_model.base_model.model.model.layers.5": 1,
+    "language_model.base_model.model.model.layers.6": 1,
+    "language_model.base_model.model.model.layers.7": 1,
+    "language_model.base_model.model.model.layers.8": 1,
+    "language_model.base_model.model.model.layers.9": 1,
+    "language_model.base_model.model.model.layers.10": 1,
+    "language_model.base_model.model.model.layers.11": 1,
+    "language_model.base_model.model.model.layers.12": 1,
+    "language_model.base_model.model.model.layers.13": 1,
+    "language_model.base_model.model.model.layers.14.attention": 1,
+    "language_model.base_model.model.model.layers.14.feed_forward.w1": 1,
+    "language_model.base_model.model.model.layers.14.feed_forward.w3": 1,
+    "language_model.base_model.model.model.layers.14.feed_forward.w2": 1,
+    "language_model.base_model.model.model.layers.14.feed_forward.act_fn": 1,
+    "language_model.base_model.model.model.layers.14.attention_norm": 1,
+    "language_model.base_model.model.model.layers.14.ffn_norm": 1,
+    "language_model.base_model.model.model.layers.15": 1,
+    "language_model.base_model.model.model.layers.16": 1,
+    "language_model.base_model.model.model.layers.17": 1,
+    "language_model.base_model.model.model.layers.18": 1,
+    "language_model.base_model.model.model.layers.19": 1,
+    "language_model.base_model.model.model.layers.20": 1,
+    "language_model.base_model.model.model.layers.21": 1,
+    "language_model.base_model.model.model.layers.22": 1,
+    "language_model.base_model.model.model.layers.23": 1,
+    "language_model.base_model.model.model.layers.24": 1,
+    "language_model.base_model.model.model.layers.25": 2,
+    "language_model.base_model.model.model.layers.26": 2,
+    "language_model.base_model.model.model.layers.27": 2,
+    "language_model.base_model.model.model.layers.28": 2,
+    "language_model.base_model.model.model.layers.29": 2,
+    "language_model.base_model.model.model.layers.30": 2,
+    "language_model.base_model.model.model.layers.31": 2,
+    "language_model.base_model.model.model.layers.32": 2,
+    "language_model.base_model.model.model.layers.33": 2,
+    "language_model.base_model.model.model.layers.34": 2,
+    "language_model.base_model.model.model.layers.35": 2,
+    "language_model.base_model.model.model.layers.36": 2,
+    "language_model.base_model.model.model.layers.37": 2,
+    "language_model.base_model.model.model.layers.38": 2,
+    "language_model.base_model.model.model.layers.39": 2,
+    "language_model.base_model.model.model.layers.40": 2,
+    "language_model.base_model.model.model.layers.41": 2,
+    "language_model.base_model.model.model.layers.42": 2,
+    "language_model.base_model.model.model.layers.43": 2,
+    "language_model.base_model.model.model.layers.44": 2,
+    "language_model.base_model.model.model.layers.45": 2,
+    "language_model.base_model.model.model.layers.46": 2,
+    "language_model.base_model.model.model.layers.47": 2,
+    "language_model.base_model.model.model.norm": 2,
+    "language_model.base_model.model.output": 2,
+    "mlp1": 3
+}
 
 
 def evaluate_by_item(model_path: str, gen_key: str, project_id: str):
@@ -265,33 +263,6 @@ def evaluate_whole_json_data_row(model, tokenizer, eval_dataset_row: Dict[str, A
 def evaluate_whole_json_dataset():
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
-
-    with init_empty_weights():
-        model = InternVLChatModel.from_pretrained(args.checkpoint).eval()
-
-    no_split_module_classes = [
-        'vision_model',
-        'language_model.base_model.model.model.layers',
-        'mlp1'
-    ]
-
-    max_memory = get_balanced_memory(
-        model,
-        max_memory=None,
-        no_split_module_classes=no_split_module_classes,
-        dtype='float16',
-        low_zero=False,
-    )
-
-    device_map = infer_auto_device_map(
-        model,
-        max_memory=max_memory,
-        no_split_module_classes=no_split_module_classes,
-        dtype='float16'
-    )
-
-    for key, value in device_map.items():
-        logger.debug(f"{key}: {value}")
 
     kwargs = {'device_map': device_map}
 
