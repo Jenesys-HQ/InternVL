@@ -271,9 +271,9 @@ def evaluate_whole_json_dataset():
 
     no_split_module_classes = [
         'vision_model',
-        'language_model.base_model.model.model',
+        'language_model.base_model.model.model.layers',
         'mlp1',
-        'language_model.base_model.model.model.layers.31'
+        'language_model.base_model.model.model.layers.14'
     ]
 
     max_memory = get_balanced_memory(
