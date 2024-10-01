@@ -4,10 +4,10 @@ import logging
 import os
 from typing import Any, Dict, Tuple
 
-from accelerate import infer_auto_device_map
-from accelerate.utils import get_balanced_memory
 import mlflow
 import torch
+from accelerate import infer_auto_device_map, init_empty_weights
+from accelerate.utils import get_balanced_memory
 from dotenv import load_dotenv
 from transformers import AutoTokenizer
 
@@ -17,7 +17,6 @@ from img_utils import get_pdf_base64_from_img_url, pdf_to_image_base64_function,
     pdfs_to_images_base64_function, load_image
 from internvl.model import load_model_and_tokenizer
 from internvl.model.internvl_chat import InternVLChatModel
-from internvl_chat_llava.llava.model.language_model.mpt.meta_init_context import init_empty_weights
 from metrics import MetricsHelper
 from standardisation import standardise_data_models, standardise_data_value
 
