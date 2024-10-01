@@ -1,8 +1,8 @@
 import logging
+from typing import Optional, Union, Dict
 
 import pyap
 import pycountry
-from typing import Optional, Union, Dict
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
