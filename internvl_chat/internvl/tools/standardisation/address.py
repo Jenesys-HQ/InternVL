@@ -13,14 +13,9 @@ except ImportError:
     postal_parser = None
     logger.error("Error importing postal parser")
 
-# COUNTRY_CODES = {
-#     country.alpha_2 for country in pycountry.countries
-# }.union({
-#     country.alpha_3 for country in pycountry.countries
-# })
+ALLOWED_COUNTRIES = ['CA', 'GB', 'US']
 
-
-def get_country_code(country_identifier: str):
+def get_country_code(country_identifier: str) -> Optional[str]:
     try:
         if len(country_identifier) == 2:
             # Assuming country_identifier is a 2-letter country code
@@ -35,13 +30,17 @@ def get_country_code(country_identifier: str):
         if country is None:
             return None
 
-        return country.alpha_2
+        country_code = country.alpha_2
+        if country_code not in pycountry.countries:
+            return None
+
+        return country_code
     except LookupError as e:
         logger.warning(e)
         return None
 
 
-def extract_country_from_address(address: str):
+def extract_country_from_address(address: str) -> Optional[str]:
     last_component = address.split(',')[-1].strip()
 
     if last_component is None:
@@ -57,7 +56,7 @@ class AddressExtractor:
         self.address_str = address_str
         self.country_code = extract_country_from_address(self.address_str)
 
-        print(f'Country code: {self.country_code}')
+        logger.debug(f'Country code: {self.country_code}')
 
         if self.country_code:
             addresses = pyap.parse(self.address_str, country=self.country_code)
