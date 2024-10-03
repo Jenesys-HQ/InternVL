@@ -1,8 +1,9 @@
 import math
 
 import torch
-from internvl.model.internvl_chat import InternVLChatConfig, InternVLChatModel
 from transformers import AutoTokenizer
+
+from internvl.model.internvl_chat import InternVLChatConfig, InternVLChatModel
 
 
 def split_model(num_layers, vit_alpha=0.5):
