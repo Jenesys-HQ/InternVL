@@ -291,7 +291,7 @@ def evaluate_whole_json_dataset():
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
-    device_map = split_model('InternVL2-4B')
+    device_map = split_model(args.checkpoint.split('/')[-1])
 
     model = InternVLChatModel.from_pretrained(
         args.checkpoint,
