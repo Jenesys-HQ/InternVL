@@ -221,7 +221,6 @@ def run_main(
         ckpt_dir,
         torch_dtype=torch.bfloat16,
         low_cpu_mem_usage=True,
-        trust_remote_code=True,
         load_in_8bit=load_in_8bit,
         load_in_4bit=load_in_4bit,
         device_map=device_map).eval()
