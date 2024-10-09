@@ -2,7 +2,7 @@ set -x
 
 CURRENT_DATE=$(date +"%Y-%m-%d-%H-%M-%S")
 MODEL_NAME="InternVL2-26B"
-MODEL_PATH="models/${MODEL_NAME}"
+MODEL_PATH="/workspace/models/${MODEL_NAME}"
 
 if [ ! -d "$MODEL_PATH" ]; then
   mkdir -p "$MODEL_PATH"
