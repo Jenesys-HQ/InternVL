@@ -206,6 +206,7 @@ def evaluate_whole_json_dataset():
     model = InternVLChatModel.from_pretrained(
         args.checkpoint,
         torch_dtype=torch.bfloat16,
+        use_flash_attn=True,
         low_cpu_mem_usage=True,
         load_in_8bit=args.load_in_8bit,
         load_in_4bit=args.load_in_4bit,
