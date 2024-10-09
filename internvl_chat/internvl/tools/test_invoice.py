@@ -212,7 +212,7 @@ def run_main(
         top_k: int = 50,
         top_p: float = 0.9,
         num_beams: int = 1,
-        max_gen_len: Optional[int] = None,
+        max_gen_len: Optional[int] = 1024,
         load_in_4bit: bool = False,
         load_in_8bit: bool = False
 ):
