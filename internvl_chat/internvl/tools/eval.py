@@ -136,7 +136,7 @@ def evaluate_whole_json_labelbox(model_path: str, gen_key: str, project_id: str)
             pixel_values=pixel_values,
             question=PROMPT,
             generation_config=generation_config,
-            verbose=True
+            verbose=False
         )
 
         if "```" in response and "```json" not in response:
