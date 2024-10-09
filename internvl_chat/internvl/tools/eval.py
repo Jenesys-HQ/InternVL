@@ -258,7 +258,7 @@ if __name__ == "__main__":
     parser.add_argument("--top-k", help="Top k tokens to consider", type=int, default=50)
     parser.add_argument("--top-p", help="Top p tokens to consider", type=float, default=0.9)
     parser.add_argument("--num-beams", help="Number of beams to use for generation", type=int, default=1)
-    parser.add_argument("--max-new-tokens", help="Max num of generated tokens", type=int, default=1)
+    parser.add_argument("--max-new-tokens", help="Max num of generated tokens", type=int, default=1024)
     parser.add_argument("--dynamic", help="Whether to use dynamic generation", type=bool, default=False)
     parser.add_argument("--max-num", help="Maximum number of images to load", type=int, default=6)
     parser.add_argument("--load-in-8bit", help="Whether to load images in 8-bit", type=bool, default=False)
