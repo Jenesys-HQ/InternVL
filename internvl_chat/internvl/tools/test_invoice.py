@@ -217,6 +217,7 @@ def run_main(
         load_in_8bit: bool = False
 ):
     device_map = InternVLChatModel.split_model(ckpt_dir.split('/')[-1])
+    print(device_map)
     model = InternVLChatModel.from_pretrained(
         ckpt_dir,
         torch_dtype=torch.bfloat16,
