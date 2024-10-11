@@ -8,8 +8,8 @@ import fire
 import torch
 from transformers import AutoTokenizer
 
-from data_utils import extract_json_data
-from img_utils import load_image
+from internvl.tools.data_utils import extract_json_data
+from internvl.tools.img_utils import load_image
 from internvl.model.internvl_chat import InternVLChatModel, InternVLChatConfig
 from internvl.model import split_model
 
