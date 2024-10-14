@@ -1,3 +1,4 @@
+import argparse
 import json
 import time
 
@@ -203,13 +204,13 @@ Provide your final output as a valid JSON object within markdown format ```json 
 """
 
 
-def run_main(ckpt_dir: str):
+def run_main(ckpt_dir: str, tp: int= 1):
     img_path = "/workspace/test_invoice.jpeg"
     image = load_image(img_path)
     engine_config = TurbomindEngineConfig(
         dtype=torch.bfloat16,
         session_len=8192,
-        tp=4,
+        tp=tp,
         device_type="cuda"
     )
     pipe = pipeline(ckpt_dir, backend_config=engine_config)
@@ -223,7 +224,6 @@ def run_main(ckpt_dir: str):
     )
 
     response = pipe((prompt, image), gen_config=generation_config)
-    print(response.text)
     predicted_data_row = extract_json_data(response.text)
     end = time.perf_counter()
 
@@ -236,4 +236,6 @@ def main():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
     main()
