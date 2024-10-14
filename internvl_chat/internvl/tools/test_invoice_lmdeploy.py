@@ -208,8 +208,7 @@ def run_main(ckpt_dir: str):
     image = load_image(img_path)
     engine_config = PytorchEngineConfig(
         session_len=8192,
-        tp=2,
-        # dtype=torch.float16,
+        tp=4,
         device_type="cuda"
     )
     pipe = pipeline(ckpt_dir, backend_config=engine_config)
