@@ -8,7 +8,6 @@ from lmdeploy import pipeline, PytorchEngineConfig, TurbomindEngineConfig, Gener
 from lmdeploy.vl import load_image
 
 from internvl.tools.data_utils import extract_json_data
-from streamlit_demo.app import top_p
 
 prompt = """
 # Extraction Agent
