@@ -6,7 +6,6 @@ from lmdeploy.vl import load_image
 import fire
 
 from internvl.tools.data_utils import extract_json_data
-from internvl.tools.img_utils import load_image
 
 prompt = """
 # Extraction Agent
