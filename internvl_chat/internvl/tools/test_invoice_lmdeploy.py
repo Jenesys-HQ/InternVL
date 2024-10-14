@@ -210,8 +210,7 @@ def run_main(ckpt_dir: str):
 
     start = time.perf_counter()
     response = pipe((prompt, image))
-    print(response)
-    predicted_data_row = extract_json_data(response)
+    predicted_data_row = extract_json_data(response.text)
     end = time.perf_counter()
 
     print(json.dumps(predicted_data_row, indent=4))
