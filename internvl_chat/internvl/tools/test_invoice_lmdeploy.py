@@ -3,7 +3,6 @@ import time
 
 import fire
 import torch
-from transformers import AutoTokenizer
 from lmdeploy import pipeline, PytorchEngineConfig, TurbomindEngineConfig, GenerationConfig
 from lmdeploy.vl import load_image
 
@@ -214,14 +213,12 @@ def run_main(ckpt_dir: str):
         device_type="cuda"
     )
     pipe = pipeline(ckpt_dir, backend_config=engine_config)
-    tokenizer = AutoTokenizer.from_pretrained(ckpt_dir, trust_remote_code=True, use_fast=False)
 
     start = time.perf_counter()
     generation_config =GenerationConfig(
         top_k=50,
         top_p=0.9,
         max_new_tokens=2048,
-        eos_token_id=tokenizer.eos_token_id,
         random_seed=42
     )
 
