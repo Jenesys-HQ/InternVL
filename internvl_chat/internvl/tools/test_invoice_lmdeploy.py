@@ -3,7 +3,7 @@ import time
 
 import fire
 import torch
-from lmdeploy import pipeline, TurbomindEngineConfig
+from lmdeploy import pipeline, PytorchEngineConfig
 from lmdeploy.vl import load_image
 
 from internvl.tools.data_utils import extract_json_data
@@ -206,10 +206,11 @@ Provide your final output as a valid JSON object within markdown format ```json 
 def run_main(ckpt_dir: str):
     img_path = "/workspace/test_invoice.jpeg"
     image = load_image(img_path)
-    engine_config = TurbomindEngineConfig(
+    engine_config = PytorchEngineConfig(
         session_len=8192,
+        tp=2,
         dtype=torch.float16,
-        device_ids=[0, 1, 2, 3]
+        device_type="cuda"
     )
     pipe = pipeline(ckpt_dir, backend_config=engine_config)
 
