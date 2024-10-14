@@ -12,8 +12,8 @@ import pdf2image
 import requests
 from dotenv import load_dotenv
 
-from constants import JSON_STRUCTURE, PROMPT
-from standardisation import standardise_data_models
+from internvl.tools.constants import JSON_STRUCTURE, PROMPT
+from internvl.tools.standardisation import standardise_data_models
 
 # DATA_ROW_MAPPING = {
 #     'what_is_the_invoice_number': 'Invoice ID',
