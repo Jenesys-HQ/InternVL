@@ -214,15 +214,14 @@ def run_main(ckpt_dir: str, tp: int= 1):
         device_type="cuda"
     )
     pipe = pipeline(ckpt_dir, backend_config=engine_config)
-
-    start = time.perf_counter()
-    generation_config =GenerationConfig(
+    generation_config = GenerationConfig(
         top_k=50,
         top_p=0.9,
         max_new_tokens=2048,
         random_seed=42
     )
 
+    start = time.perf_counter()
     response = pipe((prompt, image), gen_config=generation_config)
     predicted_data_row = extract_json_data(response.text)
     end = time.perf_counter()
