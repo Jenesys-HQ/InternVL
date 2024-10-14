@@ -206,7 +206,8 @@ Provide your final output as a valid JSON object within markdown format ```json 
 def run_main(ckpt_dir: str):
     img_path = "/workspace/test_invoice.jpeg"
     image = load_image(img_path)
-    pipe = pipeline(ckpt_dir, backend_config=TurbomindEngineConfig(session_len=8192, dtype=torch.float16))
+    pipe = pipeline(ckpt_dir, backend_config=TurbomindEngineConfig(
+        session_len=8192, dtype=torch.float16, device_ids=[0, 1, 2, 3]))
 
     start = time.perf_counter()
     response = pipe((prompt, image), max_new_tokens=2048)
