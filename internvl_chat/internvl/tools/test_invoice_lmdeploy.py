@@ -218,7 +218,6 @@ def run_main(ckpt_dir: str):
 
     start = time.perf_counter()
     generation_config =GenerationConfig(
-        do_sample=True,
         top_k=50,
         top_p=0.9,
         num_beams=1,
