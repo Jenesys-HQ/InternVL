@@ -207,6 +207,7 @@ def run_main(ckpt_dir: str):
     img_path = "/workspace/test_invoice.jpeg"
     image = load_image(img_path)
     engine_config = PytorchEngineConfig(
+        dtype=torch.bfloat16,
         session_len=8192,
         tp=4,
         device_type="cuda"
