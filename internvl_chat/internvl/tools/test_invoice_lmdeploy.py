@@ -215,7 +215,16 @@ def run_main(ckpt_dir: str):
     pipe = pipeline(ckpt_dir, backend_config=engine_config)
 
     start = time.perf_counter()
-    response = pipe((prompt, image), max_new_tokens=4096)
+    generation_config = {
+        "do_sample": True,
+        "top_k": 50,
+        "top_p": 0.9,
+        "num_beams": 1,
+        "max_new_tokens": 2048,
+        "eos_token_id": None  # Replace with actual eos_token_id if available
+    }
+
+    response = pipe((prompt, image), generation_config=generation_config)
     print(response.text)
     predicted_data_row = extract_json_data(response.text)
     end = time.perf_counter()
