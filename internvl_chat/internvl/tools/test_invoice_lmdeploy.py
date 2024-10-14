@@ -209,7 +209,7 @@ def run_main(ckpt_dir: str):
     pipe = pipeline(ckpt_dir, backend_config=TurbomindEngineConfig(session_len=8192, dtype=torch.float16))
 
     start = time.perf_counter()
-    response = pipe((prompt, image), max_new_tokens=1024)
+    response = pipe((prompt, image), max_new_tokens=2048)
     print(response.text)
     predicted_data_row = extract_json_data(response.text)
     end = time.perf_counter()
