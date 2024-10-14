@@ -1,4 +1,5 @@
 import json
+import time
 
 from lmdeploy import pipeline, TurbomindEngineConfig
 from lmdeploy.vl import load_image
@@ -207,9 +208,13 @@ def run_main(ckpt_dir: str):
     image = load_image(img_path)
     pipe = pipeline(ckpt_dir, backend_config=TurbomindEngineConfig(session_len=8192))
 
+    start = time.perf_counter()
     response = pipe((prompt, image))
     predicted_data_row = extract_json_data(response)
+    end = time.perf_counter()
+
     print(json.dumps(predicted_data_row, indent=4))
+    print(f"Time taken for inference: {end - start} seconds")
 
 
 def main():
