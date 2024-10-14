@@ -4,10 +4,11 @@ import time
 import fire
 import torch
 from transformers import AutoTokenizer
-from lmdeploy import pipeline, PytorchEngineConfig, TurbomindEngineConfig
+from lmdeploy import pipeline, PytorchEngineConfig, TurbomindEngineConfig, GenerationConfig
 from lmdeploy.vl import load_image
 
 from internvl.tools.data_utils import extract_json_data
+from streamlit_demo.app import top_p
 
 prompt = """
 # Extraction Agent
@@ -217,15 +218,15 @@ def run_main(ckpt_dir: str):
     tokenizer = AutoTokenizer.from_pretrained(ckpt_dir, trust_remote_code=True, use_fast=False)
 
     start = time.perf_counter()
-    generation_config = {
-        "do_sample": True,
-        "top_k": 50,
-        "top_p": 0.9,
-        "num_beams": 1,
-        "max_new_tokens": 2048,
-        "eos_token_id": tokenizer.eos_token_id,
-        "random_seed": 42
-    }
+    generation_config =GenerationConfig(
+        do_sample=True,
+        top_k=50,
+        top_p=0.9,
+        num_beams=1,
+        max_new_tokens=2048,
+        eos_token_id=tokenizer.eos_token_id,
+        random_seed=42
+    )
 
     response = pipe((prompt, image), gen_config=generation_config)
     print(response.text)
