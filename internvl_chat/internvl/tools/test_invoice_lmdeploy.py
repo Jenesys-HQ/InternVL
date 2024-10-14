@@ -224,7 +224,7 @@ def run_main(ckpt_dir: str):
         "eos_token_id": None  # Replace with actual eos_token_id if available
     }
 
-    response = pipe((prompt, image), generation_config=generation_config)
+    response = pipe((prompt, image), gen_config=generation_config)
     print(response.text)
     predicted_data_row = extract_json_data(response.text)
     end = time.perf_counter()
