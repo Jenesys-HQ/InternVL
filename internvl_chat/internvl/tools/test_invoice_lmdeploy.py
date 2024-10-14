@@ -220,7 +220,6 @@ def run_main(ckpt_dir: str):
     generation_config =GenerationConfig(
         top_k=50,
         top_p=0.9,
-        num_beams=1,
         max_new_tokens=2048,
         eos_token_id=tokenizer.eos_token_id,
         random_seed=42
