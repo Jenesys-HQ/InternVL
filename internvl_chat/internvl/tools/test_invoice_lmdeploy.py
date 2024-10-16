@@ -209,7 +209,7 @@ def run_main(ckpt_dir: str, tp: int= 1):
     image = load_image(img_path)
     engine_config = TurbomindEngineConfig(
         dtype=torch.bfloat16,
-        session_len=8192,
+        session_len=45000,
         tp=tp,
         device_type="cuda"
     )
