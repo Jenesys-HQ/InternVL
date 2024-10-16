@@ -22,68 +22,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler())
 
-device_map = {
-    "vision_model": 0,
-    "language_model.base_model.model.model.tok_embeddings": 1,
-    "language_model.base_model.model.model.layers.0": 1,
-    "language_model.base_model.model.model.layers.1": 1,
-    "language_model.base_model.model.model.layers.2": 1,
-    "language_model.base_model.model.model.layers.3": 1,
-    "language_model.base_model.model.model.layers.4": 1,
-    "language_model.base_model.model.model.layers.5": 1,
-    "language_model.base_model.model.model.layers.6": 1,
-    "language_model.base_model.model.model.layers.7": 1,
-    "language_model.base_model.model.model.layers.8": 1,
-    "language_model.base_model.model.model.layers.9": 1,
-    "language_model.base_model.model.model.layers.10": 1,
-    "language_model.base_model.model.model.layers.11": 1,
-    "language_model.base_model.model.model.layers.12": 1,
-    "language_model.base_model.model.model.layers.13": 1,
-    "language_model.base_model.model.model.layers.14.attention": 1,
-    "language_model.base_model.model.model.layers.14.feed_forward.w1": 1,
-    "language_model.base_model.model.model.layers.14.feed_forward.w3": 1,
-    "language_model.base_model.model.model.layers.14.feed_forward.w2": 1,
-    "language_model.base_model.model.model.layers.14.feed_forward.act_fn": 1,
-    "language_model.base_model.model.model.layers.14.attention_norm": 1,
-    "language_model.base_model.model.model.layers.14.ffn_norm": 1,
-    "language_model.base_model.model.model.layers.15": 1,
-    "language_model.base_model.model.model.layers.16": 1,
-    "language_model.base_model.model.model.layers.17": 1,
-    "language_model.base_model.model.model.layers.18": 1,
-    "language_model.base_model.model.model.layers.19": 1,
-    "language_model.base_model.model.model.layers.20": 1,
-    "language_model.base_model.model.model.layers.21": 1,
-    "language_model.base_model.model.model.layers.22": 1,
-    "language_model.base_model.model.model.layers.23": 1,
-    "language_model.base_model.model.model.layers.24": 1,
-    "language_model.base_model.model.model.layers.25": 2,
-    "language_model.base_model.model.model.layers.26": 2,
-    "language_model.base_model.model.model.layers.27": 2,
-    "language_model.base_model.model.model.layers.28": 2,
-    "language_model.base_model.model.model.layers.29": 2,
-    "language_model.base_model.model.model.layers.30": 2,
-    "language_model.base_model.model.model.layers.31": 2,
-    "language_model.base_model.model.model.layers.32": 2,
-    "language_model.base_model.model.model.layers.33": 2,
-    "language_model.base_model.model.model.layers.34": 2,
-    "language_model.base_model.model.model.layers.35": 2,
-    "language_model.base_model.model.model.layers.36": 2,
-    "language_model.base_model.model.model.layers.37": 2,
-    "language_model.base_model.model.model.layers.38": 2,
-    "language_model.base_model.model.model.layers.39": 2,
-    "language_model.base_model.model.model.layers.40": 2,
-    "language_model.base_model.model.model.layers.41": 2,
-    "language_model.base_model.model.model.layers.42": 2,
-    "language_model.base_model.model.model.layers.43": 2,
-    "language_model.base_model.model.model.layers.44": 2,
-    "language_model.base_model.model.model.layers.45": 2,
-    "language_model.base_model.model.model.layers.46": 2,
-    "language_model.base_model.model.model.layers.47": 2,
-    "language_model.base_model.model.model.norm": 2,
-    "language_model.base_model.model.output": 2,
-    "mlp1": 3
-}
-
 
 def evaluate_by_item(model_path: str, gen_key: str, project_id: str):
     export_data = load_labelbox_data(gen_key, project_id)
@@ -198,7 +136,7 @@ def evaluate_whole_json_labelbox(model_path: str, gen_key: str, project_id: str)
             pixel_values=pixel_values,
             question=PROMPT,
             generation_config=generation_config,
-            verbose=True
+            verbose=False
         )
 
         if "```" in response and "```json" not in response:
@@ -264,11 +202,14 @@ def evaluate_whole_json_dataset():
     with open(args.eval_dataset, 'r') as file:
         eval_dataset = [json.loads(line.strip()) for line in file]
 
-    kwargs = {'device_map': device_map}
-
+    device_map = InternVLChatModel.split_model(args.checkpoint.split('/')[-1])
     model = InternVLChatModel.from_pretrained(
-        args.checkpoint, low_cpu_mem_usage=True, torch_dtype=torch.bfloat16,
-        load_in_8bit=args.load_in_8bit, load_in_4bit=args.load_in_4bit, **kwargs).eval()
+        args.checkpoint,
+        torch_dtype=torch.bfloat16,
+        low_cpu_mem_usage=True,
+        load_in_8bit=args.load_in_8bit,
+        load_in_4bit=args.load_in_4bit,
+        device_map=device_map).eval()
     tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, trust_remote_code=True, use_fast=False)
 
     generation_config = dict(
@@ -276,7 +217,7 @@ def evaluate_whole_json_dataset():
         top_k=args.top_k,
         top_p=args.top_p,
         num_beams=args.num_beams,
-        max_new_tokens=1024,
+        max_new_tokens=args.max_new_tokens,
         eos_token_id=tokenizer.eos_token_id,
     )
 
@@ -299,12 +240,6 @@ def evaluate_whole_json_dataset():
             "labeled_data": standardised_labeled_data,
             "predicted_data": standardised_predicted_data
         }, "data.json")
-        mlflow.transformers.log_model(
-            transformers_model={"model": model, "tokenizer": tokenizer},
-            artifact_path="model",
-            task="llm/v1/chat",
-            save_pretrained=False,
-        )
 
 
 if __name__ == "__main__":
@@ -317,6 +252,7 @@ if __name__ == "__main__":
     parser.add_argument("--top-k", help="Top k tokens to consider", type=int, default=50)
     parser.add_argument("--top-p", help="Top p tokens to consider", type=float, default=0.9)
     parser.add_argument("--num-beams", help="Number of beams to use for generation", type=int, default=1)
+    parser.add_argument("--max-new-tokens", help="Max num of generated tokens", type=int, default=1024)
     parser.add_argument("--dynamic", help="Whether to use dynamic generation", type=bool, default=False)
     parser.add_argument("--max-num", help="Maximum number of images to load", type=int, default=6)
     parser.add_argument("--load-in-8bit", help="Whether to load images in 8-bit", type=bool, default=False)
