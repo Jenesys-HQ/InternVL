@@ -11,10 +11,11 @@ from internvl.tools.data_utils import extract_json_data
 from internvl.tools.prompt import prompt
 
 
-def run_main(ckpt_dir: str, tp: int = 1, cache_max_entry_count: float = .8):
+def run_main(ckpt_dir: str, tp: int = 1, cache_max_entry_count: float = .8, rope_scaling_factor: float = 1.0):
     img_path = "/workspace/test_invoice.jpeg"
     image = load_image(img_path)
     engine_config = TurbomindEngineConfig(
+        rope_scaling_factor=rope_scaling_factor,
         dtype=torch.bfloat16,
         session_len=45000,
         cache_max_entry_count=cache_max_entry_count,
