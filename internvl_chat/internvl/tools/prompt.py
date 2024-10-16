@@ -5,6 +5,9 @@ curr_dir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 try:
     coa = json.load(open(f'{curr_dir}/coa.json'))
+    for el in coa:
+        del el['id']
+
     vendor_str = json.load(open(f'{curr_dir}/vendor.json'))
     tax_codes = json.load(open(f'{curr_dir}/tax_codes.json'))
 except Exception as e:
