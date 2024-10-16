@@ -12,6 +12,7 @@ except Exception as e:
     vendor_str = []
     tax_codes = []
     print("Couldn't load the json files")
+    raise e
 
 json_schema = {
     "Document Type": "",
