@@ -93,6 +93,10 @@ prompt = f"""
  [Your detailed analysis of the document to guide the extraction process]
  </document_analysis>
 
+ <chart_of_accounts>
+ {coa}
+ </chart_of_accounts>
+
 
  You are an AI bookkeeper tasked with extracting and categorizing financial data from Document images. Your goal is to accurately extract all relevant data from the image and format it into a structured JSON output. 
  Your secondary task is to analyze client feedback, compare it with historical Document data (if available), and use this information to generate an accurate bookkeeping entry for the current Document.
@@ -151,10 +155,7 @@ prompt = f"""
  - Extract the company number if available.
 
  12. Category Classification:
- - Classify each line item into a specific category based on the Chart of Accounts provided below and the line item description:
- <chart_of_accounts>
- {coa}
- </chart_of_accounts>
+ - Classify each line item into a specific category based on the Chart of Accounts provided in the <chart_of_accounts> tag and the line item description:
  - Use the document type classification from step 1 to determine the appropriate account class:
  - If the document was classified as a "BILL" or "EXPENSE", use categories where the class is "expense".
  - If the document was classified as a "SALES" or "INCOME", use categories where the class is "revenue".
@@ -175,13 +176,10 @@ prompt = f"""
  <tax_codes>
  {tax_codes}
  </tax_codes>
- - Use the chart of accounts to determine the appropriate tax code class:
- <chart_of_accounts>
- {coa}
- </chart_of_accounts>
+ - Use the chart of accounts in the <chart_of_accounts> tag to determine the appropriate tax code class:
  - Follow these rules to determine the tax code:
- - For expenses (bills), use tax codes where the class in {coa} is "expense".
- - For income (sales invoices), use tax codes where the class in {coa} is "revenue".
+ - For expenses (bills), use tax codes where the class in <chart_of_accounts> is "expense".
+ - For income (sales invoices), use tax codes where the class in <chart_of_accounts> is "revenue".
 
 
  15. Tracking Categories:
