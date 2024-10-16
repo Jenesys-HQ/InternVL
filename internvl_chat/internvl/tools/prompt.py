@@ -1,9 +1,12 @@
 import json
+import os
+
+curr_dir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 try:
-    coa = json.load(open('coa.json'))
-    vendor_str = json.load(open('vendor.json'))
-    tax_codes = json.load(open('tax_codes.json'))
+    coa = json.load(open(f'{curr_dir}/coa.json'))
+    vendor_str = json.load(open(f'{curr_dir}/vendor.json'))
+    tax_codes = json.load(open(f'{curr_dir}/tax_codes.json'))
 except Exception as e:
     coa = []
     vendor_str = []
