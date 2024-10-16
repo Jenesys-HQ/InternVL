@@ -204,12 +204,13 @@ Provide your final output as a valid JSON object within markdown format ```json 
 """
 
 
-def run_main(ckpt_dir: str, tp: int= 1):
+def run_main(ckpt_dir: str, tp: int= 1, cache_max_entry_count: float = .8):
     img_path = "/workspace/test_invoice.jpeg"
     image = load_image(img_path)
     engine_config = TurbomindEngineConfig(
         dtype=torch.bfloat16,
         session_len=45000,
+        cache_max_entry_count=cache_max_entry_count,
         tp=tp,
         device_type="cuda"
     )
