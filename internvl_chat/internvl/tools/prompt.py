@@ -7,13 +7,18 @@ try:
     coa = json.load(open(f'{curr_dir}/coa.json'))
     for el in coa:
         del el['id']
+        del el['code']
+
+    tax_codes = json.load(open(f'{curr_dir}/tax_codes.json'))
+    for el in tax_codes:
+        del el['id']
 
     vendor_str = json.load(open(f'{curr_dir}/vendor.json'))
-    tax_codes = json.load(open(f'{curr_dir}/tax_codes.json'))
+
 except Exception as e:
     coa = []
-    vendor_str = []
     tax_codes = []
+    vendor_str = []
     print("Couldn't load the json files")
     raise e
 
