@@ -8,6 +8,7 @@ except Exception as e:
     coa = []
     vendor_str = []
     tax_codes = []
+    print("Couldn't load the json files")
 
 json_schema = {
     "Document Type": "",
