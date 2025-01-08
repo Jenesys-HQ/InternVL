@@ -118,9 +118,15 @@ def split_model(model_name, vit_alpha=0.5):
     world_size = torch.cuda.device_count()
     num_layers = {
         'InternVL-Chat-V1-1': 40, 'InternVL-Chat-V1-2': 60, 'InternVL-Chat-V1-2-Plus': 60,
+        # InternVL 1.5 Series
         'Mini-InternVL-2B-V1-5': 24, 'Mini-InternVL-4B-V1-5': 32, 'InternVL-Chat-V1-5': 48,
-        'InternVL2-8B': 32, 'InternVL2-26B': 48,  'InternVL2-40B': 60, 'InternVL2-Llama3-76B': 80,
-        'InternVL2-78B': 80, 'InternVL2-Pro': 80}[model_name]
+        # InternVL 2.0 Series
+        'InternVL2-8B': 32, 'InternVL2-26B': 48, 'InternVL2-40B': 60, 'InternVL2-Llama3-76B': 80,
+        'InternVL2-78B': 80, 'InternVL2-Pro': 80,
+        # InternVL 2.5 Series
+        'InternVL2_5-1B': 24, 'InternVL2_5-2B': 24, 'InternVL2_5-4B': 36, 'InternVL2_5-8B': 32,
+        'InternVL2_5-26B': 48, 'InternVL2_5-38B': 64, 'InternVL2_5-78B': 80
+    }[model_name]
     # Since the first GPU will be used for ViT, treat it as half a GPU.
     num_layers_per_gpu = math.ceil(num_layers / (world_size - vit_alpha))
     num_layers_per_gpu = [num_layers_per_gpu] * world_size
@@ -134,8 +140,9 @@ def split_model(model_name, vit_alpha=0.5):
     device_map['mlp1'] = 0
     device_map['language_model.model.tok_embeddings'] = 0
     device_map['language_model.model.embed_tokens'] = 0
-    device_map['language_model.output'] = 0
     device_map['language_model.model.norm'] = 0
+    device_map['language_model.model.rotary_emb'] = 0
+    device_map['language_model.output'] = 0
     device_map['language_model.lm_head'] = 0
     device_map[f'language_model.model.layers.{num_layers - 1}'] = 0
 
@@ -279,7 +286,7 @@ class ModelWorker:
                     max_input_tile_temp = []
                     for image_str in message['image']:
                         pil_images.append(load_image_from_base64(image_str))
-                        prefix += f'Image-{global_image_cnt + 1}: <image>\n\n'
+                        prefix += f'Image-{global_image_cnt + 1}: <image>\n'
                         global_image_cnt += 1
                         max_input_tile_temp.append(max(1, max_input_tiles // len(message['image'])))
                     if len(max_input_tile_temp) > 0:
@@ -291,8 +298,8 @@ class ModelWorker:
         question, history = history[-1][0], history[:-1]
 
         if global_image_cnt == 1:
-            question = question.replace('Image-1: <image>\n\n', '<image>\n')
-            history = [[item[0].replace('Image-1: <image>\n\n', '<image>\n'), item[1]] for item in history]
+            question = question.replace('Image-1: <image>\n', '<image>\n')
+            history = [[item[0].replace('Image-1: <image>\n', '<image>\n'), item[1]] for item in history]
 
         # Create a new list to store processed sublists
         flattened_list = []
@@ -308,7 +315,7 @@ class ModelWorker:
 
         old_system_message = self.model.system_message
         self.model.system_message = system_message
-        image_tiles = []
+        image_tiles, num_patches_list = [], []
         transform = build_transform(input_size=self.image_size)
         if len(pil_images) > 0:
             for current_max_input_tiles, pil_image in zip(max_input_tile_list, pil_images):
@@ -318,6 +325,7 @@ class ModelWorker:
                         use_thumbnail=self.model.config.use_thumbnail)
                 else:
                     tiles = [pil_image]
+                num_patches_list.append(len(tiles))
                 image_tiles += tiles
             pixel_values = [transform(item) for item in image_tiles]
             pixel_values = torch.stack(pixel_values).to(self.model.device, dtype=torch.bfloat16)
@@ -341,6 +349,7 @@ class ModelWorker:
         thread = Thread(target=self.model.chat, kwargs=dict(
             tokenizer=self.tokenizer,
             pixel_values=pixel_values,
+            num_patches_list=num_patches_list,
             question=question,
             history=history,
             return_history=False,

@@ -1,76 +1,197 @@
 <div align="center">
 
-# <img width="60" alt="image" src="https://github.com/OpenGVLab/InternVL/assets/47669167/7037290e-f474-4d11-b90f-1d8316087bf8"> InternVL家族：通过开源组件缩小与商业多模态模型的差距 —— GPT-4o的开源替代方案
+# InternVL家族：通过开源组件缩小与商业多模态模型的差距 —— GPT-4o的开源替代方案
 
-[\[🆕 博客\]](https://internvl.github.io/blog/)  [\[🚀 InternVL2 博客\]](https://internvl.github.io/blog/2024-07-02-InternVL-2.0/)  [\[🗨️ 对话Demo\]](https://internvl.opengvlab.com/)  [\[🤗 HF Demo\]](https://huggingface.co/spaces/OpenGVLab/InternVL)  [\[📖 文档\]](https://internvl.readthedocs.io/en/latest/)  [\[🌐 API\]](https://internvl.readthedocs.io/en/latest/get_started/internvl_chat_api.html)  [\[🚀 快速开始\]](#使用-huggingface-快速开始)
+<div align="center">
+  <img width="500" alt="image" src="https://github.com/user-attachments/assets/930e6814-8a9f-43e1-a284-118a5732daa4">
+  <br>
+</div>
 
-[\[📜 InternVL 1.0 论文\]](https://arxiv.org/abs/2312.14238)  [\[📜 InternVL 1.5 报告\]](https://arxiv.org/abs/2404.16821)  [\[📖 1.0 中文解读\]](https://zhuanlan.zhihu.com/p/702946079)  [\[📖 1.5 中文解读\]](https://zhuanlan.zhihu.com/p/699439759)  [\[📖 2.0 中文解读\]](https://zhuanlan.zhihu.com/p/706547971)
+[\[🆕 博客\]](https://internvl.github.io/blog/) [\[🤔 常见问题\]](https://internvl.readthedocs.io/en/latest/tutorials/faqs.html)  [\[🗨️ 对话Demo\]](https://internvl.opengvlab.com/)  [\[🤗 HF Demo\]](https://huggingface.co/spaces/OpenGVLab/InternVL)  [\[📖 文档\]](https://internvl.readthedocs.io/en/latest/)  [\[🌐 API\]](https://internvl.readthedocs.io/en/latest/get_started/internvl_chat_api.html)  [\[🚀 快速开始\]](#使用-huggingface-快速开始)
 
-[Switch to the English version (切换至中文版)](/README.md)
+[\[📜 InternVL 2.5 报告\]](https://huggingface.co/papers/2412.05271) [\[🔥 Mini-InternVL 论文\]](https://arxiv.org/abs/2410.16261)  [\[🚀 InternVL2 博客\]](https://internvl.github.io/blog/2024-07-02-InternVL-2.0/)   [\[📜 InternVL 1.5 论文\]](https://huggingface.co/papers/2404.16821)  [\[📜 InternVL 1.0 论文\]](https://huggingface.co/papers/2312.14238)
+
+[\[📖 2.0 中文解读\]](https://zhuanlan.zhihu.com/p/706547971)  [\[📖 1.5 中文解读\]](https://zhuanlan.zhihu.com/p/699439759)  [\[📖 1.0 中文解读\]](https://zhuanlan.zhihu.com/p/702946079)
+
+[Switch to the English version (切换至英文版)](/README.md)
 
 <a href="https://trendshift.io/repositories/9803" target="_blank"><img src="https://trendshift.io/api/badge/repositories/9803" alt="OpenGVLab%2FInternVL | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 <img height="55" alt="image" src="https://github.com/user-attachments/assets/bd62ab46-f0ea-40c6-ab10-7fde671716cc">
 
-![opencompass](https://github.com/user-attachments/assets/7ce93c05-84ae-4997-a480-53897d1d3a1c)
+![perform](https://github.com/user-attachments/assets/3059622e-e553-40ba-84ed-32d8f92a2f69)
 
 </div>
 
 ## 最新消息 🚀🚀🚀
 
+- `2024/12/20`: 🔥 我们发布了 [InternVL2.5-MPO系列](https://internvl.github.io/blog/2024-12-20-InternVL-2.5-MPO/)。该系列通过 [Mixed Preference Optimization](https://huggingface.co/papers/2411.10442) 算法和 [MMPR-v1.1](https://huggingface.co/datasets/OpenGVLab/MMPR-v1.1) 数据集微调得到。**该系列模型在OpenCompass评测榜单中的整体性能超过MPO训练前两个百分点。** 这些模型可在 [HF 链接](https://huggingface.co/collections/OpenGVLab/internvl25-mpo-6753fed98cd828219b12f849)中下载.
+- `2024/12/17`: 🚀 Paddle团队已在[PaddleMIX](https://github.com/PaddlePaddle/PaddleMIX)框架中适配[InternVL2/2.5](https://github.com/PaddlePaddle/PaddleMIX/tree/develop/paddlemix/examples/internvl2).
+- `2024/12/05`: 🚀 我们发布了 InternVL2.5 系列，覆盖了从1B参数到78B参数的多模态大语言模型。[InternVL2_5-78B](https://huggingface.co/OpenGVLab/InternVL2_5-78B) 是首个在MMMU benchmark上得分超过70的开源模型。 这些模型可在 [HF 链接](https://huggingface.co/collections/OpenGVLab/internvl-25-673e1019b66e2218f68d7c1c) 中下载。
+- `2024/11/14`: 我们发布了 [MMPR](https://huggingface.co/datasets/OpenGVLab/MMPR)，一个高质量、大规模的多模态推理偏好数据集，以及 [MPO](https://github.com/OpenGVLab/InternVL/tree/main/internvl_chat/shell/internvl2.0_mpo)，一种高效的偏好优化算法。由此训练的模型 [InternVL2-8B-MPO](https://huggingface.co/OpenGVLab/InternVL2-8B-MPO) 在 MathVista 上取得了 67.0 的准确率。更多详情请参阅我们的[论文](https://arxiv.org/abs/2411.10442)、[项目主页](https://internvl.github.io/blog/2024-11-14-InternVL-2.0-MPO/) 和 [文档](https://internvl.readthedocs.io/en/latest/internvl2.0/preference_optimization.html)。
+- `2024/10/21`: 我们发布了 Mini-InternVL 系列。这些模型在保持极小模型体积的同时实现了出色的性能：4B 模型仅用 5% 的模型大小便达到了 90% 的性能。有关更多详细信息，请查看我们的 [项目页面](https://github.com/OpenGVLab/InternVL/tree/main/internvl_chat/shell/mini_internvl) 和 [文档](https://internvl.readthedocs.io/en/latest/internvl2.0/domain_adaptation.html)。
 - `2024/08/01`: [Chartmimic](https://chartmimic.github.io/) 团队在他们的基准测试中评估了 InternVL2 系列模型。InternVL2-26B 和 76B 模型在开源模型中取得了前两名的成绩，其中 InternVL2-Llama3-76B 模型超过了 GeminiProVision，并表现出与 Claude-3-opus 相当的结果。
 - `2024/08/01`: InternVL2-Pro 在 [CharXiv](https://charxiv.github.io/#leaderboard) 数据集中实现了开源模型中的 SOTA 性能，也比部分知名闭源模型如 GPT-4V、Gemini 1.5 Flash、Claude 3 Sonnet 取得了更好成绩
 - `2024/07/24`: [MLVU](https://github.com/JUNJIE99/MLVU)团队在它们的基准测试中评估了InternVL-1.5。在多项选择任务上的平均表现为50.4%，而在生成任务上的表现为4.02。多项选择任务的表现在所有开源多模态大语言模型中排名第一。
-- `2024/07/18`: 🔥🔥 InternVL2-40B 在 [Video-MME](https://github.com/BradyFU/Video-MME) 数据集中实现了开源模型中的 SOTA 性能，当输入 16 帧时得分为 61.2，输入 32 帧时得分为 64.4，大幅领先其它开源模型，是最接近 GPT-4o mini 的开源模型。
-- `2024/07/18`: 🔥 InternVL2-Pro 在 [DocVQA](https://rrc.cvc.uab.es/?ch=17&com=evaluation&task=1) 和 [InfoVQA](https://rrc.cvc.uab.es/?ch=17&com=evaluation&task=3) 的基准测试中实现了 SOTA 性能。
-- `2024/07/04`: 🚀 我们发布了 InternVL2 系列模型。InternVL2-Pro 在 MMMU 基准测试中达到了 62.0% 的准确率，实现了与 GPT-4o 等领先闭源商业模型比肩的性能。该模型的免费 API 可以通过填写 ([英文申请表](https://docs.google.com/forms/d/e/1FAIpQLSfMCzhPr1OOEKau_6jwTU0EiZMSFckDo-HMlc_hUudhF_97rw/viewform?usp=sf_link)) / ([中文申请表](https://wj.qq.com/s2/14910502/25a4/)) 来申请。其它模型可在 [HF 链接](https://huggingface.co/collections/OpenGVLab/internvl-20-667d3961ab5eb12c7ed1463e) 中下载。
+- `2024/07/04`: 我们发布了 InternVL2 系列模型。InternVL2-Pro 在 MMMU 基准测试中达到了 62.0% 的准确率，实现了与 GPT-4o 等领先闭源商业模型比肩的性能。该模型的免费 API 可以通过填写 ([英文申请表](https://docs.google.com/forms/d/e/1FAIpQLSfMCzhPr1OOEKau_6jwTU0EiZMSFckDo-HMlc_hUudhF_97rw/viewform?usp=sf_link)) / ([中文申请表](https://wj.qq.com/s2/14910502/25a4/)) 来申请。其它模型可在 [HF 链接](https://huggingface.co/collections/OpenGVLab/internvl-20-667d3961ab5eb12c7ed1463e) 中下载。
+
+<details>
+<summary>更多</summary>
+
+- `2024/07/18`: InternVL2-40B 在 [Video-MME](https://github.com/BradyFU/Video-MME) 数据集中实现了开源模型中的 SOTA 性能，当输入 16 帧时得分为 61.2，输入 32 帧时得分为 64.4，大幅领先其它开源模型，是最接近 GPT-4o mini 的开源模型。
+- `2024/07/18`: InternVL2-Pro 在 [DocVQA](https://rrc.cvc.uab.es/?ch=17&com=evaluation&task=1) 和 [InfoVQA](https://rrc.cvc.uab.es/?ch=17&com=evaluation&task=3) 的基准测试中实现了 SOTA 性能。
 - `2024/06/19`: 我们提出了 Needle In A Multimodal Haystack ([MM-NIAH](https://github.com/OpenGVLab/MM-NIAH))，这是第一个针对模型关于长多模态文档理解能力的评测基准。
 - `2024/05/30`: 我们发布了 [ShareGPT-4o](https://sharegpt4o.github.io/)，这是一个大规模、高质量的多模态数据集。我们计划开源一批使用 GPT-4o 精心标注的数据，包括 200K 条图像详细描述、10K 条视频详细描述，以及 10K 条音频详细描述。
 - `2024/05/29`: 我们开源了 Mini-InternVL 系列，包括以下两个对话模型：[Mini-InternVL-Chat-2B-V1-5](https://huggingface.co/OpenGVLab/Mini-InternVL-Chat-2B-V1-5) 和 [Mini-InternVL-Chat-4B-V1-5](https://huggingface.co/OpenGVLab/Mini-InternVL-Chat-4B-V1-5)。这些模型在极小的尺寸下实现了令人印象深刻的性能：2B 模型以 8% 的模型尺寸实现了 80% 的性能，4B 模型以 16% 的模型尺寸实现了 90% 的性能。更多细节请查看我们的[博客](https://internvl.github.io/blog/2024-05-25-Mini-InternVL-1.5/)。
-- `2024/05/28`: 感谢 [lmdeploy](https://github.com/InternLM/lmdeploy) 团队提供的 AWQ 量化支持。InternVL 1.5 的 4-bit 模型发布在 [OpenGVLab/InternVL-Chat-V1-5-AWQ](https://huggingface.co/OpenGVLab/InternVL-Chat-V1-5-AWQ)。
 - `2024/05/13`: InternVL 1.0 现在可以作为扩散模型的 [文本编码器](https://huggingface.co/OpenGVLab/InternVL-14B-224px)，支持全球超过 110 种语言的多语言生成。详情请看 [MuLan](https://github.com/mulanai/MuLan)。
 - `2024/04/18`: InternVL-Chat-V1-5 已经在 [HuggingFace](https://huggingface.co/OpenGVLab/InternVL-Chat-V1-5) 发布，在 MMMU、DocVQA、ChartQA、MathVista 等各种基准测试中，性能接近 GPT-4V 和 Gemini Pro。
 - `2024/02/27`: InternVL 已被 CVPR 2024 (Oral) 接收！🎉
-- `2024/02/24`: InternVL-Chat 系列模型已经接入 [VLMEvalKit](https://github.com/open-compass/VLMEvalKit) 评测框架。
 - `2024/02/21`: [InternVL-Chat-V1-2-Plus](https://huggingface.co/OpenGVLab/InternVL-Chat-V1-2-Plus) 在 MathVista（59.9）、MMBench（83.8）和 MMVP（58.7）上实现了 SOTA 性能。详情请看我们的[博客](https://internvl.github.io/blog/2024-02-21-InternVL-1.2/)。
 - `2024/02/12`: InternVL-Chat-V1-2 已经发布，它在 MMMU 验证集上达到了 51.6，在 MMBench 测试集上达到了 82.3。 更多信息请参考我们的[博客](https://internvl.github.io/blog/2024-02-21-InternVL-1.2/)以及 [SFT 数据](./internvl_chat#prepare-training-datasets)。该模型已经在 [HuggingFace](https://huggingface.co/OpenGVLab/InternVL-Chat-V1-2) 发布，训练、测评的数据和脚本均已开源。
 - `2024/01/24`: InternVL-Chat-V1-1 已经发布，它支持中文对话，并具备强大的 OCR 能力，详情请看[这里](https://huggingface.co/OpenGVLab/InternVL-Chat-V1-1)。
 - `2024/01/16`: 我们发布了 [定制的 mmcv/mmsegmentation/mmdetection 代码库](https://github.com/OpenGVLab/InternVL-MMDetSeg)，集成了 DeepSpeed，可以用于训练检测和分割大模型。
 
-## TODO 列表
-
-- [ ] 支持 vLLM 和 Ollama
-- [x] 使用 readthedocs 重新构建文档
-- [x] 支持使用 LoRA 微调不同的 LLMs
-- [ ] 在 Demo 中支持视频和 PDF 输入
-- [ ] 发布集成 VisionLLMv2 的 InternVL2
-- [x] 发布 InternVL2 的 `requirements.txt`
-- [x] 发布 InternVL2 系列的训练 / 评估代码
-- [x] 发布 InternVL1.5 和 InternVL2 的 Streamlit 网页 UI
+</details>
 
 ## 使用文档
 
-- 开始
+### 🌟 **Get Started**
 
-  - 配置环境:  [\[环境\]](https://internvl.readthedocs.io/en/latest/get_started/installation.html)  [\[requirements.txt\]](./requirements.txt)
-  - 评测数据准备: [\[InternVL 评测\]](https://internvl.readthedocs.io/en/latest/get_started/eval_data_preparation.html)
-  - 对话数据格式: [\[元文件\]](https://internvl.readthedocs.io/en/latest/get_started/chat_data_format.html#meta-file)  [\[纯文本\]](https://internvl.readthedocs.io/en/latest/get_started/chat_data_format.html#pure-text-data)  [\[单图\]](https://internvl.readthedocs.io/en/latest/get_started/chat_data_format.html#single-image-data)  [\[多图\]](https://internvl.readthedocs.io/en/latest/get_started/chat_data_format.html#multi-image-data)    [\[视频\]](https://internvl.readthedocs.io/en/latest/get_started/chat_data_format.html#video-data)
-  - InternVL-Chat API: [\[InternVL2-Pro\]](https://internvl.readthedocs.io/en/latest/get_started/internvl_chat_api.html#official-api-of-internvl2-pro)
-  - 本地在线 Demo: [\[Streamlit Demo\]](https://internvl.readthedocs.io/en/latest/get_started/local_chat_demo.html#streamlit-demo)  [\[Gradio Demo\]](https://internvl.readthedocs.io/en/latest/get_started/local_chat_demo.html#gradio-demo)  [\[LMDeploy Demo\]](https://internvl.readthedocs.io/en/latest/get_started/local_chat_demo.html#lmdeploy-demo)
-  - 教程: [\[使用LoRA微调提升InternVL2在COCO Caption上的表现\]](https://internvl.readthedocs.io/en/latest/tutorials/coco_caption_finetune.html)
+- **Installation**: 🌱 [Installation Guide](https://internvl.readthedocs.io/en/latest/get_started/installation.html) | 📄 [requirements.txt](./requirements.txt)
+- **Chat Data Format**: 📝 [Meta File](https://internvl.readthedocs.io/en/latest/get_started/chat_data_format.html#meta-file) | ✏️ [Text](https://internvl.readthedocs.io/en/latest/get_started/chat_data_format.html#pure-text-data) | 🖼️ [Single-Image](https://internvl.readthedocs.io/en/latest/get_started/chat_data_format.html#single-image-data) | 🖼️🖼️ [Multi-Image](https://internvl.readthedocs.io/en/latest/get_started/chat_data_format.html#multi-image-data) | 🎥 [Video](https://internvl.readthedocs.io/en/latest/get_started/chat_data_format.html#video-data)
+- **Local Chat Demo**: 🤖 [Streamlit Demo](https://internvl.readthedocs.io/en/latest/get_started/local_chat_demo.html#streamlit-demo)
+- **InternVL-Chat API**: 🌐 [InternVL2-Pro](https://internvl.readthedocs.io/en/latest/get_started/internvl_chat_api.html#official-api-of-internvl2-pro)
+- **Tutorials**: 🚀 [Enhancing InternVL2 on COCO Caption Using LoRA Fine-Tuning](https://internvl.readthedocs.io/en/latest/tutorials/coco_caption_finetune.html)
 
-- InternVL 系列
+### 🏆 **InternVL Family**
 
-  - InternVL 2.0: [\[介绍\]](https://internvl.readthedocs.io/en/latest/internvl2.0/introduction.html)  [\[快速开始\]](https://internvl.readthedocs.io/en/latest/internvl2.0/quick_start.html)  [\[微调\]](https://internvl.readthedocs.io/en/latest/internvl2.0/finetune.html)  [\[评测\]](https://internvl.readthedocs.io/en/latest/internvl2.0/evaluation.html)  [\[部署\]](https://internvl.readthedocs.io/en/latest/internvl2.0/deployment.html)
-  - InternVL 1.5: [\[介绍\]](https://internvl.readthedocs.io/en/latest/internvl1.5/introduction.html)  [\[快速开始\]](https://internvl.readthedocs.io/en/latest/internvl1.5/quick_start.html)  [\[微调\]](https://internvl.readthedocs.io/en/latest/internvl1.5/finetune.html)  [\[评测\]](https://internvl.readthedocs.io/en/latest/internvl1.5/evaluation.html)  [\[部署\]](https://internvl.readthedocs.io/en/latest/internvl1.5/deployment.html)
-  - InternVL 1.2: [\[介绍\]](https://internvl.readthedocs.io/en/latest/internvl1.2/introduction.html)  [\[快速开始\]](https://internvl.readthedocs.io/en/latest/internvl1.2/quick_start.html)  [\[微调\]](https://internvl.readthedocs.io/en/latest/internvl1.2/finetune.html)  [\[评测\]](https://internvl.readthedocs.io/en/latest/internvl1.2/evaluation.html)
-  - InternVL 1.1: [\[介绍\]](https://internvl.readthedocs.io/en/latest/internvl1.1/introduction.html)  [\[快速开始\]](https://internvl.readthedocs.io/en/latest/internvl1.1/quick_start.html)  [\[微调\]](https://internvl.readthedocs.io/en/latest/internvl1.1/evaluation.html)
-  - InternVL 1.0: [\[图像分类\]](https://internvl.readthedocs.io/en/latest/internvl1.0/classification.html)  [\[CLIP-Benchmark\]](https://internvl.readthedocs.io/en/latest/internvl1.0/clip_benchmark.html)  [\[语义分割\]](https://internvl.readthedocs.io/en/latest/internvl1.0/segmentation.html)  [\[InternVL-Chat-LLaVA\]](https://internvl.readthedocs.io/en/latest/internvl1.0/internvl_chat_llava.html)  [\[InternVL-G\]](https://internvl.readthedocs.io/en/latest/internvl1.0/internvl_g.html)
-
-## 和 SOTA 多模态大模型对比
-
-![waic_performance](https://github.com/user-attachments/assets/38f82c34-20b4-4d11-8f3e-f76af1b013c2)
+- **InternVL 2.5**: 📖 [Intro](https://internvl.readthedocs.io/en/latest/internvl2.5/introduction.html) | ⚡ [Quick Start](https://internvl.readthedocs.io/en/latest/internvl2.5/quick_start.html) | ✨ [Finetune](https://internvl.readthedocs.io/en/latest/internvl2.5/finetune.html) | 📊 [Evaluate](https://internvl.readthedocs.io/en/latest/internvl2.5/evaluation.html) | 📦 [Deploy](https://internvl.readthedocs.io/en/latest/internvl2.5/deployment.html) | 🎯 [MPO](https://internvl.readthedocs.io/en/latest/internvl2.5/preference_optimization.html)
+- **InternVL 2.0**: 📖 [Intro](https://internvl.readthedocs.io/en/latest/internvl2.0/introduction.html) | ⚡ [Quick Start](https://internvl.readthedocs.io/en/latest/internvl2.0/quick_start.html) | ✨ [Finetune](https://internvl.readthedocs.io/en/latest/internvl2.0/finetune.html) | 📊 [Evaluate](https://internvl.readthedocs.io/en/latest/internvl2.0/evaluation.html) | 📦 [Deploy](https://internvl.readthedocs.io/en/latest/internvl2.0/deployment.html) | 🎯 [MPO](https://internvl.readthedocs.io/en/latest/internvl2.0/preference_optimization.html)
+- **InternVL 1.5**: 📖 [Intro](https://internvl.readthedocs.io/en/latest/internvl1.5/introduction.html) | ⚡ [Quick Start](https://internvl.readthedocs.io/en/latest/internvl1.5/quick_start.html) | ✨ [Finetune](https://internvl.readthedocs.io/en/latest/internvl1.5/finetune.html) | 📊 [Evaluate](https://internvl.readthedocs.io/en/latest/internvl1.5/evaluation.html) | 📦 [Deploy](https://internvl.readthedocs.io/en/latest/internvl1.5/deployment.html)
+- **InternVL 1.2**: 📖 [Intro](https://internvl.readthedocs.io/en/latest/internvl1.2/introduction.html) | ⚡ [Quick Start](https://internvl.readthedocs.io/en/latest/internvl1.2/quick_start.html) | ✨ [Finetune](https://internvl.readthedocs.io/en/latest/internvl1.2/finetune.html) | 📊 [Evaluate](https://internvl.readthedocs.io/en/latest/internvl1.2/evaluation.html)
+- **InternVL 1.1**: 📖 [Intro](https://internvl.readthedocs.io/en/latest/internvl1.1/introduction.html) | ⚡ [Quick Start](https://internvl.readthedocs.io/en/latest/internvl1.1/quick_start.html) | 📊 [Evaluation](https://internvl.readthedocs.io/en/latest/internvl1.1/evaluation.html)
+- **InternVL 1.0**: 🖼️ [Classification](https://internvl.readthedocs.io/en/latest/internvl1.0/classification.html) | 📊 [CLIP-Benchmark](https://internvl.readthedocs.io/en/latest/internvl1.0/clip_benchmark.html) | 🎨 [Segmentation](https://internvl.readthedocs.io/en/latest/internvl1.0/segmentation.html) | 💬 [Chat-LLaVA](https://internvl.readthedocs.io/en/latest/internvl1.0/internvl_chat_llava.html) | ✨ [InternVL-G](https://internvl.readthedocs.io/en/latest/internvl1.0/internvl_g.html)
 
 ## 模型库
+
+#### 多模态大语言模型 (InternVL 2.5)
+
+<table>
+  <tr>
+    <th>Model Name</th>
+    <th>Vision Part</th>
+    <th>Language Part</th>
+    <th>HF&nbsp;Link</th>
+    <th>MS&nbsp;Link</th>
+  </tr>
+  <tr>
+    <td>InternVL2_5-1B</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px-V2_5">InternViT&#8209;300M&#8209;448px&#8209;V2_5</a></td>
+    <td><a href="https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct">Qwen2.5&#8209;0.5B&#8209;Instruct</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-1B">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-1B">🤖 link</a></td>
+  </tr>
+  <tr>
+    <td>InternVL2_5-2B</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px-V2_5">InternViT-300M-448px-V2_5</a></td>
+    <td><a href="https://huggingface.co/internlm/internlm2_5-1_8b-chat">internlm2_5-1_8b-chat</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-2B">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-2B">🤖 link</a></td>
+  </tr>
+  <tr>
+    <td>InternVL2_5-4B</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px-V2_5">InternViT-300M-448px-V2_5</a></td>
+    <td><a href="https://huggingface.co/Qwen/Qwen2.5-3B-Instruct">Qwen2.5-3B-Instruct</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-4B">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-4B">🤖 link</a></td>
+  </tr>
+  <tr>
+    <td>InternVL2_5-8B</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px-V2_5">InternViT-300M-448px-V2_5</a></td>
+    <td><a href="https://huggingface.co/internlm/internlm2_5-7b-chat">internlm2_5-7b-chat</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-8B">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-8B">🤖 link</a></td>
+  </tr>
+  <tr>
+    <td>InternVL2_5-26B</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V2_5">InternViT-6B-448px-V2_5</a></td>
+    <td><a href="https://huggingface.co/internlm/internlm2_5-20b-chat">internlm2_5-20b-chat</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-26B">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-26B">🤖 link</a></td>
+  </tr>
+  <tr>
+    <td>InternVL2_5-38B</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V2_5">InternViT-6B-448px-V2_5</a></td>
+    <td><a href="https://huggingface.co/Qwen/Qwen2.5-32B-Instruct">Qwen2.5-32B-Instruct</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-38B">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-38B">🤖 link</a></td>
+  </tr>
+  <tr>
+    <td>InternVL2_5-78B</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V2_5">InternViT-6B-448px-V2_5</a></td>
+    <td><a href="https://huggingface.co/Qwen/Qwen2.5-72B-Instruct">Qwen2.5-72B-Instruct</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-78B">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-78B">🤖 link</a></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th>Model Name</th>
+    <th>Vision Part</th>
+    <th>Language Part</th>
+    <th>HF&nbsp;Link</th>
+    <th>MS&nbsp;Link</th>
+  </tr>
+  <tr>
+    <td>InternVL2_5-1B-MPO</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px-V2_5">InternViT&#8209;300M&#8209;448px&#8209;V2_5</a></td>
+    <td><a href="https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct">Qwen2.5&#8209;0.5B&#8209;Instruct</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-1B-MPO">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-1B-MPO">🤖 link</a></td>
+  </tr>
+  <tr>
+    <td>InternVL2_5-2B-MPO</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px-V2_5">InternViT-300M-448px-V2_5</a></td>
+    <td><a href="https://huggingface.co/internlm/internlm2_5-1_8b-chat">internlm2_5-1_8b-chat</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-2B-MPO">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-2B-MPO">🤖 link</a></td>
+  </tr>
+  <tr>
+    <td>InternVL2_5-4B-MPO</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px-V2_5">InternViT-300M-448px-V2_5</a></td>
+    <td><a href="https://huggingface.co/Qwen/Qwen2.5-3B-Instruct">Qwen2.5-3B-Instruct</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-4B-MPO">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-4B-MPO">🤖 link</a></td>
+  </tr>
+  <tr>
+    <td>InternVL2_5-8B-MPO</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px-V2_5">InternViT-300M-448px-V2_5</a></td>
+    <td><a href="https://huggingface.co/internlm/internlm2_5-7b-chat">internlm2_5-7b-chat</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-8B-MPO">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-8B-MPO">🤖 link</a></td>
+  </tr>
+  <tr>
+    <td>InternVL2_5-26B-MPO</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V2_5">InternViT-6B-448px-V2_5</a></td>
+    <td><a href="https://huggingface.co/internlm/internlm2_5-20b-chat">internlm2_5-20b-chat</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-26B-MPO">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-26B-MPO">🤖 link</a></td>
+  </tr>
+  <tr>
+    <td>InternVL2_5-38B-MPO</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V2_5">InternViT-6B-448px-V2_5</a></td>
+    <td><a href="https://huggingface.co/Qwen/Qwen2.5-32B-Instruct">Qwen2.5-32B-Instruct</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-38B-MPO">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-38B-MPO">🤖 link</a></td>
+  </tr>
+  <tr>
+    <td>InternVL2_5-78B-MPO</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V2_5">InternViT-6B-448px-V2_5</a></td>
+    <td><a href="https://huggingface.co/Qwen/Qwen2.5-72B-Instruct">Qwen2.5-72B-Instruct</a></td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternVL2_5-78B-MPO">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2_5-78B-MPO">🤖 link</a></td>
+  </tr>
+</table>
 
 #### 多模态大语言模型 (InternVL 2.0)
 
@@ -81,69 +202,57 @@
     <th>Language Part</th>
     <th>HF&nbsp;Link</th>
     <th>MS&nbsp;Link</th>
-    <th>Document</th>
   </tr>
   <tr>
-    <td>InternVL2&#8209;1B</td>
-    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px">InternViT&#8209;300M&#8209;448px</a></td>
-    <td><a href="https://huggingface.co/Qwen/Qwen2-0.5B-Instruct">Qwen2&#8209;0.5B&#8209;Instruct</a></td>
+    <td>InternVL2-1B</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px">InternViT-300M-448px</a></td>
+    <td><a href="https://huggingface.co/Qwen/Qwen2-0.5B-Instruct">Qwen2-0.5B-Instruct</a></td>
     <td><a href="https://huggingface.co/OpenGVLab/InternVL2-1B">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2-1B">🤖 link</a></td>
-    <td><a href="https://internvl.readthedocs.io/en/latest/internvl2.0/introduction.html">📖 doc</a></td>
   </tr>
   <tr>
-    <td>InternVL2&#8209;2B</td>
-    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px">InternViT&#8209;300M&#8209;448px</a></td>
-    <td><a href="https://huggingface.co/internlm/internlm2-chat-1_8b">internlm2&#8209;chat&#8209;1&#8209;8b</a></td>
+    <td>InternVL2-2B</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px">InternViT-300M-448px</a></td>
+    <td><a href="https://huggingface.co/internlm/internlm2-chat-1_8b">internlm2-chat-1-8b</a></td>
     <td><a href="https://huggingface.co/OpenGVLab/InternVL2-2B">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2-2B">🤖 link</a></td>
-    <td><a href="https://internvl.readthedocs.io/en/latest/internvl2.0/introduction.html">📖 doc</a></td>
   </tr>
   <tr>
-    <td>InternVL2&#8209;4B</td>
-    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px">InternViT&#8209;300M&#8209;448px</a></td>
+    <td>InternVL2-4B</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px">InternViT-300M-448px</a></td>
     <td><a href="https://huggingface.co/microsoft/Phi-3-mini-128k-instruct">Phi&#8209;3&#8209;mini&#8209;128k&#8209;instruct</a></td>
     <td><a href="https://huggingface.co/OpenGVLab/InternVL2-4B">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2-4B">🤖 link</a></td>
-    <td><a href="https://internvl.readthedocs.io/en/latest/internvl2.0/introduction.html">📖 doc</a></td>
   </tr>
   <tr>
-    <td>InternVL2&#8209;8B</td>
-    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px">InternViT&#8209;300M&#8209;448px</a></td>
-    <td><a href="https://huggingface.co/internlm/internlm2_5-7b-chat">internlm2_5&#8209;7b&#8209;chat</a></td>
+    <td>InternVL2-8B</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px">InternViT-300M-448px</a></td>
+    <td><a href="https://huggingface.co/internlm/internlm2_5-7b-chat">internlm2_5-7b-chat</a></td>
     <td><a href="https://huggingface.co/OpenGVLab/InternVL2-8B">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2-8B">🤖 link</a></td>
-    <td><a href="https://internvl.readthedocs.io/en/latest/internvl2.0/introduction.html">📖 doc</a></td>
   </tr>
   <tr>
-    <td>InternVL2&#8209;26B</td>
-    <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V1-5">InternViT&#8209;6B&#8209;448px&#8209;V1&#8209;5</a></td>
-    <td><a href="https://huggingface.co/internlm/internlm2-chat-20b">internlm2&#8209;chat&#8209;20b</a></td>
+    <td>InternVL2-26B</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V1-5">InternViT-6B-448px-V1-5</a></td>
+    <td><a href="https://huggingface.co/internlm/internlm2-chat-20b">internlm2-chat-20b</a></td>
     <td><a href="https://huggingface.co/OpenGVLab/InternVL2-26B">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2-26B">🤖 link</a></td>
-    <td><a href="https://internvl.readthedocs.io/en/latest/internvl2.0/introduction.html">📖 doc</a></td>
   </tr>
   <tr>
-    <td>InternVL2&#8209;40B</td>
+    <td>InternVL2-40B</td>
     <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V1-5">InternViT&#8209;6B&#8209;448px&#8209;V1&#8209;5</a></td>
     <td><a href="https://huggingface.co/NousResearch/Nous-Hermes-2-Yi-34B">Nous&#8209;Hermes&#8209;2&#8209;Yi&#8209;34B</a></td>
     <td><a href="https://huggingface.co/OpenGVLab/InternVL2-40B">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2-40B">🤖 link</a></td>
-    <td><a href="https://internvl.readthedocs.io/en/latest/internvl2.0/introduction.html">📖 doc</a></td>
   </tr>
   <tr>
-    <td>InternVL2-Llama3-76B</td>
-    <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V1-5">InternViT&#8209;6B&#8209;448px&#8209;V1&#8209;5</a></td>
+    <td>InternVL2&#8209;Llama3-76B</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V1-5">InternViT-6B-448px-V1-5</a></td>
     <td><a href="https://huggingface.co/NousResearch/Hermes-2-Theta-Llama-3-70B">Hermes‑2‑Theta‑<br>Llama‑3‑70B</a></td>
     <td><a href="https://huggingface.co/OpenGVLab/InternVL2-Llama3-76B">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL2-Llama3-76B">🤖 link</a></td>
-    <td><a href="https://internvl.readthedocs.io/en/latest/internvl2.0/introduction.html">📖 doc</a></td>
   </tr>
 </table>
-
-#### InternVL2-Pro API
-
-我们诚挚邀请大家将 InternVL2-Pro 的 API 用于学术研究。为了更好地管理，请提交[英文申请表](https://docs.google.com/forms/d/e/1FAIpQLSfMCzhPr1OOEKau_6jwTU0EiZMSFckDo-HMlc_hUudhF_97rw/viewform?usp=sf_link)/[中文申请表](https://wj.qq.com/s2/14910502/25a4/)以获得免费 API 访问权限。
 
 #### 多模态大语言模型 (InternVL 1.0-1.5)
 
@@ -163,49 +272,49 @@
     <td>🚀🚀 16% 的模型大小, 90% 的性能</td>
   </tr>
   <tr>
-    <td>Mini&#8209;InternVL&#8209;Chat&#8209;2B&#8209;V1&#8209;5</td>
+    <td>Mini-InternVL-Chat-2B-V1-5</td>
     <td>2024.05.19</td>
     <td><a href="https://huggingface.co/OpenGVLab/Mini-InternVL-Chat-2B-V1-5">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/Mini-InternVL-Chat-2B-V1-5">🤖 link</a></td>
     <td>🚀 8% 的模型大小, 80% 的性能</td>
   </tr>
   <tr>
-    <td>InternVL&#8209;Chat&#8209;V1&#8209;5</td>
+    <td>InternVL-Chat-V1-5</td>
     <td>2024.04.18</td>
     <td><a href="https://huggingface.co/OpenGVLab/InternVL-Chat-V1-5">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL-Chat-V1-5">🤖 link</a></td>
     <td>支持 4K 图像；超强的 OCR 能力；在 MMMU、DocVQA、ChartQA、MathVista 等各种基准测试中，性能接近 GPT-4V 和 Gemini Pro
   </tr>
   <tr>
-    <td>InternVL&#8209;Chat&#8209;V1&#8209;2&#8209;Plus</td>
+    <td>InternVL-Chat-V1-2-Plus</td>
     <td>2024.02.21</td>
     <td><a href="https://huggingface.co/OpenGVLab/InternVL-Chat-V1-2-Plus">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL-Chat-V1-2-Plus">🤖 link</a></td>
     <td>更多的 SFT 数据和更强的性能</td>
   </tr>
   <tr>
-    <td>InternVL&#8209;Chat&#8209;V1&#8209;2</td>
+    <td>InternVL-Chat-V1-2</td>
     <td>2024.02.11</td>
     <td><a href="https://huggingface.co/OpenGVLab/InternVL-Chat-V1-2">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL-Chat-V1-2">🤖 link</a></td>
     <td>将 LLM 扩展到 34B</td>
   </tr>
   <tr>
-    <td>InternVL&#8209;Chat&#8209;V1&#8209;1</td>
+    <td>InternVL-Chat-V1-1</td>
     <td>2024.01.24</td>
     <td><a href="https://huggingface.co/OpenGVLab/InternVL-Chat-V1-1">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL-Chat-V1-1">🤖 link</a></td>
     <td>支持中文和更强的 OCR 能力</td>
   </tr>
   <tr>
-    <td>InternVL&#8209;Chat&#8209;19B</td>
+    <td>InternVL-Chat-19B</td>
     <td>2023.12.25</td>
     <td><a href="https://huggingface.co/OpenGVLab/InternVL-Chat-ViT-6B-Vicuna-13B">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL-Chat-ViT-6B-Vicuna-13B">🤖 link</a></td>
     <td>英语多模态对话</td>
   </tr>
   <tr>
-    <td>InternVL&#8209;Chat&#8209;13B</td>
+    <td>InternVL-Chat-13B</td>
     <td>2023.12.25</td>
     <td><a href="https://huggingface.co/OpenGVLab/InternVL-Chat-ViT-6B-Vicuna-7B">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternVL-Chat-ViT-6B-Vicuna-7B">🤖 link</a></td>
@@ -213,7 +322,7 @@
   </tr>
 </table>
 
-#### 视觉基础模型 (InternVL 1.0-1.5)
+#### 类 CLIP 模型 (InternVL 1.0-2.5)
 
 <table>
   <tr>
@@ -224,35 +333,49 @@
     <th>Note</th>
   </tr>
   <tr>
-    <td>InternViT&#8209;300M&#8209;448px</td>
+    <td>InternViT-300M-448px-V2_5</td>
+    <td>2024.12.05</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px-V2_5">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternViT-300M-448px-V2_5">🤖 link</a></td>
+    <td>🚀🚀 一个更强的轻量视觉编码器 (🔥新)</td>
+  </tr>
+  <tr>
+    <td>InternViT-6B-448px-V2_5</td>
+    <td>2024.12.05</td>
+    <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V2_5">🤗 link</a></td>
+    <td><a href="https://modelscope.cn/models/OpenGVLab/InternViT-6B-448px-V2_5">🤖 link</a></td>
+    <td>🚀🚀 拥有更强的视觉特征提取能力 (🔥新)</td>
+  </tr>
+  <tr>
+    <td>InternViT-300M-448px</td>
     <td>2024.05.25</td>
     <td><a href="https://huggingface.co/OpenGVLab/InternViT-300M-448px">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternViT-300M-448px">🤖 link</a></td>
-    <td>蒸馏的小型视觉基础模型，具有 300M 参数（🔥新）</td>
+    <td>蒸馏的小型视觉基础模型，具有 300M 参数</td>
   </tr>
   <tr>
     <td>InternViT&#8209;6B&#8209;448px&#8209;V1&#8209;5</td>
     <td>2024.04.20</td>
     <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V1-5">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternViT-6B-448px-V1-5">🤖 link</a></td>
-    <td>通过增量预训练支持动态分辨率和超强的 OCR 特征提取能力（🔥新）</td>
+    <td>通过增量预训练支持动态分辨率和超强的 OCR 特征提取能力</td>
   </tr>
   <tr>
-    <td>InternViT&#8209;6B&#8209;448px&#8209;V1&#8209;2</td>
+    <td>InternViT-6B-448px-V1-2</td>
     <td>2024.02.11</td>
     <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V1-2">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternViT-6B-448px-V1-2">🤖 link</a></td>
     <td>通过增量预训练支持 448 分辨率</td>
   </tr>
   <tr>
-    <td>InternViT&#8209;6B&#8209;448px&#8209;V1&#8209;0</td>
+    <td>InternViT-6B-448px-V1-0</td>
     <td>2024.01.30</td>
     <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-448px-V1-0">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternViT-6B-448px-V1-0">🤖 link</a></td>
     <td>通过增量预训练支持 448 分辨率</td>
   </tr>
   <tr>
-    <td>InternViT&#8209;6B&#8209;224px</td>
+    <td>InternViT-6B-224px</td>
     <td>2023.12.22</td>
     <td><a href="https://huggingface.co/OpenGVLab/InternViT-6B-224px">🤗 link</a></td>
     <td><a href="https://modelscope.cn/models/OpenGVLab/InternViT-6B-224px">🤖 link</a></td>
@@ -278,6 +401,21 @@
     <td>视觉-语言基础模型，InternViT-6B + QLLaMA，可以用于类似 CLIP 的图文检索</td>
   </tr>
 </table>
+
+## TODO 列表
+
+- [x] 发布 InternVL2.5 系列的训练 / 评估代码
+- [x] 支持 liger kernels 以节省显存
+- [x] 发布 MPO 的代码、模型和数据
+- [x] 支持多模态 packed dataset
+- [ ] 支持 vLLM 和 Ollama
+- [ ] 在 Demo 中支持视频和 PDF 输入
+- [ ] 发布集成 VisionLLMv2 的 InternVL2
+- [x] 使用 readthedocs 重新构建文档
+- [x] 支持使用 LoRA 微调不同的 LLMs
+- [x] 发布 InternVL2 的 `requirements.txt`
+- [x] 发布 InternVL2 系列的训练 / 评估代码
+- [x] 发布 InternVL1.5 和 InternVL2 的 Streamlit 网页 UI
 
 ## InternVL 可以做什么?
 
@@ -355,8 +493,7 @@
         <td colspan="6" align=center><b>Flickr30K</b></td>
         <td colspan="6" align=center><b>COCO</b></td>
         <td rowspan="3" align=center><b>avg</b></td>
-
-  </tr>
+    </tr>
      <tr align=center>
         <td colspan="3" align=center><b>image-to-text</b></td>
         <td colspan="3" align=center><b>text-to-image</b></td>
@@ -377,7 +514,6 @@
         <td>R@5</td>
         <td>R@10</td>
      </tr>
-
   <tr align=center>
         <td align=left>OpenCLIP-G</td>
         <td>92.9</td>
@@ -575,8 +711,6 @@
 <details>
   <summary>多模态对话</summary>
 
-请看 ["和SOTA多模态大模型对比"](#和-sota-多模态大模型对比)
-
 </details>
 
 ## 使用 HuggingFace 快速开始
@@ -590,7 +724,7 @@ from PIL import Image
 from transformers import AutoModel, CLIPImageProcessor
 
 model = AutoModel.from_pretrained(
-    'OpenGVLab/InternViT-6B-448px-V1-5',
+    'OpenGVLab/InternViT-6B-448px-V2_5',
     torch_dtype=torch.bfloat16,
     low_cpu_mem_usage=True,
     trust_remote_code=True).cuda().eval()
@@ -685,9 +819,9 @@ caption = tokenizer.decode(pred[0].cpu(), skip_special_tokens=True).strip()
 </details>
 
 <details>
-  <summary>使用 InternVL-Chat 进行多模态对话 (点击展开)</summary>
+  <summary>使用 InternVL 2.5 进行多模态对话 (点击展开)</summary>
 
-这里我们以较小的 `OpenGVLab/InternVL2-8B` 为例：
+这里我们以较小的 `OpenGVLab/InternVL2_5-8B` 为例：
 
 ```python
 import numpy as np
@@ -774,7 +908,7 @@ def load_image(image_file, input_size=448, max_num=12):
 
 # If you have an 80G A100 GPU, you can put the entire model on a single GPU.
 # Otherwise, you need to load a model using multiple GPUs, please refer to the `Multiple GPUs` section.
-path = 'OpenGVLab/InternVL2-8B'
+path = 'OpenGVLab/InternVL2_5-8B'
 model = AutoModel.from_pretrained(
     path,
     torch_dtype=torch.bfloat16,
@@ -892,14 +1026,14 @@ def load_video(video_path, bound=None, input_size=448, max_num=1, num_segments=3
 video_path = './examples/red-panda.mp4'
 pixel_values, num_patches_list = load_video(video_path, num_segments=8, max_num=1)
 pixel_values = pixel_values.to(torch.bfloat16).cuda()
-video_prefix = ''.join([f'Frame{i+1}: <image>\n' for i in range(len(num_patches_list))])
+video_prefix = ''.join([f'Frame-{i+1}: <image>\n' for i in range(len(num_patches_list))])
 question = video_prefix + 'What is the red panda doing?'
 # Frame1: <image>\nFrame2: <image>\n...\nFrame8: <image>\n{question}
 response, history = model.chat(tokenizer, pixel_values, question, generation_config,
                                num_patches_list=num_patches_list, history=None, return_history=True)
 print(f'User: {question}\nAssistant: {response}')
 
-question = 'Describe this video in detail. Don\'t repeat.'
+question = 'Describe this video in detail.'
 response, history = model.chat(tokenizer, pixel_values, question, generation_config,
                                num_patches_list=num_patches_list, history=history, return_history=True)
 print(f'User: {question}\nAssistant: {response}')
@@ -909,24 +1043,50 @@ print(f'User: {question}\nAssistant: {response}')
 
 ## 许可证
 
-本项目以 [MIT](LICENSE) 许可证发布。项目中的部分代码和模型来自其它来源，受其原始许可证的约束。
+本项目以 [MIT 许可证](LICENSE) 发布。项目中的部分代码和模型来自其它来源，受其原始许可证的约束。
 
 ## 引用
 
 如果您在研究中发现本项目有用，请考虑引用：
 
 ```BibTeX
-@article{chen2023internvl,
-  title={InternVL: Scaling up Vision Foundation Models and Aligning for Generic Visual-Linguistic Tasks},
-  author={Chen, Zhe and Wu, Jiannan and Wang, Wenhai and Su, Weijie and Chen, Guo and Xing, Sen and Zhong, Muyan and Zhang, Qinglong and Zhu, Xizhou and Lu, Lewei and Li, Bin and Luo, Ping and Lu, Tong and Qiao, Yu and Dai, Jifeng},
-  journal={arXiv preprint arXiv:2312.14238},
-  year={2023}
+@article{chen2024expanding,
+  title={Expanding Performance Boundaries of Open-Source Multimodal Models with Model, Data, and Test-Time Scaling},
+  author={Chen, Zhe and Wang, Weiyun and Cao, Yue and Liu, Yangzhou and Gao, Zhangwei and Cui, Erfei and Zhu, Jinguo and Ye, Shenglong and Tian, Hao and Liu, Zhaoyang and others},
+  journal={arXiv preprint arXiv:2412.05271},
+  year={2024}
 }
-
+@article{wang2024mpo,
+  title={Enhancing the Reasoning Ability of Multimodal Large Language Models via Mixed Preference Optimization},
+  author={Wang, Weiyun and Chen, Zhe and Wang, Wenhai and Cao, Yue and Liu, Yangzhou and Gao, Zhangwei and Zhu, Jinguo and Zhu, Xizhou and Lu, Lewei and Qiao, Yu and Dai, Jifeng},
+  journal={arXiv preprint arXiv:2411.10442},
+  year={2024}
+}
+@article{gao2024mini,
+  title={Mini-InternVL: a flexible-transfer pocket multi-modal model with 5\% parameters and 90\% performance},
+  author={Gao, Zhangwei and Chen, Zhe and Cui, Erfei and Ren, Yiming and Wang, Weiyun and Zhu, Jinguo and Tian, Hao and Ye, Shenglong and He, Junjun and Zhu, Xizhou and others},
+  journal={Visual Intelligence},
+  volume={2},
+  number={1},
+  pages={1--17},
+  year={2024},
+  publisher={Springer}
+}
 @article{chen2024far,
-  title={How Far Are We to GPT-4V? Closing the Gap to Commercial Multimodal Models with Open-Source Suites},
+  title={How far are we to gpt-4v? closing the gap to commercial multimodal models with open-source suites},
   author={Chen, Zhe and Wang, Weiyun and Tian, Hao and Ye, Shenglong and Gao, Zhangwei and Cui, Erfei and Tong, Wenwen and Hu, Kongzhi and Luo, Jiapeng and Ma, Zheng and others},
-  journal={arXiv preprint arXiv:2404.16821},
+  journal={Science China Information Sciences},
+  volume={67},
+  number={12},
+  pages={220101},
+  year={2024},
+  publisher={Springer}
+}
+@inproceedings{chen2024internvl,
+  title={Internvl: Scaling up vision foundation models and aligning for generic visual-linguistic tasks},
+  author={Chen, Zhe and Wu, Jiannan and Wang, Wenhai and Su, Weijie and Chen, Guo and Xing, Sen and Zhong, Muyan and Zhang, Qinglong and Zhu, Xizhou and Lu, Lewei and others},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={24185--24198},
   year={2024}
 }
 ```
@@ -937,6 +1097,6 @@ InternVL 的代码构建参考了以下的项目: [OpenAI CLIP](https://github.c
 
 ______________________________________________________________________
 
-如何您想加入我们的项目微信群，请扫描下方二维码添加我们的小助手：
+扫描下方二维码，加入我们的项目微信群。
 
-<p align="center"><img width="300" alt="image" src="https://github.com/OpenGVLab/DragGAN/assets/26198430/e3f0807f-956a-474e-8fd2-1f7c22d73997"></p>
+<p align="center"><img width="300" alt="image" src="https://github.com/user-attachments/assets/f776df09-ebba-4fd5-80c2-fec4ff1518be"></p>
