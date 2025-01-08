@@ -1,5 +1,4 @@
 import argparse
-import sys
 
 import pandas as pd
 # !pip install python-Levenshtein
@@ -55,7 +54,7 @@ def normalize_extracted_answer(extraction, choices, question_type, answer_type, 
 
     elif answer_type == 'float':
         try:
-            extraction = str(round(float(extraction), precision))
+            extraction = str(round(float(extraction), int(precision)))
         except:
             extraction = None
 
@@ -101,7 +100,7 @@ if __name__ == '__main__':
     parser.add_argument('--gt_file', type=str, default='./data/MathVista/annot_testmini.json', help='ground truth file')
     parser.add_argument('--number', type=int, default=-1, help='number of problems to run')
     parser.add_argument('--rerun', action='store_true', help='rerun the evaluation')
-    parser.add_argument('--caculate_gain', action='store_true', help='caculate the socre gains over random guess')
+    parser.add_argument('--caculate_gain', action='store_true', help='caculate the score gains over random guess')
     parser.add_argument('--random_file', type=str, default='score_random_guess.json')
     args = parser.parse_args()
 
@@ -147,7 +146,10 @@ if __name__ == '__main__':
         if 'answer' in problem:
             answer = problem['answer']
         else:
-            answer = gts[pid]['answer']
+            if pid in gts:
+                answer = gts[pid]['answer']
+            else:
+                answer = ''
             problem['answer'] = answer
 
         # normalize the extracted answer to match the answer type

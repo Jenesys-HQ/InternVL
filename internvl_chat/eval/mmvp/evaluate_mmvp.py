@@ -11,7 +11,6 @@ import torch
 from internvl.model import load_model_and_tokenizer
 from internvl.train.dataset import build_transform, dynamic_preprocess
 from PIL import Image
-from torch.utils.data import Dataset
 from tqdm import tqdm
 
 ds_collections = {
@@ -56,11 +55,8 @@ class MMVPDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         data = self.data[idx]
-        # {'lndex': '1', 'Question': "Are the butterfly's wings closer to being open or closed?",
-        #  'Options': '(a) Open (b) Closed', 'Correct Answer': '(a)'}
-        data_id = data['lndex']
+        data_id = data['lndex'] if 'lndex' in data else data['Index']
         question = data['Question']
-        # question = '<image>\n' + question
         image = os.path.join(self.root + '/MMVP Images', data_id + '.jpg')
         image = Image.open(image).convert('RGB')
 
@@ -90,7 +86,6 @@ class MMVPDataset(torch.utils.data.Dataset):
         if len(choice_txt) > 0:
             question += '\n' + choice_txt
         question += '\n' + self.prompt
-        print(question, answer)
         return {
             'question': question,
             'pixel_values': pixel_values,
@@ -204,7 +199,6 @@ def evaluate_chat_model():
         merged_outputs = [_ for _ in itertools.chain.from_iterable(merged_outputs)]
 
         if torch.distributed.get_rank() == 0:
-
             print(f'Evaluating {ds_name} ...')
             time_prefix = time.strftime('%y%m%d%H%M%S', time.localtime())
             results_file = f'{ds_name}_{time_prefix}.jsonl'
@@ -241,7 +235,7 @@ if __name__ == '__main__':
     parser.add_argument('--datasets', type=str, default='MMVP')
     parser.add_argument('--batch-size', type=int, default=1)
     parser.add_argument('--num-workers', type=int, default=1)
-    parser.add_argument('--num-beams', type=int, default=5)
+    parser.add_argument('--num-beams', type=int, default=1)
     parser.add_argument('--temperature', type=float, default=0.0)
     parser.add_argument('--out-dir', type=str, default='results')
     parser.add_argument('--seed', type=int, default=0)
@@ -253,7 +247,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if not os.path.exists(args.out_dir):
-        os.makedirs(args.out_dir)
+        os.makedirs(args.out_dir, exist_ok=True)
 
     args.datasets = args.datasets.split(',')
     print('datasets:', args.datasets)

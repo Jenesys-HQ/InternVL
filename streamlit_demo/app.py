@@ -49,6 +49,7 @@ def get_model_list():
     assert ret.status_code == 200
     ret = requests.post(controller_url + '/list_models')
     models = ret.json()['models']
+    models = [item for item in models if 'InternVL2-Det' not in item and 'InternVL2-Gen' not in item]
     return models
 
 
@@ -141,6 +142,8 @@ def generate_response(messages):
                 else:
                     output = data['text'] + f" (error_code: {data['error_code']})"
                     placeholder.markdown(output)
+        if ('\[' in output and '\]' in output) or ('\(' in output and '\)' in output):
+            output = output.replace('\[', '$').replace('\]', '$').replace('\(', '$').replace('\)', '$')
         placeholder.markdown(output)
     except requests.exceptions.RequestException as e:
         placeholder.markdown(server_error_msg)
@@ -229,7 +232,7 @@ def query_image_generation(response, sd_worker_url, timeout=15):
         payload = {'caption': match.group(1)}
         print('drawing-instruction:', payload)
         response = requests.post(sd_worker_url, json=payload, timeout=timeout)
-        response.raise_for_status()  # 检查HTTP请求是否成功
+        response.raise_for_status()
         image = Image.open(BytesIO(response.content))
         return image
     else:

@@ -171,3 +171,6 @@ internvl_chat/pretrained/
 Husky2/*
 data_process/
 *distillation*
+
+batchscript-*
+results/

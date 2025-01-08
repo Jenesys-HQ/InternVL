@@ -1,3 +1,9 @@
+# --------------------------------------------------------
+# InternVL
+# Copyright (c) 2024 OpenGVLab
+# Licensed under The MIT License [see LICENSE for details]
+# --------------------------------------------------------
+
 from typing import List, Optional
 
 import torch
@@ -116,4 +122,4 @@ def _get_train_sampler(self) -> Optional[torch.utils.data.Sampler]:
 
 def replace_train_sampler():
     transformers.Trainer._get_train_sampler = _get_train_sampler
-    print('Replace train sampler!!')
+    # print('Replace train sampler!!')
